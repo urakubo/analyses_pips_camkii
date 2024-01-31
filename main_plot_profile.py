@@ -142,19 +142,9 @@ def make_a_figure( d ):
 	
 	# Plot RDF
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*2 )
-	r = d['rdf_bins'][1:-1]
-	for k in utils.molecules_without_all.keys():
-		rdf_mean  = np.mean( d['rdf'][k][1:], axis = 1)
-		rdf_error = np.std(  d['rdf'][k][1:], axis = 1)
-		ax.fill_between(r, rdf_mean-rdf_error, rdf_mean+rdf_error,color=c.cmap_universal_ratio_light[k])
-		ax.plot(r, rdf_mean, color=c.cmap_universal_ratio[k])
-	ax.set_xlabel('Distance from \n center-of-mass (l.u.)')
-	ax.set_ylabel('(beads / volume)')
-	ax.set_xlim(0,30)
-	ax.set_ylim(-0.006,0.66)
-	ax.set_xticks(range(0,40,10))
+	errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
+	utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=True )
 	arrange_graph_bar(ax, panel_dx, yloc[2], panel_size/2, panel_size)
-	
 	
 	return fig
 	

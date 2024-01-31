@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
 	dir_data = 'data'
 	dir_imgs = 'imgs/matrix'
-	target   = 'watershed_CaMKII' # 'region_condensates', 'profile_CaMKII', 'profile_STG', 'watershed_CaMKII'
+	target   = 'watershed_CaMKII' # 'region_condensates', 'conc_CaMKII', 'conc_STG', 'watershed_CaMKII'
 	sigma    = 4 # 2, 3, or 4
 	
 	os.makedirs(dir_imgs, exist_ok=True)
@@ -53,10 +53,10 @@ if __name__ == '__main__':
 			print('column: ', column, ', row: ', row)
 			if target == 'region_condensates':
 				utils.plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, title=False, scalebar=scalebar )
-			elif target == 'profile_CaMKII':
+			elif target == 'conc_CaMKII':
 				columns = {'CaMKII':column}
 				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=False, colorbar=False, scalebar=scalebar )
-			elif target == 'profile_STG':
+			elif target == 'conc_STG':
 				columns = {'STG':column}
 				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=False, colorbar=False, scalebar=scalebar )
 			elif target == 'watershed_CaMKII':

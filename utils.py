@@ -264,6 +264,43 @@ def get_rdf_from_multiple_frame(dir_data, filename_input, target_frames, rdf_bin
 			rdfs[k][:,i] = current_rdfs[k]
 	return rdfs
 
+
+def plot_a_rdf( ax, d, errorbar='shaded', legend=True ):
+	r = d['rdf_bins'][1:-1]
+	for k in molecules_without_all.keys():
+		rdf_mean  = np.mean( d['rdf'][k][1:], axis = 1 )
+		rdf_std   = np.std(  d['rdf'][k][1:], axis = 1 )
+		color     = c.cmap_universal_ratio[k]
+		if errorbar   == 'shaded':
+			ax.fill_between(r, rdf_mean-rdf_std, rdf_mean+rdf_std,color=c.cmap_universal_ratio_light[k])
+			ax.plot(r, rdf_mean, color=color, label=k)
+		elif errorbar == 'line':
+			ax.hist(r[:-1], r, weights=rdf_mean[:-1], \
+				color=color, \
+				histtype="step", label=k)
+			ax.errorbar(r+0.5, rdf_mean, yerr=rdf_std,\
+				ecolor=color,\
+				linestyle='',
+				alpha = 0.4 )
+		elif errorbar == 'final_frame_alone':
+			ax.hist(r[:-1], r,\
+				weights=d['rdf'][k][1:-1,-1], \
+				color=color, \
+				histtype="step", label=k)
+	if legend==True:
+		ax.legend(frameon=False)
+
+	ax.set_xlabel('Distance from \n center-of-mass (l.u.)')
+	ax.set_ylabel('(beads / volume)')
+	ax.set_xlim(0,30)
+	ax.set_ylim(-0.006,0.66)
+	ax.set_xticks(range(0,40,10))
+	ax.spines['right'].set_visible(False)
+	ax.spines['top'].set_visible(False)
+
+	return
+
+
 ############### Profiles / Each panel plot
 
 def arrange_graph_no_ticks(ax):
