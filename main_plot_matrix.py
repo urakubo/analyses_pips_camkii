@@ -1,10 +1,14 @@
 
 import os, glob, pickle, pprint
 import numpy as np
-import matplotlib.pyplot as plt
-
-
 import utils
+import matplotlib.pyplot as plt
+plt.rcParams.update({
+                    'pdf.fonttype' : 'truetype',
+                    'svg.fonttype' : 'none',
+                    'font.family' : 'sans-serif',
+                    'font.sans-serif' : 'Arial',
+                    'font.style' : 'normal'})
 
 
 
@@ -60,7 +64,7 @@ if __name__ == '__main__':
 			#  transps = [(0,1,2),(1,2,0),(2,0,1)]
 	
 	# Save figure
-	fig.savefig( os.path.join(dir_imgs, 'matrix_{}_sigma_{}.pdf'.format( target, sigma ) ) )
+	fig.savefig( os.path.join(dir_imgs, 'matrix_{}_sigma_{}.svg'.format( target, sigma ) ) )
 	fig.savefig( os.path.join(dir_imgs, 'matrix_{}_sigma_{}.png'.format( target, sigma ) ) , dpi=150)
 	#plt.show()
 	plt.clf()

@@ -9,11 +9,12 @@ import utils
 import colormap as c
 
 plt.rcParams.update({
-                    'pdf.fonttype' : 42,
+                    'pdf.fonttype' : 'truetype',
+                    'svg.fonttype' : 'none',
                     'font.family' : 'sans-serif',
                     'font.sans-serif' : 'Arial',
                     'font.style' : 'normal'})
-
+	
 
 def plot_hist(ax, rdf, rdf_bins):
 	for k, v in rdf.items():
@@ -21,8 +22,8 @@ def plot_hist(ax, rdf, rdf_bins):
 	
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
-	ax.set_xlabel('Distance from center-of-mass (grid)')
-	ax.set_ylabel('Beads per volume')
+	ax.set_xlabel('Distance from center-of-mass (l.u.)')
+	ax.set_ylabel('(beads per volume)')
 	
 	
 if __name__ == '__main__':
@@ -59,7 +60,7 @@ if __name__ == '__main__':
 		if i == 0:
 			ax.legend(frameon=False)
 	
-	fig.savefig( os.path.join(dir_imgs, 'rdf_summary.pdf') )
+	fig.savefig( os.path.join(dir_imgs, 'rdf_summary.svg') )
 	fig.savefig( os.path.join(dir_imgs, 'rdf_summary.png') , dpi=150)
 	plt.show()
 	

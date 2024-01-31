@@ -2,15 +2,16 @@ import os, glob
 
 import numpy as np
 import matplotlib.pyplot as plt
-
 import utils
 import colormap as c
 
 plt.rcParams.update({
-                    'pdf.fonttype' : 42,
+                    'pdf.fonttype' : 'truetype',
+                    'svg.fonttype' : 'none',
                     'font.family' : 'sans-serif',
                     'font.sans-serif' : 'Arial',
                     'font.style' : 'normal'})
+	
 
 
 if __name__ == '__main__':
@@ -35,20 +36,14 @@ if __name__ == '__main__':
 	num_target_frames = 10
 	sampling_interval = 2
 	num_frames        = utils.get_num_frames(dir_data, filename_input)
-	ids_frame         = list(range( num_frames - num_target_frames*sampling_interval, \
+	rdf_target_frames = list(range( num_frames - num_target_frames*sampling_interval, \
 							num_frames,\
 							sampling_interval))
-	print("Target frames ", ids_frame)
+	print("Target frames ", rdf_target_frames)
 	
 	
-	rdfs = { k: np.zeros( ( len(rdf_bins)-1, len(ids_frame) ) ) for k in utils.molecules_with_all.keys() }
-	for i, id_frame in enumerate( ids_frame ):
-		types, positions, _ = utils.load_data( dir_data, filename_input, id_frame )
-		current_rdfs = utils.get_rdf(types, positions, \
-			rdf_grid_points, rdf_bins, \
-			reference_molecule_for_centering)
-		for k in rdfs.keys():
-			rdfs[k][:,i] = current_rdfs[k]
+	rdfs = utils.get_rdf_from_multiple_frame(dir_data, filename_input, \
+			rdf_target_frames, rdf_bins, rdf_grid_points, reference_molecule_for_centering)
 	
 	
 	# Plot the histogram
@@ -73,10 +68,10 @@ if __name__ == '__main__':
 	
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
-	ax.set_xlabel('Distance from center-of-mass (grid)')
-	ax.set_ylabel('Beads / volume')
+	ax.set_xlabel('Distance from center-of-mass (l.u.)')
+	ax.set_ylabel('(beads / volume)')
 	
-	plt.savefig( os.path.join(dir_imgs, 'rdf_{}.pdf'.format(prefix) ) )
+	plt.savefig( os.path.join(dir_imgs, 'rdf_{}.svg'.format(prefix) ) )
 	plt.savefig( os.path.join(dir_imgs, 'rdf_{}.png'.format(prefix) ) , dpi=150)
 	plt.show()
 	

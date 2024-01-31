@@ -36,6 +36,10 @@ def get_concs_core_shell_region(types, positions, ids_molecule, sigma=2):
 	concs_in_grid_mesh = {t: ndimage.gaussian_filter(locs_in_grid_mesh[t], sigma = sigma) for t in targs_molecule}
 	regions_condensate = {t: utils.get_high(concs_in_grid_mesh[t]-concs_periphery[t]) for t in targs_molecule}
 	
+	
+	# The below was prepared for visualization; however, it did not contribute to the improvement.
+	regions_condensate0_25 = {t: utils.get_high(concs_in_grid_mesh[t]-concs_periphery[t], th=0.25) for t in targs_molecule}
+	
 	def get_concs_condensate(ref_molecule):
 		return {t: np.sum(locs_in_grid_mesh[t] * regions_condensate[ref_molecule])/ np.sum( regions_condensate[ref_molecule] ) \
 				for t in targs_molecule}
@@ -49,6 +53,7 @@ def get_concs_core_shell_region(types, positions, ids_molecule, sigma=2):
 			'region_condensate':	regions_condensate,
 			'conc_periphery'	:	concs_periphery,
 			'conc_condensate'	:	concs_condensate,
+			'region_condensate0_25': regions_condensate0_25
 		}
 	return d
 	
@@ -73,7 +78,26 @@ def watershed_segmentation( d ):
 		ratio_volumes_watershed[t_watershed] = np.sum( label_watershed ) / tot_volume
 	return labels_watershed_in_grid_mesh, ratio_volumes_watershed
 	
+
+def get_rdf( num_frames, dir_input, filename_input, reference_molecule_for_centering ):
 	
+	# Parameters
+	rdf_bins        = np.arange(0, 35) # You can set "np.arange(0, 35, 2)"
+	rdf_grid_points = utils.get_lattice_grids()
+	num_target_frames = 10
+	sampling_interval = 2
+	
+	# Target frames
+	rdf_target_frames = list(range( num_frames - num_target_frames*sampling_interval, \
+					num_frames,\
+					sampling_interval))
+	rdf = utils.get_rdf_from_multiple_frame(dir_input, filename_input, \
+			rdf_target_frames, rdf_bins, rdf_grid_points, reference_molecule_for_centering)
+	
+	return rdf, rdf_bins, rdf_target_frames
+	#
+
+
 if __name__ == '__main__':
 	# Parameters
 	
@@ -102,7 +126,6 @@ if __name__ == '__main__':
 	#'''
 	
 	
-	# Preprocess of the target data.
 	reference_molecule_for_centering = 'All'
 	for filename_input, filename_output in zip(filenames_input, filenames_output):
 		# Load data
@@ -111,19 +134,29 @@ if __name__ == '__main__':
 		print("num_frames ", num_frames )
 		types, positions,ids_molecule = utils.load_data( dir_input, filename_input, num_frames )
 		print("The last timeframe was loaded." )
-
+		
 		# Centering
 		center    = utils.get_center(types, positions, reference_molecule_for_centering)
 		positions = utils.centering(positions, center)
+		
+		# RDF
+		rdf, rdf_bins, rdf_target_frames = \
+			get_rdf(num_frames, dir_input, filename_input, reference_molecule_for_centering)
 		
 		sigmas = [2,3,4]
 		for sigma in sigmas:
 			print('sigma ', sigma)
 			# Get concs
 			d = get_concs_core_shell_region(types, positions, ids_molecule, sigma)
+			# Watershed
 			labels_watershed_in_grid_mesh, ratio_volumes_watershed = watershed_segmentation( d )
 			d['labels_watershed_in_grid_mesh'] = labels_watershed_in_grid_mesh
 			d['ratio_volumes_watershed']       = ratio_volumes_watershed
+			# RDF
+			d['rdf_bins'] = rdf_bins
+			d['rdf_target_frames'] = rdf_target_frames
+			d['rdf'] = rdf
+			
 			# Save the edited data
 			prefix = filename_output
 			suffix = 'sigma_{}'.format(sigma)

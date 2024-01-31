@@ -284,6 +284,9 @@ cmap_universal_ratio = {
 		'PSD95' : (77/255,196/255,255/255),\
 		'All'	: (0.0,0.0,0.0)}
 
+cmap_universal_ratio_light = \
+		{k: ((v[0]+2)/3, (v[1]+2)/3, (v[2]+2)/3) for k, v in cmap_universal_ratio.items()}
+		
 cmap_universal_uint = {
 		'CaMKII': (3,175,122),\
 		'STG'   : (255,75,0),\

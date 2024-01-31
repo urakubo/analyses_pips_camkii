@@ -1,6 +1,7 @@
 import os, glob, pickle, pprint, copy
 import numpy as np
 from skimage import morphology
+from skimage import measure
 
 from scipy import ndimage
 
@@ -8,13 +9,18 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.axes_grid1
 
 from sklearn import mixture
+#https://matsci.org/t/compatibility-issue-between-python-ovito-library-and-matplotlib/50794
+os.environ['OVITO_GUI_MODE'] = '1'
 from ovito.io import import_file
+import pyvista
+
+import trimesh
 
 import colormap as c
 
-
 plt.rcParams.update({
-                    'pdf.fonttype' : 42,
+                    'pdf.fonttype' : 'truetype',
+                    'svg.fonttype' : 'none',
                     'font.family' : 'sans-serif',
                     'font.sans-serif' : 'Arial',
                     'font.style' : 'normal'})
@@ -37,15 +43,15 @@ subunits = \
 
 
 molecules_with_all = \
-	{'GluN2B'	:{'s':['GluN2Bc']			,'c':'#ED0DD9'},\
-	'CaMKII'	:{'s':['CaMKII Catalyst']	,'c':'#228B22'},\
+	{'CaMKII'	:{'s':['CaMKII Catalyst']	,'c':'#228B22'},\
+	'GluN2B'	:{'s':['GluN2Bc']			,'c':'#ED0DD9'},\
 	'STG'		:{'s':['STGc1','STGc2']		,'c':'r'},\
 	'PSD95'		:{'s':['PSD1']				,'c':'#00FFFF'},\
 	'All'		:{'s':['GluN2Bc','CaMKII Hub','CaMKII Catalyst','STGc1','STGc2','PSD1']			,'c':'k'}}
 
 molecules_without_all = \
-	{'GluN2B'	:{'s':['GluN2Bc']			,'c':'#ED0DD9'},\
-	'CaMKII'	:{'s':['CaMKII Catalyst']	,'c':'#228B22'},\
+	{'CaMKII'	:{'s':['CaMKII Catalyst']	,'c':'#228B22'},\
+	'GluN2B'	:{'s':['GluN2Bc']			,'c':'#ED0DD9'},\
 	'STG'		:{'s':['STGc1','STGc2']		,'c':'r'},\
 	'PSD95'		:{'s':['PSD1']				,'c':'#00FFFF'}}
 
@@ -180,7 +186,7 @@ def obtain_center_of_mass(position_ref):
 
 	center_of_mass = np.array( [theta_x * space[0], theta_y * space[1] , theta_z * space[2] ] ) + np.pi
 	center_of_mass /= (2 * np.pi)
-	print('Center_of_mass: ', center_of_mass )
+	# print('Center_of_mass: ', center_of_mass )
 	return center_of_mass
 
 	# Reference
@@ -246,6 +252,17 @@ def get_rdf(types, positions, rdf_grid_points, rdf_bins, reference_molecule_for_
 	return rdf
 
 
+def get_rdf_from_multiple_frame(dir_data, filename_input, target_frames, rdf_bins, rdf_grid_points, reference_molecule_for_centering):
+
+	rdfs = { k: np.zeros( ( len(rdf_bins)-1, len(target_frames) ) ) for k in molecules_with_all.keys() }
+	for i, id_frame in enumerate( target_frames ):
+		types, positions, _ = load_data( dir_data, filename_input, id_frame )
+		current_rdfs = get_rdf(types, positions, \
+			rdf_grid_points, rdf_bins, \
+			reference_molecule_for_centering)
+		for k in rdfs.keys():
+			rdfs[k][:,i] = current_rdfs[k]
+	return rdfs
 
 ############### Profiles / Each panel plot
 
@@ -256,7 +273,7 @@ def arrange_graph_no_ticks(ax):
 	ax.set_yticks([])
 	
 	
-def show_colorbar(ax, cs):
+def plot_colorbar(ax, cs):
 	divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
 	cax = divider.append_axes('right', '5%', pad='3%')
 	cb = plt.colorbar(cs, cax=cax)
@@ -264,6 +281,11 @@ def show_colorbar(ax, cs):
 	cb.set_ticks(ticks)
 	cb.set_ticklabels(["{:.2f}".format(i) for i in ticks])
 	return cb
+	
+	
+def plot_scalebar(ax, col='k', linewidth=2):
+	ax.plot([5,25],[5,5], '-', color=col, linewidth=linewidth)
+	return
 	
 	
 def make_a_panel_of_CaMKII_STG_condenstates(d, transp, slice):
@@ -287,33 +309,121 @@ def plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, c
 	panel = make_a_panel_of_CaMKII_STG_condenstates(d, transp, slice)
 	ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 	ax.imshow( panel )
+	plot_scalebar(ax)
 	if title == True:
 		ax.set_title('Green: CaMKII, \n Red: STG')
 	arrange_graph_no_ticks(ax)
+	return ax
 	
 	
 def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True, colorbar=True ):
 	slice = int( space[0]/2 )
-	for target, column in columns.items():
+	axes = []
+	for i, (target, column) in enumerate(columns.items()):
 		panel = d['concs_in_grid_mesh'][target].transpose(transp)[slice,:,:]
 		ax = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
+		axes.append(ax)
 		cs = ax.imshow( panel , cmap=c.cmap[target] )
+		if i == 0:
+			plot_scalebar(ax, col='w', linewidth=3)
 		if title == True:
 			ax.set_title('Smoothed '+ target )
 		arrange_graph_no_ticks(ax)
 		if colorbar == True:
-			cb = show_colorbar(ax, cs)
-			cb.set_label('(Beads / voxel)')
-	
+			cb = plot_colorbar(ax, cs)
+			cb.set_label('(beads / voxel)')
+	return axes
 	
 def plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True ):
 	slice = int( space[0]/2 )
-	for target, column in columns.items():
+	axes = []
+	for i, (target, column) in enumerate(columns.items()):
 		panel = d['labels_watershed_in_grid_mesh'][target].transpose(transp)[slice,:,:]
 		ax = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
+		axes.append(ax)
 		cs = ax.imshow( panel, cmap="binary", vmin = 0, vmax = 1.5 )
+		if i == 0:
+			plot_scalebar(ax)
 		if title == True:
 			ax.set_title('Watershed \n separated by '+ target )
 		arrange_graph_no_ticks(ax)
+	return axes
 
 
+############### 3D plot using pyvista
+
+
+def square_zx():
+	x = space[0]/2
+	z = space[2]/2
+	pointa = [-x,  0.0, z]
+	pointb = [-x, 0.0, -z]
+	pointc = [x , 0.0, -z]
+	pointd = [x , 0.0,  z]
+	return pyvista.Rectangle([pointa, pointb, pointc, pointd])
+
+
+def square_xy():
+	x = space[0]/2
+	y = space[1]/2
+	pointa = [-x,  y, 0.0]
+	pointb = [-x, -y, 0.0]
+	pointc = [x , -y, 0.0]
+	pointd = [x ,  y, 0.0]
+	return pyvista.Rectangle([pointa, pointb, pointc, pointd])
+
+
+def square_yz():
+	y = space[1]/2
+	z = space[2]/2
+	pointa = [0.0, -y,  z]
+	pointb = [0.0, -y, -z]
+	pointc = [0.0, y , -z]
+	pointd = [0.0, y ,  z]
+	return pyvista.Rectangle([pointa, pointb, pointc, pointd])
+
+
+def rotate(mesh_CaMKII, mesh_STG): 
+	# Rotation
+	# https://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space
+	CaMKII_dir = np.mean(mesh_CaMKII.vertices, axis=0)
+	STG_dir    = np.mean(mesh_STG.vertices, axis=0)
+	
+	direction = STG_dir - CaMKII_dir
+	direction = direction / np.linalg.norm(direction)
+	
+	x = direction[0]
+	y = direction[1]
+	z = direction[2]
+	x2_y2= np.sqrt(x*x+y*y)
+	theta_xy = np.arctan2(y, x)
+	theta_xz = np.arctan2(x2_y2, z)
+	r1 = np.array([[np.cos(theta_xy), np.sin(theta_xy), 0],[-np.sin(theta_xy), np.cos(theta_xy), 0],[0,0,1]])
+	r2 = np.array([[np.cos(theta_xz), 0, -np.sin(theta_xz)],[0, 1, 0],[np.sin(theta_xz), 0, np.cos(theta_xz)]])
+	rot_matrix = np.eye(4)
+	rot_matrix[:3,:3] = np.dot(r2, r1)
+	
+	# mm = trimesh.transformations.random_rotation_matrix()
+	mesh_CaMKII.apply_transform(rot_matrix)
+	mesh_STG.apply_transform(rot_matrix)
+	return rot_matrix
+	
+	
+def generate_mesh(volume, num_smoothing = 1, flipx = False, flipy = False, flipz = False):
+	v_march, f_march, normals, values = measure.marching_cubes(volume, 0.5, spacing=(1,1,1), gradient_direction='ascent')
+	center = np.array(space)/2
+	v_march = v_march - center
+	
+	if flipx == True:
+		v_march[:,0] = -v_march[:,0]
+	if flipy == True:
+		v_march[:,1] = -v_march[:,1]
+	if flipz == True:
+		v_march[:,2] = -v_march[:,2]
+	
+	mesh = trimesh.Trimesh(vertices=v_march, faces=f_march)
+	mesh = trimesh.smoothing.filter_humphrey(mesh, alpha = 1.0, beta=0.0, iterations=num_smoothing)
+	return mesh
+	
+	
+	

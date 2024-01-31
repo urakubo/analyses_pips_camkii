@@ -5,97 +5,19 @@ import numpy as np
 import utils
 import pyvista
 
-from skimage import measure
-from skimage import morphology
-import trimesh
 
 
-def square_zx():
-	x = utils.space[0]/2
-	z = utils.space[2]/2
-	pointa = [-x,  0.0, z]
-	pointb = [-x, 0.0, -z]
-	pointc = [x , 0.0, -z]
-	pointd = [x , 0.0,  z]
-	return pyvista.Rectangle([pointa, pointb, pointc, pointd])
-
-def square_xy():
-	x = utils.space[0]/2
-	y = utils.space[1]/2
-	pointa = [-x,  y, 0.0]
-	pointb = [-x, -y, 0.0]
-	pointc = [x , -y, 0.0]
-	pointd = [x ,  y, 0.0]
-	return pyvista.Rectangle([pointa, pointb, pointc, pointd])
-
-def square_yz():
-	y = utils.space[1]/2
-	z = utils.space[2]/2
-	pointa = [0.0, -y,  z]
-	pointb = [0.0, -y, -z]
-	pointc = [0.0, y , -z]
-	pointd = [0.0, y ,  z]
-	return pyvista.Rectangle([pointa, pointb, pointc, pointd])
-
-
-def rorate(mesh_CaMKII, mesh_STG): 
-	# Rotation
-	# https://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space
-	CaMKII_dir = np.mean(mesh_CaMKII.vertices, axis=0)
-	STG_dir    = np.mean(mesh_STG.vertices, axis=0)
-	
-	direction = STG_dir - CaMKII_dir
-	direction = direction / np.linalg.norm(direction)
-	
-	x = direction[0]
-	y = direction[1]
-	z = direction[2]
-	x2_y2= np.sqrt(x*x+y*y)
-	theta_xy = np.arctan2(y, x)
-	theta_xz = np.arctan2(x2_y2, z)
-	r1 = np.array([[np.cos(theta_xy), np.sin(theta_xy), 0],[-np.sin(theta_xy), np.cos(theta_xy), 0],[0,0,1]])
-	r2 = np.array([[np.cos(theta_xz), 0, -np.sin(theta_xz)],[0, 1, 0],[np.sin(theta_xz), 0, np.cos(theta_xz)]])
-	rot_matrix = np.eye(4)
-	rot_matrix[:3,:3] = np.dot(r2, r1)
-	
-	# From top-bottom to left-right
-	#theta_xz = np.arctan2(-1, 0)
-	#r3 = np.array([[np.cos(theta_xz), 0, -np.sin(theta_xz)],[0, 1, 0],[np.sin(theta_xz), 0, np.cos(theta_xz)]])
-	#rot_matrix[:3,:3] = np.dot(r3, rot_matrix[:3,:3])
-	#
-	
-	mm = trimesh.transformations.random_rotation_matrix()
-	mesh_CaMKII.apply_transform(rot_matrix)
-	mesh_STG.apply_transform(rot_matrix)
-
-def generate_mesh(volume, num_smoothing = 1, flipx = False, flipy = False, flipz = False):
-	v_march, f_march, normals, values = measure.marching_cubes(volume, 0.5, spacing=(1,1,1), gradient_direction='ascent')
-	center = np.array(utils.space)/2
-	v_march = v_march - center
-	
-	if flipx == True:
-		v_march[:,0] = -v_march[:,0]
-	if flipy == True:
-		v_march[:,1] = -v_march[:,1]
-	if flipz == True:
-		v_march[:,2] = -v_march[:,2]
-	
-	mesh = trimesh.Trimesh(vertices=v_march, faces=f_march)
-	mesh = trimesh.smoothing.filter_humphrey(mesh, alpha = 1.0, beta=0.0, iterations=num_smoothing)
-	return mesh
-	
 def plot_a_image(d, pl, rotation=True): 
-	
 	
 	flipz = False
 	# Generate mesh
 	r_CaMKII   = d['region_condensate']['CaMKII'].astype(float)
 	r_STG      = d['region_condensate']['STG'].astype(float)
-	mesh_CaMKII = generate_mesh(r_CaMKII, flipz = flipz)
-	mesh_STG    = generate_mesh(r_STG   , flipz = flipz)
+	mesh_CaMKII = utils.generate_mesh(r_CaMKII, flipz = flipz)
+	mesh_STG    = utils.generate_mesh(r_STG   , flipz = flipz)
 	
 	if rotation == True:
-		rorate(mesh_CaMKII, mesh_STG)
+		utils.rotate(mesh_CaMKII, mesh_STG)
 	
 	# Add cube
 	'''
@@ -109,28 +31,27 @@ def plot_a_image(d, pl, rotation=True):
 	pl.set_background('white')
 	
 	
-	
 def save_a_plot(d, dir_img, prefix, suffix):
 	pl = pyvista.Plotter(window_size=[300,800], shape=(3, 1), border=False)
 	#pl.add_text( '{}_{}'.format(prefix, suffix), position='lower_left', color='k', font='arial', font_size=10)
 	
 	pl.subplot(0, 0)
 	plot_a_image(d, pl, rotation=False)
-	pl.add_mesh(square_yz(), color='black', style='wireframe')
+	pl.add_mesh(utils.square_yz(), color='black', style='wireframe')
 	pl.view_yz()
 	pl.camera.roll -= 90
 	pl.camera.Zoom(1)
 	
 	pl.subplot(1, 0)
 	plot_a_image(d, pl, rotation=False)
-	pl.add_mesh(square_zx(), color='black', style='wireframe')
+	pl.add_mesh(utils.square_zx(), color='black', style='wireframe')
 	pl.view_zx()
 	pl.camera.roll -= 90
 	pl.camera.Zoom(1)
 	
 	pl.subplot(2, 0)
 	plot_a_image(d, pl, rotation=False)
-	pl.add_mesh(square_xy(), color='black', style='wireframe')
+	pl.add_mesh(utils.square_xy(), color='black', style='wireframe')
 	pl.view_xy()
 	pl.camera.roll -= 90
 	pl.camera.Zoom(1)
