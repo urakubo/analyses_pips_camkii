@@ -304,19 +304,20 @@ def make_a_panel_of_CaMKII_STG_condenstates(d, transp, slice):
 	return panel
 	
 	
-def plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, transp = (0,1,2), title=True):
+def plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, transp = (0,1,2), title=True, scalebar=True):
 	slice = int( space[0]/2 )
 	panel = make_a_panel_of_CaMKII_STG_condenstates(d, transp, slice)
 	ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 	ax.imshow( panel )
-	plot_scalebar(ax)
+	if scalebar==True:
+		plot_scalebar(ax)
 	if title == True:
 		ax.set_title('Green: CaMKII, \n Red: STG')
 	arrange_graph_no_ticks(ax)
 	return ax
 	
 	
-def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True, colorbar=True ):
+def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True, colorbar=True, scalebar=True ):
 	slice = int( space[0]/2 )
 	axes = []
 	for i, (target, column) in enumerate(columns.items()):
@@ -324,7 +325,7 @@ def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, tra
 		ax = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 		axes.append(ax)
 		cs = ax.imshow( panel , cmap=c.cmap[target] )
-		if i == 0:
+		if i == 0 and scalebar==True:
 			plot_scalebar(ax, col='w', linewidth=3)
 		if title == True:
 			ax.set_title('Smoothed '+ target )
@@ -334,7 +335,7 @@ def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, tra
 			cb.set_label('(beads / voxel)')
 	return axes
 	
-def plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True ):
+def plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True, scalebar=True ):
 	slice = int( space[0]/2 )
 	axes = []
 	for i, (target, column) in enumerate(columns.items()):
@@ -342,7 +343,7 @@ def plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, colu
 		ax = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 		axes.append(ax)
 		cs = ax.imshow( panel, cmap="binary", vmin = 0, vmax = 1.5 )
-		if i == 0:
+		if i == 0 and scalebar==True:
 			plot_scalebar(ax)
 		if title == True:
 			ax.set_title('Watershed \n separated by '+ target )

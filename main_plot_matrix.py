@@ -43,20 +43,25 @@ if __name__ == '__main__':
 			d      = utils.load(dir_data, prefix, suffix)
 			print('Target: {}, sigma: {}'.format(prefix, sigma))
 			
+			if id == (len(GluN2B)-1)*len(STG):
+				scalebar=True
+			else:
+				scalebar=False
+			
 			row    = num_rows-j-1
 			column = i+1
 			print('column: ', column, ', row: ', row)
 			if target == 'region_condensates':
-				utils.plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, title=False )
+				utils.plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, title=False, scalebar=scalebar )
 			elif target == 'profile_CaMKII':
 				columns = {'CaMKII':column}
-				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=False, colorbar=False )
+				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=False, colorbar=False, scalebar=scalebar )
 			elif target == 'profile_STG':
 				columns = {'STG':column}
-				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=False, colorbar=False )
+				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=False, colorbar=False, scalebar=scalebar )
 			elif target == 'watershed_CaMKII':
 				columns = {'CaMKII':column}
-				utils.plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=False )
+				utils.plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=False, scalebar=scalebar )
 			else:
 				raise ValueError("Target function has not been implemented: {}".format(target))
 			#  transps = [(0,1,2),(1,2,0),(2,0,1)]
