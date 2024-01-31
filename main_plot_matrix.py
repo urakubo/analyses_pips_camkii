@@ -17,7 +17,7 @@ if __name__ == '__main__':
 	dir_data = 'data'
 	dir_imgs = 'imgs/matrix'
 	target   = 'watershed_CaMKII' # 'region_condensates', 'profile_CaMKII', 'profile_STG', 'watershed_CaMKII'
-	sigma    = 2 # 2, 3, or 4
+	sigma    = 4 # 2, 3, or 4
 	
 	os.makedirs(dir_imgs, exist_ok=True)
 	
