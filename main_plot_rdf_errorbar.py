@@ -17,33 +17,24 @@ plt.rcParams.update({
 if __name__ == '__main__':
 	
 	# Parameters
+	dir_data	= 'data'
+	dir_imgs 	= 'imgs/rdf_errorbar'
 	i = 18
-	filename_input = 'R3_{}.lammpstrj'.format( str(i).zfill(3) )
-	dir_data        = './../231018Graphs/data'
-	dir_imgs 		= 'imgs/rdf_errorbar'
-	reference_molecule_for_centering = 'All'
-	
+	filename_prefix = str(i).zfill(3)
+	sigma = 2 # Same data are stored in 2,3,4
+	filename_suffix = 'sigma_{}'.format(sigma)
 	os.makedirs(dir_imgs, exist_ok=True)
-	prefix = os.path.splitext(filename_input)[0]
 	
 	
-	# For rdf
-	rdf_bins        = np.arange(0, 35) # You can set "np.arange(0, 35, 2)"
-	rdf_grid_points = utils.get_lattice_grids()
+	# Load file
+	d   = utils.load(dir_data, filename_prefix, filename_suffix)
+	rdf_bins 			= d['rdf_bins']
+	rdf_target_frames 	= d['rdf_target_frames']
+	rdfs 				= d['rdf']
 	
 	
-	# Set target sampling frames
-	num_target_frames = 10
-	sampling_interval = 2
-	num_frames        = utils.get_num_frames(dir_data, filename_input)
-	rdf_target_frames = list(range( num_frames - num_target_frames*sampling_interval, \
-							num_frames,\
-							sampling_interval))
-	print("Target frames ", rdf_target_frames)
+	print("Target time frames ", rdf_target_frames)
 	
-	
-	rdfs = utils.get_rdf_from_multiple_frame(dir_data, filename_input, \
-			rdf_target_frames, rdf_bins, rdf_grid_points, reference_molecule_for_centering)
 	
 	
 	# Plot the histogram
@@ -63,7 +54,7 @@ if __name__ == '__main__':
 			linestyle='',
 			alpha = 0.4 )
 	
-	ax.set_title( prefix )
+	ax.set_title( filename_prefix )
 	ax.legend(frameon=False)
 	
 	ax.spines['right'].set_visible(False)
@@ -71,8 +62,8 @@ if __name__ == '__main__':
 	ax.set_xlabel('Distance from center-of-mass (l.u.)')
 	ax.set_ylabel('(beads / volume)')
 	
-	plt.savefig( os.path.join(dir_imgs, 'rdf_{}.svg'.format(prefix) ) )
-	plt.savefig( os.path.join(dir_imgs, 'rdf_{}.png'.format(prefix) ) , dpi=150)
+	plt.savefig( os.path.join(dir_imgs, 'rdf_{}.svg'.format(filename_prefix) ) )
+	plt.savefig( os.path.join(dir_imgs, 'rdf_{}.png'.format(filename_prefix) ) , dpi=150)
 	plt.show()
 	
 	

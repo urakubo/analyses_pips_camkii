@@ -16,6 +16,7 @@ if __name__ == '__main__':
 
 	dir_data = 'data'
 	dir_imgs = 'imgs/matrix'
+	target   = 'watershed_CaMKII' # 'region_condensates', 'profile_CaMKII', 'profile_STG', 'watershed_CaMKII'
 	sigma    = 2 # 2, 3, or 4
 	
 	os.makedirs(dir_imgs, exist_ok=True)
@@ -28,9 +29,6 @@ if __name__ == '__main__':
 	
 	num_rows		= len( GluN2B )
 	num_columns		= len( STG )
-	
-	
-	target = 'profile_CaMKII' # 'region_condensates', 'profile_CaMKII', 'profile_STG', 'CaMKII_watershed'
 	
 	
 	fig  = plt.figure(figsize=(10, 10), tight_layout=True)

@@ -98,7 +98,8 @@ def save_plots_matrix(dir_data, dir_imgs, sigma):
 	
 if __name__ == '__main__':
 
-	# Dataset 1
+	# Target 1
+	'''
 	filenames	= [	'PIPS',\
 					'iPIPS',\
 					'PartialE',\
@@ -118,15 +119,16 @@ if __name__ == '__main__':
 			d      = utils.load(dir_data, prefix, suffix)	
 			print('Target: {}, sigma: {}'.format(filename, sigma))
 			save_a_plot(d, dir_imgs, prefix, suffix)
-	
-	
 	'''
-	# Dataset 2
+	
+	
+	# Target 2
+	#'''
 	dir_data = 'data'
 	dir_imgs = 'imgs/region_condensates_pyvista'
-	sigma    = 2 # 2, 3, or 4
+	sigma    = 4 # 2, 3, or 4
 	save_plots_matrix(dir_data, dir_imgs, sigma)
-	'''
+	#'''
 	
 	
 	#r_CaMKII   = d['concs_in_grid_mesh']['CaMKII']

@@ -103,7 +103,6 @@ def make_a_figure( d ):
 	ax.set_ylim(0,3.0)
 	arrange_graph_bar(ax, panel_dx, yloc[0], panel_size/4, panel_size )
 	
-
 	
 	# Plot concs in condensates
 	column = 9
@@ -140,6 +139,7 @@ def make_a_figure( d ):
 		arrange_graph_bar(ax, panel_dx, yloc[i], panel_size/2, panel_size)
 		ax.tick_params(axis='x', rotation=45)
 	
+	
 	# Plot RDF
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*2 )
 	r = d['rdf_bins'][1:-1]
@@ -154,13 +154,14 @@ def make_a_figure( d ):
 	ax.set_ylim(-0.006,0.66)
 	ax.set_xticks(range(0,40,10))
 	arrange_graph_bar(ax, panel_dx, yloc[2], panel_size/2, panel_size)
-		
+	
+	
 	return fig
 	
 	
 if __name__ == '__main__':
 	
-	'''
+	#'''
 	# Dataset 1
 	filenames	= [	'PIPS',\
 					'iPIPS',\
@@ -168,14 +169,14 @@ if __name__ == '__main__':
 					'Homo']	
 	dir_data	= 'data'
 	dir_imgs	= 'imgs/profiles_example'
-	'''
-
 	#'''
+
+	'''
 	# Dataset 2
 	filenames   = [str(i).zfill(3) for i in range(30) ]
 	dir_data	= 'data'
 	dir_imgs	= 'imgs/profiles_conc'
-	#'''
+	'''
 	
 	os.makedirs(dir_imgs, exist_ok=True)
 	sigmas = [2,3,4]

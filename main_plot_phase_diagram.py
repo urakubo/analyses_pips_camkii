@@ -201,21 +201,21 @@ if __name__ == '__main__':
 	dir_data = 'data'
 	dir_imgs = 'imgs/phase_diagram'
 	os.makedirs(dir_imgs, exist_ok=True)
-	sigma  = 4
+	sigma  = 4 # 4,3,2
 	STG    = [500, 1000, 2000, 3000, 4000]
 	GluN2B = [500, 2000, 4000, 6000, 8000, 12000]
 
 	# Target 1: Watershed-based phase diagram
-	#'''
+	'''
 	target = 'volume_watershed'
 	vCaMKII, vSTG = load(dir_data, sigma, STG, GluN2B, target = target)
 	fig = plot_panels_watershed(STG, GluN2B, vCaMKII, vSTG )
 	fig.savefig( os.path.join(dir_imgs, '{}_sigma_{}.svg'.format( target, sigma ) ) )
 	fig.savefig( os.path.join(dir_imgs, '{}_sigma_{}.png'.format( target, sigma ) ) , dpi=150)
-	#'''
+	'''
 	
 	# Target 2: Partition-index based phase diagram
-	'''
+	#'''
 	target = 'partition_index'
 	vCaMKII, vSTG = load(dir_data, sigma, STG, GluN2B, target = target)
 	
@@ -227,5 +227,5 @@ if __name__ == '__main__':
 	#plt.show()
 	plt.clf()
 	plt.close(fig=fig)
-	'''
+	#'''
 
