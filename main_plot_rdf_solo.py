@@ -34,12 +34,12 @@ if __name__ == '__main__':
 	# Plot the histogram
 	fig = plt.figure( figsize=(5, 4), tight_layout=True )
 	ax = fig.add_subplot( 1, 1, 1 )
-	utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=True )
+	utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=True  )
 	
 	ax.set_title( filename_prefix )
 	
-	fig.savefig( os.path.join(dir_imgs, 'rdf_{}_.svg'.format(filename_prefix, errorbar) ) )
-	fig.savefig( os.path.join(dir_imgs, 'rdf_{}_.png'.format(filename_prefix, errorbar) ) , dpi=150)
+	fig.savefig( os.path.join(dir_imgs, 'rdf_{}_{}.svg'.format(filename_prefix, errorbar) ) )
+	fig.savefig( os.path.join(dir_imgs, 'rdf_{}_{}.png'.format(filename_prefix, errorbar) ) , dpi=150)
 	plt.show()
 	
 	

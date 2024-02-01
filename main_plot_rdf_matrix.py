@@ -27,7 +27,7 @@ if __name__ == '__main__':
 	
 	os.makedirs(dir_imgs, exist_ok=True)
 	
-	errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
+	errorbar= 'final_frame_alone' # errorbar='shaded', 'line', or 'final_frame_alone'
 	
 	print('Plot')
 	fig = plt.figure(figsize=(15, 15), tight_layout=True)
@@ -36,12 +36,8 @@ if __name__ == '__main__':
 		# Load file
 		d   = utils.load(dir_data, filename_prefix, filename_suffix)
 		
-		# print('i: {}, dists {}'.format(i, dists))
 		ax = fig.add_subplot( 6, 5, i+1 )
-		if i == 0:
-			legend = True
-		else:
-			legend = False
+		legend = (i == 0)
 		utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=legend )
 		ax.set_title( filename_prefix )
 

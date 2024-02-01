@@ -275,18 +275,18 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True ):
 			ax.fill_between(r, rdf_mean-rdf_std, rdf_mean+rdf_std,color=c.cmap_universal_ratio_light[k])
 			ax.plot(r, rdf_mean, color=color, label=k)
 		elif errorbar == 'line':
+			'''
 			ax.hist(r[:-1], r, weights=rdf_mean[:-1], \
 				color=color, \
 				histtype="step", label=k)
+			'''
+			ax.step(r, rdf_mean, where='post', color=color, label=k)
 			ax.errorbar(r+0.5, rdf_mean, yerr=rdf_std,\
 				ecolor=color,\
 				linestyle='',
 				alpha = 0.4 )
 		elif errorbar == 'final_frame_alone':
-			ax.hist(r[:-1], r,\
-				weights=d['rdf'][k][1:-1,-1], \
-				color=color, \
-				histtype="step", label=k)
+			ax.step( r, d['rdf'][k][1:,-1], color=color, label=k)
 	if legend==True:
 		ax.legend(frameon=False)
 
