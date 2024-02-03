@@ -13,7 +13,7 @@ if __name__ == '__main__':
 	# Parameters
 	
 	# Dataset 1
-	dir_input       = './../231215TravelingSpeed/data'
+	dir_input       = './../lammpstrj/example_profiles'
 	filenames_input = [		'length3.lammpstrj',\
 							'length9.lammpstrj',\
 							'Partial_engulfment.lammpstrj',\

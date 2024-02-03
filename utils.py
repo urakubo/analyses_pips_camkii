@@ -27,11 +27,14 @@ plt.rcParams.update({
 
 bsize    = 120
 space    = [bsize, bsize, bsize]
+center   = np.array([space[0]/2, space[1]/2, space[2]/2])
 
 edge0 =  list(range(-int(space[0]/2), int(space[0]/2), 1))
 edge1 =  list(range(-int(space[1]/2), int(space[1]/2), 1))
 edge2 =  list(range(-int(space[2]/2), int(space[2]/2), 1))
 
+
+reference_molecule_for_centering = 'All'
 
 subunits = \
 	{'GluN2Bc'	:{'id':3},\
@@ -163,7 +166,11 @@ def get_min_local_mins(local_mins, conc_smooth, mask):
 	return {'location': loc_local_min, 'value':local_min_value}
 	
 	
-def obtain_center_of_mass(position_ref):
+
+def get_center_of_mass(types_, positions_, reference_molecule_for_centering = reference_molecule_for_centering):
+	
+	types = [True if t in molecules_with_all[reference_molecule_for_centering]['id'] else False for t in types_ ]
+	position_ref = positions_[types,:]
 	
 	# print('position_ref: ', position_ref)
 	x = (position_ref[:,0] / space[0]) * 2 * np.pi
@@ -180,27 +187,14 @@ def obtain_center_of_mass(position_ref):
 	theta_x = np.arctan2(x1, x0)
 	theta_y = np.arctan2(y1, y0)
 	theta_z = np.arctan2(z1, z0)
-	#theta_x = np.arctan2(-x1, -x0)
-	#theta_y = np.arctan2(-y1, -y0)
-	#theta_z = np.arctan2(-z1, -z0)
 
 	center_of_mass = np.array( [theta_x * space[0], theta_y * space[1] , theta_z * space[2] ] ) + np.pi
 	center_of_mass /= (2 * np.pi)
-	# print('Center_of_mass: ', center_of_mass )
+
 	return center_of_mass
 
 	# Reference
 	# https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions
-
-
-def get_center(types_, positions_, reference_molecule_for_centering):
-	types = {}
-	for k in molecules_with_all.keys():
-		types[k] = [True if t in molecules_with_all[k]['id'] else False  for t in types_ ]
-	p_for_centering = positions_[types[reference_molecule_for_centering],:]
-	center     = obtain_center_of_mass(p_for_centering)
-	return center
-
 
 
 def centering(p, center): 
@@ -228,10 +222,10 @@ def get_lattice_grids():
 	return grids
 
 
-def get_rdf(types, positions, rdf_grid_points, rdf_bins, reference_molecule_for_centering):
+def get_a_rdf(types, positions, rdf_grid_points, rdf_bins):
 	
 	# Centering
-	center              = get_center(types, positions, reference_molecule_for_centering)
+	center              = get_center_of_mass(types, positions)
 	positions           = centering(positions, center)
 	positions_grid_centered = centering(rdf_grid_points, center)
 	
@@ -252,22 +246,21 @@ def get_rdf(types, positions, rdf_grid_points, rdf_bins, reference_molecule_for_
 	return rdf
 
 
-def get_rdf_from_multiple_frame(dir_data, filename_input, target_frames, rdf_bins, rdf_grid_points, reference_molecule_for_centering):
+def get_rdfs_from_multiple_frames( dir_data, filename_input, target_frames, rdf_bins, rdf_grid_points ):
 
 	rdfs = { k: np.zeros( ( len(rdf_bins)-1, len(target_frames) ) ) for k in molecules_with_all.keys() }
 	for i, id_frame in enumerate( target_frames ):
 		types, positions, _ = load_data( dir_data, filename_input, id_frame )
-		current_rdfs = get_rdf(types, positions, \
-			rdf_grid_points, rdf_bins, \
-			reference_molecule_for_centering)
+		current_rdfs = get_a_rdf(types, positions, \
+			rdf_grid_points, rdf_bins)
 		for k in rdfs.keys():
 			rdfs[k][:,i] = current_rdfs[k]
 	return rdfs
 
 
-def plot_a_rdf( ax, d, errorbar='shaded', legend=True ):
+def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = molecules_without_all.keys() , ylim = (-0.006,0.66) ):
 	r = d['rdf_bins'][1:-1]
-	for k in molecules_without_all.keys():
+	for k in target_molecules:
 		rdf_mean  = np.mean( d['rdf'][k][1:], axis = 1 )
 		rdf_std   = np.std(  d['rdf'][k][1:], axis = 1 )
 		color     = c.cmap_universal_ratio[k]
@@ -293,7 +286,7 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True ):
 	ax.set_xlabel('Distance from \n center-of-mass (l.u.)')
 	ax.set_ylabel('(beads / volume)')
 	ax.set_xlim(0,30)
-	ax.set_ylim(-0.006,0.66)
+	ax.set_ylim(*ylim)
 	ax.set_xticks(range(0,40,10))
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
@@ -304,11 +297,12 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True ):
 ############### Profiles / Each panel plot
 
 def arrange_graph_no_ticks(ax):
-	ax.xaxis.set_tick_params(labelbottom=False)
-	ax.yaxis.set_tick_params(labelleft=False)
-	ax.set_xticks([])
-	ax.set_yticks([])
+	#ax.xaxis.set_tick_params(labelbottom=False)
+	#ax.yaxis.set_tick_params(labelleft=False)
+	#ax.set_xticks([])
+	#ax.set_yticks([])
 	
+	ax.set_axis_off()
 	
 def plot_colorbar(ax, cs):
 	divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
@@ -354,14 +348,14 @@ def plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, c
 	return ax
 	
 	
-def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True, colorbar=True, scalebar=True ):
+def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True, colorbar=True, scalebar=True, vmin=0, vmax=None ):
 	slice = int( space[0]/2 )
 	axes = []
 	for i, (target, column) in enumerate(columns.items()):
 		panel = d['concs_in_grid_mesh'][target].transpose(transp)[slice,:,:]
 		ax = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 		axes.append(ax)
-		cs = ax.imshow( panel , cmap=c.cmap[target] )
+		cs = ax.imshow( panel , cmap=c.cmap[target], vmin=vmin, vmax=vmax )
 		if i == 0 and scalebar==True:
 			plot_scalebar(ax, col='w', linewidth=3)
 		if title == True:
@@ -371,6 +365,7 @@ def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, tra
 			cb = plot_colorbar(ax, cs)
 			cb.set_label('(beads / voxel)')
 	return axes
+	
 	
 def plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True, scalebar=True ):
 	slice = int( space[0]/2 )
@@ -386,7 +381,39 @@ def plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, colu
 			ax.set_title('Watershed \n separated by '+ target )
 		arrange_graph_no_ticks(ax)
 	return axes
-
+	
+	
+def arrange_graph_bar(ax, panel_dx, y0, panel_size_x, panel_size_y):
+	ax.spines['right'].set_visible(False)
+	ax.spines['top'].set_visible(False)
+	ax_h, ax_w = ax.bbox.height, ax.bbox.width
+	# ax.set_aspect('auto') # "equal" , ax.set_aspect(1.0 / ax.get_data_ratio())
+	#x, y, w, h = ax.get_position().bounds
+	loc = ax.get_position()
+	if y0 is None:
+		y0 = loc.y0
+	ax.set_position([loc.x0+panel_dx, y0, panel_size_x, panel_size_y])
+	
+	
+def plot_concs_condensate_bar(ax, targ, ref, d):
+	cc = d['conc_condensate']
+	col = c.cmap_universal_ratio[targ]
+	ax.bar(['In '+targ+'\n condensates', 'In '+ref+'\n condensates'], [cc[targ][targ], cc[ref][targ]], width=0.5, color=col)
+	ax.set_title('Conc of {}'.format(targ))
+	ax.set_ylabel('(beads / volume)')
+	ax.set_ylim(0,0.6)
+	ax.tick_params(axis='x', rotation=45)
+	
+	
+def plot_conc_ratio_condensate_bar(ax, targs, counterparts, d):
+	cc = d['conc_condensate']
+	conc_ratio = [ cc[t][t] / cc[c][t] for t, c in zip(targs, counterparts)]
+	cols = [ c.cmap_universal_ratio[targ] for targ in targs ]
+	ax.bar(targs, conc_ratio, width=0.5, color=cols)
+	ax.set_title('Partition index')
+	ax.set_ylabel('(target / counterpart)')
+	ax.set_ylim(0,40)
+	
 
 ############### 3D plot using pyvista
 
