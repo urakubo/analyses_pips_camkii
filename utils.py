@@ -65,41 +65,6 @@ for k, v in molecules_with_all.items():
 
 for k, v in molecules_without_all.items():
 	molecules_without_all[k]['id'] = [subunits[s]['id'] for s in v['s']]
-
-
-	## It provides the same operation but offers shorter time: 
-	## ids_loc = np.nonzero( utils.get_hist(locs_subunits) )
-def get_locs_in_grid_coord(locs):
-	locs_int = np.floor(locs).astype(int)
-	loc0 = np.array( [edge0.index(i) for i in locs_int[:,0]] )
-	loc1 = np.array( [edge1.index(i) for i in locs_int[:,1]] )
-	loc2 = np.array( [edge2.index(i) for i in locs_int[:,2]] )
-	locs_in_grid_space = np.vstack([loc0, loc1, loc2]).T
-	return locs_in_grid_space
-
-
-def get_periphery_in_grid_mesh():
-	radius = (np.min(space) - 1) / 2
-	ball   = morphology.ball(radius)
-	periphery = (ball == 0)
-	return periphery
-	
-
-def get_local_mins(data, mask = None):
-	
-	axes = [ 0, 1, 2, (0,1),  (0,1), (1,2), (1,2) , (2,0), (2, 0), (0,1,2), (0,1,2) , (0,1,2) , (0,1,2)]
-	vecs = [ 1, 1, 1, (1,1), (1,-1), (1,1), (1,-1), (1,1), (1,-1), (1,1,1), (1,1,-1), (1,-1,1), (-1,1,1)]
-	diff = np.ones_like(data, dtype=bool)
-	for a, v in zip(axes, vecs):
-		vv= np.array(v)
-		data1 = np.roll(data,   vv, axis=a)
-		data2 = np.roll(data,  -vv, axis=a)
-		diff  = diff&(data1-data >= 0)&(data2-data >= 0)
-		#diff  = diff&(data1-data > 0)&(data2-data > 0)
-	
-	if mask is not None:
-		diff  = diff*mask
-	return diff
 	
 	
 def save(dir_data, prefix, suffix, data):
@@ -138,6 +103,49 @@ def decode_data(data_frame):
 	# data_target_frame.particles['bp']
 	return type, position, id_molecule
 	
+def decode_species(types, positions):
+	types_binary = {k: [True if t in v['id'] else False for t in types] for k, v in molecules_with_all.items() }
+	types_positions = {k: positions[types_binary[k],:] for k in molecules_with_all.keys() }
+	return types_positions
+	
+	
+	
+############### Edit data
+	
+	## It provides the same operation but offers shorter time: 
+	## ids_loc = np.nonzero( utils.get_hist(locs_subunits) )
+def get_locs_in_grid_coord(locs):
+	locs_int = np.floor(locs).astype(int)
+	loc0 = np.array( [edge0.index(i) for i in locs_int[:,0]] )
+	loc1 = np.array( [edge1.index(i) for i in locs_int[:,1]] )
+	loc2 = np.array( [edge2.index(i) for i in locs_int[:,2]] )
+	locs_in_grid_space = np.vstack([loc0, loc1, loc2]).T
+	return locs_in_grid_space
+
+
+def get_periphery_in_grid_mesh():
+	radius = (np.min(space) - 1) / 2
+	ball   = morphology.ball(radius)
+	periphery = (ball == 0)
+	return periphery
+	
+
+def get_local_mins(data, mask = None):
+	
+	axes = [ 0, 1, 2, (0,1),  (0,1), (1,2), (1,2) , (2,0), (2, 0), (0,1,2), (0,1,2) , (0,1,2) , (0,1,2)]
+	vecs = [ 1, 1, 1, (1,1), (1,-1), (1,1), (1,-1), (1,1), (1,-1), (1,1,1), (1,1,-1), (1,-1,1), (-1,1,1)]
+	diff = np.ones_like(data, dtype=bool)
+	for a, v in zip(axes, vecs):
+		vv= np.array(v)
+		data1 = np.roll(data,   vv, axis=a)
+		data2 = np.roll(data,  -vv, axis=a)
+		diff  = diff&(data1-data >= 0)&(data2-data >= 0)
+		#diff  = diff&(data1-data > 0)&(data2-data > 0)
+	
+	if mask is not None:
+		diff  = diff*mask
+	return diff
+	
 	
 def get_high(conc, th = 0.5):
 	return (conc > np.max(conc)*th)
@@ -166,7 +174,6 @@ def get_min_local_mins(local_mins, conc_smooth, mask):
 	return {'location': loc_local_min, 'value':local_min_value}
 	
 	
-
 def get_center_of_mass(types_, positions_, reference_molecule_for_centering = reference_molecule_for_centering):
 	
 	types = [True if t in molecules_with_all[reference_molecule_for_centering]['id'] else False for t in types_ ]
@@ -207,11 +214,52 @@ def centering(p, center):
 	return p_centered
 
 
-def decode_species(types, positions):
-	types_binary = {k: [True if t in v['id'] else False for t in types] for k, v in molecules_with_all.items() }
-	types_positions = {k: positions[types_binary[k],:] for k in molecules_with_all.keys() }
-	return types_positions
-
+	#
+	# real_coord: coordinate of molecules in the real space [-60, 60) 
+	# (float) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
+	#
+	# grid_coord: coordinate of molecules in the grid space (0, 1,..., 119) 
+	# (uint) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
+	#
+	# grid_mesh : molecules are embedded in a 3D numpy variable
+	# (True/False in the 3D space (util.space[0], util.space[1], util.space[2]))
+	#
+def get_concs_and_condensates(types, positions, ids_molecule, sigma=2):
+	
+	# Parameters
+	targs_molecule  = molecules_with_all.keys() # ['GluN2B', 'CaMKII', 'STG', 'PSD95', 'All']
+	
+	# Get the locations of target molecules separately.
+	flag_type          = {t: [True if k in molecules_with_all[t]['id'] else False for k in types] for t in targs_molecule}
+	locs_in_real_coord = {k: positions[flag_type[k],:] for k in targs_molecule } 
+	locs_in_grid_mesh  = {k: get_hist(locs_in_real_coord[k]) for k in targs_molecule}
+	
+	# Get a peripheral region (a region outside of a sphere) 
+	# and obtain the concentrations in this area (diluted region concentration for a baseline).
+	region_periphery = get_periphery_in_grid_mesh()
+	concs_periphery  = {t: np.sum(locs_in_grid_mesh[t] * region_periphery ) / np.sum( region_periphery ) for t in targs_molecule}
+	
+	# Get the condenate regions of targs_molecule.
+	concs_in_grid_mesh = {t: ndimage.gaussian_filter(locs_in_grid_mesh[t], sigma = sigma) for t in targs_molecule}
+	regions_condensate_in_grid_mesh = {t: get_high(concs_in_grid_mesh[t]-concs_periphery[t]) for t in targs_molecule}
+	
+	
+	def get_concs_condensate(ref_molecule):
+		return {t: np.sum(locs_in_grid_mesh[t] * regions_condensate_in_grid_mesh[ref_molecule])/ \
+				np.sum( regions_condensate_in_grid_mesh[ref_molecule] ) for t in targs_molecule }
+	concs_condensate = {t: get_concs_condensate(t) for t in targs_molecule}
+	
+	
+	# Summary
+	d = {
+			'locs_in_grid_mesh':	locs_in_grid_mesh,
+			'concs_in_grid_mesh':	concs_in_grid_mesh,
+			'region_condensate_in_grid_mesh': regions_condensate_in_grid_mesh,
+			'conc_periphery'	:	concs_periphery,
+			'conc_condensate'	:	concs_condensate,
+		}
+	return d
+	
 
 ############### Radial distrbution function
 

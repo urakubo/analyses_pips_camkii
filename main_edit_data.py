@@ -8,7 +8,7 @@ import utils
 	
 	
 	#
-	# real_coord: coordinate of molecules in the real space 
+	# real_coord: coordinate of molecules in the real space [-60, 60) 
 	# (float) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
 	#
 	# grid_coord: coordinate of molecules in the grid space (0, 1,..., 119) 
