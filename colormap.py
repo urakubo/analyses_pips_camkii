@@ -282,7 +282,7 @@ cmap_universal_ratio = {
 		'STG'   : (255/255,75/255,0),\
 		'GluN2B': (153/255,0,153/255),\
 		'PSD95' : (77/255,196/255,255/255),\
-		'All'	: (0.0,0.0,0.0)}
+		'All'	: (0.7,0.7,0.7)}
 
 cmap_universal_ratio_light = \
 		{k: ((v[0]+2)/3, (v[1]+2)/3, (v[2]+2)/3) for k, v in cmap_universal_ratio.items()}
@@ -292,8 +292,10 @@ cmap_universal_uint = {
 		'STG'   : (255,75,0),\
 		'GluN2B': (153,0,153),\
 		'PSD95' : (77,196,255),\
-		'All'	: (0,0,0)}
+		'All'	: (177,177,177)}
 
+light_green_universal_uint = (119, 217, 168)
+yellow_universal_uint      = (255, 241, 0)
 
 # https://pystyle.info/matplotlib-master-of-colormap/
 

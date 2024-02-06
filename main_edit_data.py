@@ -8,13 +8,13 @@ import utils
 	
 	
 	#
-	# real_coord: coordinate of molecules in the real space [-60, 60) 
-	# (float) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
+	# grid_coord: Molecular locations in the grid space (0, 1,..., 119) 
+	# (numpy uint) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
 	#
-	# grid_coord: coordinate of molecules in the grid space (0, 1,..., 119) 
-	# (uint) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
+	# real_coord: Molecular locations in the real space [-60, 60) 
+	# (numpy float) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
 	#
-	# grid_mesh : molecules are embedded in a 3D numpy variable
+	# grid_mesh : molecular existance in a 3D numpy variable
 	# (True/False in the 3D space (util.space[0], util.space[1], util.space[2]))
 	#
 def get_concs_core_shell_region(types, positions, ids_molecule, sigma=2):
@@ -37,8 +37,6 @@ def get_concs_core_shell_region(types, positions, ids_molecule, sigma=2):
 	regions_condensate = {t: utils.get_high(concs_in_grid_mesh[t]-concs_periphery[t]) for t in targs_molecule}
 	
 	
-	# The below was prepared for visualization; however, it did not contribute to the improvement.
-	regions_condensate0_25 = {t: utils.get_high(concs_in_grid_mesh[t]-concs_periphery[t], th=0.25) for t in targs_molecule}
 	
 	def get_concs_condensate(ref_molecule):
 		return {t: np.sum(locs_in_grid_mesh[t] * regions_condensate[ref_molecule])/ np.sum( regions_condensate[ref_molecule] ) \

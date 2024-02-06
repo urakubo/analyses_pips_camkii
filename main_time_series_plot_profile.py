@@ -33,6 +33,7 @@ def make_a_figure( d, target_molecules ):
 	left, right, bottom, top = 0.0, 0.95, 0.10, 0.99
 	wspace, hspace = 0.2, 0.1
 	plt.subplots_adjust(left, bottom, right, top, wspace, hspace)
+	fig.suptitle( "Time step: {}, MC step: {:e}".format( d['time_frame'], d['mc_step'] ) )
 	
 	panel_size = 0.15
 	
@@ -65,7 +66,7 @@ def make_a_figure( d, target_molecules ):
 	
 if __name__ == '__main__':
 	
-	# Input files
+	# Input files 1
 	dir_edited_data 		= 'data'
 	filenames_edited_data 	= [	'CG',\
 							'SP',\
@@ -75,21 +76,33 @@ if __name__ == '__main__':
 							{'STG':4,'PSD95':5},\
 							{'GluN2B':3, 'STG':4,'PSD95':5},\
 							{'GluN2B':3, 'STG':4,'PSD95':5}]
-	
+	sampling_interval = 20
+	sampling_time_frames_ = list(range(0,200+sampling_interval,sampling_interval))
+	sampling_time_framess = 4*[sampling_time_frames_]
+
+
+	# Input files 2
+	dir_edited_data 		= 'data'
+	filenames_edited_data = ['CaMKIIalone',\
+							'GluN2Balone',\
+							'STGalone']
+	targets_molecules 		= [ {'CaMKII':2, 'GluN2B':3,'STG':4,'PSD95':5} ] * 3
+	sampling_time_framess = [ [0, 100, 200], [0, 100, 187] , [0, 100, 195] ]
+
+
 	# Output files
 	dir_imgs = os.path.join('imgs', 'time_series','profiles')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	# Parameters
-	time_frames = list(range(0,200,20))
-	print('Recorded time frame: ', time_frames)
 	
 	
-	for filename, target_molecules in zip(filenames_edited_data, targets_molecules):
-		for target_time_frame in time_frames:
+	for filename, target_molecules, sampling_time_frames in zip(filenames_edited_data, targets_molecules, sampling_time_framess):
+		print('Recorded time frame: ', sampling_time_frames)
+		for target_frame in sampling_time_frames:
 			# Load data
 			prefix = filename
-			suffix = 'frame_{}'.format(target_time_frame)
+			suffix = 'frame_{}'.format(target_frame)
 			print('Target: {}, {}'.format(filename, suffix))
 			d   = utils.load(dir_edited_data, prefix, suffix)
 			
@@ -98,8 +111,8 @@ if __name__ == '__main__':
 			fig = make_a_figure(d, target_molecules)
 			
 			# Save figure
-			fig.savefig( os.path.join(dir_imgs, '{}_frame_{}.svg'.format( prefix, str(target_time_frame).zfill(4)) ) )
-			fig.savefig( os.path.join(dir_imgs, '{}_frame_{}.png'.format( prefix, str(target_time_frame).zfill(4)) ) , dpi=150)
+			fig.savefig( os.path.join(dir_imgs, '{}_frame_{}.svg'.format( prefix, str(target_frame).zfill(4)) ) )
+			fig.savefig( os.path.join(dir_imgs, '{}_frame_{}.png'.format( prefix, str(target_frame).zfill(4)) ) , dpi=150)
 			#plt.show()
 			plt.clf()
 			plt.close(fig=fig)
