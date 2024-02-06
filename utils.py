@@ -523,10 +523,15 @@ def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, tra
 		ax = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 		axes.append(ax)
 		cs = ax.imshow( panel , cmap=c.cmap[target], vmin=vmin, vmax=vmax )
+		
 		if i == 0 and scalebar==True:
 			plot_scalebar(ax, col='w', linewidth=3)
-		if title == True:
-			ax.set_title('Smoothed '+ target )
+		if title is True:
+			ax.set_title( target )
+		elif title is False:
+			pass
+		else:
+			ax.set_title( title )
 		arrange_graph_no_ticks(ax)
 		if colorbar == True:
 			cb = plot_colorbar(ax, cs)
