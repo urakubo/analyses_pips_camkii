@@ -82,7 +82,7 @@ def make_a_figure( d ):
 		loc0  = ax.get_position()
 		axes.append(ax)
 		columns = {'CaMKII':2, 'GluN2B':3, 'STG':4,'PSD95':5}
-		axes1 = utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp )
+		axes1 = utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp, pre_rotated=False )
 		axes.extend(axes1)
 		columns = {'CaMKII':6, 'STG':7}
 		axes2 = utils.plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp)
@@ -93,8 +93,6 @@ def make_a_figure( d ):
 			loc = a.get_position()
 			#print('loc ', loc)
 			a.set_position([loc.x0, yloc[-1], panel_size, panel_size])
-	
-	
 	
 	panel_dx = 0.03
 	
@@ -161,15 +159,15 @@ if __name__ == '__main__':
 	# Dataset 1
 	
 	# Input files
-	dir_edited_data 		= 'data/conc_dependence'
-	filenames_edited_data 	= [str(i).zfill(3) for i in range(3) ] # 30
+	dir_edited_data 		= os.path.join('data', 'conc_dependence')
+	filenames_edited_data 	= [str(i).zfill(3) for i in range(70) ] # 70
 	# Output files
 	dir_imgs = os.path.join('imgs', 'conc_dependence','profiles')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
-	sigmas = [2,4]
-	for sigma in sigmas:
-		for filename in filenames_edited_data:
+	sigmas = [2]
+	for filename in filenames_edited_data:
+		for sigma in sigmas:
 			# Load data
 			prefix = filename
 			suffix = 'sigma_{}'.format(sigma)

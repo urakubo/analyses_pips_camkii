@@ -8,13 +8,14 @@ plt.rcParams.update({
                     'svg.fonttype' : 'none',
                     'font.family' : 'sans-serif',
                     'font.sans-serif' : 'Arial',
-                    'font.style' : 'normal'})
+                    'font.style' : 'normal',
+                    'font.size' : 6})
 
 
 
 if __name__ == '__main__':
 	
-	target   = 'conc_STG' # 'region_condensates', 'conc_CaMKII', 'conc_STG', 'watershed_CaMKII'
+	target   = 'conc_CaMKII' # 'region_condensates', 'conc_CaMKII', 'conc_STG', 'watershed_CaMKII', 'rdf'
 	sigma    = 2 # 2 or 4
 	
 	# Input files
@@ -24,8 +25,8 @@ if __name__ == '__main__':
 	dir_imgs = os.path.join('imgs', 'conc_dependence','matrix')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
-	STG    = [500, 1000, 2000, 3000, 4000] 
-	GluN2B = [500, 2000, 4000, 6000, 8000, 12000, 16000, 20000]
+	STG    = [1, 500, 1000, 1500, 2000, 2500, 3000] 
+	GluN2B = [1, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000, 20000]
 	
 	volume = np.prod(utils.space_np)
 	STG    = [ s / volume for s in STG    ]
@@ -56,6 +57,9 @@ if __name__ == '__main__':
 			else:
 				scalebar=False
 			
+			
+			errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
+			
 			row    = num_rows-j-1
 			column = i+1
 			print('column: ', column, ', row: ', row)
@@ -63,13 +67,18 @@ if __name__ == '__main__':
 				utils.plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, title=False, scalebar=scalebar )
 			elif target == 'conc_CaMKII':
 				columns = {'CaMKII':column}
-				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=prefix, colorbar=False, scalebar=scalebar )
+				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
+					title=None, colorbar=False, scalebar=scalebar, pre_rotated=True )
 			elif target == 'conc_STG':
 				columns = {'STG':column}
-				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=prefix, colorbar=False, scalebar=scalebar )
+				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
+					title=None, colorbar=False, scalebar=scalebar, pre_rotated=True )
 			elif target == 'watershed_CaMKII':
 				columns = {'CaMKII':column}
 				utils.plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=False, scalebar=scalebar )
+			elif target == 'rdf':
+				ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
+				utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=scalebar )
 			else:
 				raise ValueError("Target function has not been implemented: {}".format(target))
 			#  transps = [(0,1,2),(1,2,0),(2,0,1)]

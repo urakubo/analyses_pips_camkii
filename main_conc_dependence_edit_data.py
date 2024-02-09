@@ -24,9 +24,9 @@ if __name__ == '__main__':
 	
 	# Dataset
 	dir_lammpstrj    = './../lammpstrj/figure2_data'
-	filenames_input  = ['R1_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(40) ]
 	dir_edited_data  = 'data/conc_dependence'
-	filenames_output = [str(i).zfill(3) for i in range(40) ]
+	filenames_output = [str(i).zfill(3) for i in range(70) ]
+	filenames_input  = ['R1_{}.lammpstrj'.format(f) for f in filenames_output ] #70
 	
 	# RDF
 	num_sampling_frames = 5

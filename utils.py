@@ -39,27 +39,25 @@ edge2 =  list(range(-int(space[2]/2), int(space[2]/2), 1))
 reference_molecule_for_centering = 'All'
 
 subunits = \
-	{'GluN2Bc'	:{'id':3},\
-	'CaMKII Hub'    :{'id':0},\
-	'CaMKII Catalyst':{'id':5},\
-	'STGc1'         :{'id':4},\
-	'STGc2'         :{'id':2},\
-	'PSD1'			:{'id':1}}
-
+	{'GluN2B binding site'	:{'id':3},\
+	'CaMKII hub'    :{'id':0},\
+	'CaMKII binding site':{'id':5},\
+	'STG binding site' :{'id':4},\
+	'STG hub'         :{'id':2},\
+	'PSD'			:{'id':1}}
 
 molecules_with_all = \
-	{'CaMKII'	:{'s':['CaMKII Catalyst']	,'c':'#228B22'},\
-	'GluN2B'	:{'s':['GluN2Bc']			,'c':'#ED0DD9'},\
-	'STG'		:{'s':['STGc1','STGc2']		,'c':'r'},\
-	'PSD95'		:{'s':['PSD1']				,'c':'#00FFFF'},\
-	'All'		:{'s':['GluN2Bc','CaMKII Hub','CaMKII Catalyst','STGc1','STGc2','PSD1']			,'c':'k'}}
+	{'CaMKII'	:{'s':['CaMKII binding site', 'CaMKII hub']	,'c':'#228B22'},\
+	'GluN2B'	:{'s':['GluN2B binding site']			,'c':'#ED0DD9'},\
+	'STG'		:{'s':['STG binding site','STG hub']	,'c':'r'},\
+	'PSD95'		:{'s':['PSD']				,'c':'#00FFFF'},\
+	'All'		:{'s':['GluN2B binding site','CaMKII hub','CaMKII binding site','STG binding site','STG hub','PSD']			,'c':'k'}}
 
 molecules_without_all = \
-	{'CaMKII'	:{'s':['CaMKII Catalyst']	,'c':'#228B22'},\
-	'GluN2B'	:{'s':['GluN2Bc']			,'c':'#ED0DD9'},\
-	'STG'		:{'s':['STGc1','STGc2']		,'c':'r'},\
-	'PSD95'		:{'s':['PSD1']				,'c':'#00FFFF'}}
-
+	{'CaMKII'	:{'s':['CaMKII binding site', 'CaMKII hub']	,'c':'#228B22'},\
+	'GluN2B'	:{'s':['GluN2B binding site']			,'c':'#ED0DD9'},\
+	'STG'		:{'s':['STG binding site','STG hub']	,'c':'r'},\
+	'PSD95'		:{'s':['PSD']							,'c':'#00FFFF'}}
 
 for k, v in molecules_with_all.items():
 	molecules_with_all[k]['id'] = [subunits[s]['id'] for s in v['s']]
@@ -195,6 +193,37 @@ def get_min_local_mins(local_mins, conc_smooth, mask):
 	return {'location': loc_local_min, 'value':local_min_value}
 	
 	
+	
+def rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord ): 
+	# Rotation
+	# https://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space
+	
+	targs_molecule  = molecules_with_all.keys()
+	ids_target = {t: np.linalg.norm( locs_in_real_coord[t], axis = 1 ) < np.min(center_np) for t in targs_molecule}
+	targets_locs_in_real_coord = {t: locs_in_real_coord[t][ids_target[t]] for t in targs_molecule}
+	
+	directions = {t: np.mean(targets_locs_in_real_coord[t], axis = 0) for t in targs_molecule}
+	#print(directions)
+	direction = directions['PSD95'] - directions['CaMKII']
+	direction = direction / np.linalg.norm(direction)
+	
+	x = direction[0]
+	y = direction[1]
+	z = direction[2]
+	x2_y2= np.sqrt(x*x+y*y)
+	theta_xy = np.arctan2(y, x)
+	theta_xz = np.arctan2(x2_y2, z)
+	r1 = np.array([[np.cos(theta_xy), np.sin(theta_xy), 0],[-np.sin(theta_xy), np.cos(theta_xy), 0],[0,0,1]])
+	r2 = np.array([[np.cos(theta_xz), 0, -np.sin(theta_xz)],[0, 1, 0],[np.sin(theta_xz), 0, np.cos(theta_xz)]])
+	rot_matrix = np.dot(r2, r1)
+	
+	targets_locs_in_real_coord = {t: rot_matrix.dot(targets_locs_in_real_coord[t].T).T  for t in targs_molecule}
+	#for t in targs_molecule:
+	#	print(t, 'targets_locs_in_real_coord[t].shape')
+	#	print(targets_locs_in_real_coord[t].shape)
+	return targets_locs_in_real_coord
+	
+	
 	#
 	# grid_coord: Molecular locations in the grid space [0, 1,..., 119]
 	# (numpy uint) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
@@ -225,14 +254,18 @@ def get_concs_and_condensates(types, positions, ids_molecule, sigma=2):
 	concs_in_grid_mesh = {t: ndimage.gaussian_filter(locs_in_grid_mesh[t], sigma = sigma) for t in targs_molecule}
 	regions_condensate_in_grid_mesh = {t: get_high(concs_in_grid_mesh[t]-concs_periphery[t]) for t in targs_molecule}
 	
-	
 	def get_concs_condensate(ref_molecule):
 		return {t: np.sum(locs_in_grid_mesh[t] * regions_condensate_in_grid_mesh[ref_molecule])/ \
 				np.sum( regions_condensate_in_grid_mesh[ref_molecule] ) for t in targs_molecule }
 	concs_condensate = {t: get_concs_condensate(t) for t in targs_molecule}
 	
-	# The line below was prepared for visualization. So far, it does not contribute to the improvement.
-	regions_condensate_in_grid_mesh_0_15 = {t: get_high(concs_in_grid_mesh[t]-concs_periphery[t], th=0.15) for t in targs_molecule}
+	# Rotate particles and obtain their concentrations and 
+	rotated_in_real_coord = rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord )
+	rotated_in_grid_mesh  = {k: get_hist(rotated_in_real_coord[k]) for k in targs_molecule}
+	rotated_concs_in_grid_mesh = \
+		{t: ndimage.gaussian_filter(rotated_in_grid_mesh[t], sigma = sigma) for t in targs_molecule}
+	rotated_regions_condensate_in_grid_mesh = \
+		{t: get_high(rotated_concs_in_grid_mesh[t]-concs_periphery[t]) for t in targs_molecule}
 	
 	
 	# Summary
@@ -240,7 +273,10 @@ def get_concs_and_condensates(types, positions, ids_molecule, sigma=2):
 			'locs_in_grid_mesh':	locs_in_grid_mesh,
 			'concs_in_grid_mesh':	concs_in_grid_mesh,
 			'region_condensate_in_grid_mesh': regions_condensate_in_grid_mesh,
-			'region_condensate_in_grid_mesh_0_15': regions_condensate_in_grid_mesh_0_15,
+			#
+			'rotated_concs_in_grid_mesh':	rotated_concs_in_grid_mesh,
+			'rotated_region_condensate_in_grid_mesh': rotated_regions_condensate_in_grid_mesh,
+			#
 			'conc_periphery'	:	concs_periphery,
 			'conc_condensate'	:	concs_condensate,
 		}
@@ -448,6 +484,7 @@ def plot_colorbar(ax, cs):
 	ticks = copy.copy( cb.get_ticks() ).tolist()
 	cb.set_ticks(ticks)
 	cb.set_ticklabels(["{:.2f}".format(i) for i in ticks])
+	cb.set_label('(beads / voxel)')
 	return cb
 	
 	
@@ -456,10 +493,14 @@ def plot_scalebar(ax, col='k', linewidth=2):
 	return
 	
 	
-def make_a_panel_of_CaMKII_STG_condenstates(d, transp, slice):
+def make_a_panel_of_CaMKII_STG_condenstates(d, transp, slice, pre_rotated=False ):
 	# Condensate region
-	r_CaMKII   = d['region_condensate_in_grid_mesh']['CaMKII'].transpose(transp)[slice,:,:]
-	r_STG      = d['region_condensate_in_grid_mesh']['STG'].transpose(transp)[slice,:,:]
+	if pre_rotated == False:
+		r_CaMKII   = d['region_condensate_in_grid_mesh']['CaMKII'].transpose(transp)[slice,:,:]
+		r_STG      = d['region_condensate_in_grid_mesh']['STG'].transpose(transp)[slice,:,:]
+	else:
+		r_CaMKII   = d['rotated_region_condensate_in_grid_mesh']['CaMKII'].transpose(transp)[slice,:,:]
+		r_STG      = d['rotated_region_condensate_in_grid_mesh']['STG'].transpose(transp)[slice,:,:]
 	r_BOTH     = r_CaMKII & r_STG
 	# white panel
 	panel = np.ones( [r_CaMKII.shape[0],r_CaMKII.shape[1],3], dtype=np.uint8 )*255 
@@ -473,15 +514,19 @@ def make_a_panel_of_CaMKII_STG_condenstates(d, transp, slice):
 	
 	
 	
-def make_a_panel_of_CaMKII_All_condenstates(d, transp, slice):
+def make_a_panel_of_CaMKII_All_condenstates(d, transp, slice, pre_rotated=False ):
 	# Condensate region
-	r_CaMKII   = d['region_condensate_in_grid_mesh']['CaMKII'].transpose(transp)[slice,:,:]
-	r_STG      = d['region_condensate_in_grid_mesh']['All'].transpose(transp)[slice,:,:]
-	r_BOTH     = r_CaMKII & r_STG
+	if pre_rotated == False:
+		r_CaMKII   = d['region_condensate_in_grid_mesh']['CaMKII'].transpose(transp)[slice,:,:]
+		r_All      = d['region_condensate_in_grid_mesh']['All'].transpose(transp)[slice,:,:]
+	else:
+		r_CaMKII   = d['rotated_region_condensate_in_grid_mesh']['CaMKII'].transpose(transp)[slice,:,:]
+		r_All      = d['rotated_region_condensate_in_grid_mesh']['All'].transpose(transp)[slice,:,:]
+	r_BOTH     = r_CaMKII & r_All
 	# white panel
 	panel = np.ones( [r_CaMKII.shape[0],r_CaMKII.shape[1],3], dtype=np.uint8 )*255 
 	col = c.cmap_universal_uint['All']
-	for k in range(3): panel[r_STG,k] = col[k]
+	for k in range(3): panel[r_All,k] = col[k]
 	col = c.cmap_universal_uint['CaMKII']
 	for k in range(3): panel[r_CaMKII,k] = col[k]
 	col = c.light_green_universal_uint # Lignt green
@@ -489,9 +534,9 @@ def make_a_panel_of_CaMKII_All_condenstates(d, transp, slice):
 	return panel
 	
 	
-def plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, transp = (0,1,2), title=True, scalebar=True):
+def plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, transp = (0,1,2), title=True, scalebar=True, pre_rotated=False ):
 	slice = int( space[0]/2 )
-	panel = make_a_panel_of_CaMKII_All_condenstates(d, transp, slice)
+	panel = make_a_panel_of_CaMKII_All_condenstates(d, transp, slice, pre_rotated=pre_rotated )
 	ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 	ax.imshow( panel )
 	if scalebar==True:
@@ -502,9 +547,9 @@ def plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, c
 	return ax
 	
 	
-def plot_regions_condenstate_from_a_direction_(fig, num_rows, num_columns, row, column, d, transp = (0,1,2), title=True, scalebar=True):
+def plot_regions_condenstate_from_a_direction_(fig, num_rows, num_columns, row, column, d, transp = (0,1,2), title=True, scalebar=True, pre_rotated=False ):
 	slice = int( space[0]/2 )
-	panel = make_a_panel_of_CaMKII_STG_condenstates(d, transp, slice)
+	panel = make_a_panel_of_CaMKII_STG_condenstates(d, transp, slice, pre_rotated=pre_rotated )
 	ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 	ax.imshow( panel )
 	if scalebar==True:
@@ -515,17 +560,32 @@ def plot_regions_condenstate_from_a_direction_(fig, num_rows, num_columns, row, 
 	return ax
 	
 	
-def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True, colorbar=True, scalebar=True, vmin=0, vmax=None ):
+def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True, colorbar=True, scalebar=True, vmin=0, vmax=None, pre_rotated=False ):
 	slice = int( space[0]/2 )
 	axes = []
 	for i, (target, column) in enumerate(columns.items()):
-		panel = d['concs_in_grid_mesh'][target].transpose(transp)[slice,:,:]
 		ax = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 		axes.append(ax)
-		cs = ax.imshow( panel , cmap=c.cmap[target], vmin=vmin, vmax=vmax )
 		
-		if i == 0 and scalebar==True:
-			plot_scalebar(ax, col='w', linewidth=3)
+		if pre_rotated == False:
+			panel = d['concs_in_grid_mesh'][target].transpose(transp)[slice,:,:]
+			cs = ax.imshow( panel , cmap=c.cmap[target], vmin=vmin, vmax=vmax )
+			if i == 0 and scalebar==True:
+				plot_scalebar(ax, col='w', linewidth=3)
+		else:
+			panel = d['rotated_concs_in_grid_mesh'][target].transpose(transp)[slice,:,:]
+			cmap=c.cmap[target]
+			cmap.set_bad(alpha = 0.0)
+			mask = morphology.disk(center_np[0]-0.5)
+			panel[np.logical_not(mask)] = float('nan')
+			cs = ax.imshow( panel , cmap=cmap, vmin=vmin, vmax=vmax )
+			
+			#mask = np.ma.masked_where(mask == 0, mask)
+			#ax.imshow(mask,alpha=1,cmap = 'Reds')
+			
+			if i == 0 and scalebar==True:
+				plot_scalebar(ax, col='k', linewidth=3)
+
 		if title is True:
 			ax.set_title( target )
 		elif title is False:
@@ -534,8 +594,7 @@ def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, tra
 			ax.set_title( title )
 		arrange_graph_no_ticks(ax)
 		if colorbar == True:
-			cb = plot_colorbar(ax, cs)
-			cb.set_label('(beads / voxel)')
+			plot_colorbar(ax, cs)
 	return axes
 	
 	
@@ -597,7 +656,7 @@ def square_zx():
 	pointb = [-x, 0.0, -z]
 	pointc = [x , 0.0, -z]
 	pointd = [x , 0.0,  z]
-	return pyvista.Rectangle([pointa, pointb, pointc, pointd])
+	return pyvista.Rectangle([pointa, pointb, pointc])
 
 
 def square_xy():
@@ -607,7 +666,7 @@ def square_xy():
 	pointb = [-x, -y, 0.0]
 	pointc = [x , -y, 0.0]
 	pointd = [x ,  y, 0.0]
-	return pyvista.Rectangle([pointa, pointb, pointc, pointd])
+	return pyvista.Rectangle([pointa, pointb, pointc])
 
 
 def square_yz():
@@ -617,7 +676,7 @@ def square_yz():
 	pointb = [0.0, -y, -z]
 	pointc = [0.0, y , -z]
 	pointd = [0.0, y ,  z]
-	return pyvista.Rectangle([pointa, pointb, pointc, pointd])
+	return pyvista.Rectangle([pointa, pointb, pointc])
 
 
 def rotate(mesh_CaMKII, mesh_STG): 
