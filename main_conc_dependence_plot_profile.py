@@ -78,7 +78,7 @@ def make_a_figure( d ):
 	for row,(title, transp) in enumerate(zip(titles, transps)):
 		axes = []
 		column = 1
-		ax    = utils.plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, transp )
+		ax    = utils.plot_regions_condenstate_from_a_direction_(fig, num_rows, num_columns, row, column, d, transp )
 		loc0  = ax.get_position()
 		axes.append(ax)
 		columns = {'CaMKII':2, 'GluN2B':3, 'STG':4,'PSD95':5}

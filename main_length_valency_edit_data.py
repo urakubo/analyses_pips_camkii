@@ -29,8 +29,8 @@ if __name__ == '__main__':
 	filenames_input  = ['R1_{}.lammpstrj'.format(f) for f in filenames_output ] #70
 	
 	# RDF
-	#num_sampling_frames = 5
-	#sampling_interval   = 2
+	num_sampling_frames = 5
+	sampling_interval   = 2
 	
 	# Init
 	os.makedirs(dir_edited_data, exist_ok=True)

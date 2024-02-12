@@ -109,10 +109,24 @@ def load_lammpstrj(dir_data, filename_data, id_frame):
 	print('Load data.')
 	data_all            = import_file(os.path.join(dir_data, filename_data), input_format= "lammps/dump" )
 	data_target_frame   = data_all.compute(id_frame)
+	types, positions, id_molecule = decode_data(data_target_frame)
+	time_stamp 			= data_all.compute(id_frame).attributes['Timestep']
+	# data_target_frame.particles['bp']
+	
+	return types, positions, id_molecule, time_stamp
+	
+	
+def load_lammpstrj_binding_energy(dir_data, filename_data, id_frame):
+	print('Load data.')
+	data_all            = import_file(os.path.join(dir_data, filename_data), input_format= "lammps/dump" )
+	data_target_frame   = data_all.compute(id_frame)
 	time_stamp 			= data_all.compute(id_frame).attributes['Timestep']
 	types, positions, id_molecule = decode_data(data_target_frame)
-
-	return types, positions, id_molecule, time_stamp
+	energy_isotropic    = np.array( data_target_frame.particles['energy_isotropic'] )
+	#energy_anisotropic      = np.array( data_frame.particles['energy_anisotropic'] )
+	#energy_anisotropic_self = np.array( data_frame.particles['energy_anisotropic_self'] )
+	
+	return types, positions, id_molecule, time_stamp, energy_isotropic
 	
 	
 def decode_data(data_frame):
@@ -168,13 +182,21 @@ def get_local_mins(data, mask = None):
 	
 def get_high(conc, th = 0.5):
 	return (conc > np.max(conc)*th)
-
+	
 	
 def get_hist(positions):
 	edges0 =  list(range(-int(space[0]/2), int(space[0]/2) + 1, 1))
 	edges1 =  list(range(-int(space[1]/2), int(space[1]/2) + 1, 1))
 	edges2 =  list(range(-int(space[2]/2), int(space[2]/2) + 1, 1))
-	H, (xedges, yedges, zedges) = np.histogramdd(positions, bins=(edges0, edges1, edges2))
+	H, (xedges, yedges, zedges) = np.histogramdd( positions, bins=(edges0, edges1, edges2) )
+	return H
+	
+	
+def get_sum_energy(positions, energy):
+	edges0 =  list(range(-int(space[0]/2), int(space[0]/2) + 1, 1))
+	edges1 =  list(range(-int(space[1]/2), int(space[1]/2) + 1, 1))
+	edges2 =  list(range(-int(space[2]/2), int(space[2]/2) + 1, 1))
+	H, (xedges, yedges, zedges) = np.histogramdd( positions, bins=(edges0, edges1, edges2), weights=energy )
 	return H
 	
 	
