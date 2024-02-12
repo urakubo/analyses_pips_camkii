@@ -2,20 +2,15 @@
 import os, glob, pickle, pprint
 import numpy as np
 import utils
+import parameters as p
 import matplotlib.pyplot as plt
-plt.rcParams.update({
-                    'pdf.fonttype' : 'truetype',
-                    'svg.fonttype' : 'none',
-                    'font.family' : 'sans-serif',
-                    'font.sans-serif' : 'Arial',
-                    'font.style' : 'normal',
-                    'font.size' : 6})
+plt.rcParams.update(p.rc_param)
 
 
 
 if __name__ == '__main__':
 	
-	target   = 'conc_CaMKII' # 'region_condensates', 'conc_CaMKII', 'conc_STG', 'watershed_CaMKII', 'rdf'
+	target   =  'rdf' # 'region_condensates', 'conc_CaMKII', 'conc_STG', 'watershed_CaMKII', 'rdf'
 	sigma    = 2 # 2 or 4
 	
 	# Input files
@@ -28,7 +23,7 @@ if __name__ == '__main__':
 	STG    = [1, 500, 1000, 1500, 2000, 2500, 3000] 
 	GluN2B = [1, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000, 20000]
 	
-	volume = np.prod(utils.space_np)
+	volume = np.prod(p.space_np)
 	STG    = [ s / volume for s in STG    ]
 	GluN2B = [ n / volume for n in GluN2B ]
 	
@@ -77,6 +72,7 @@ if __name__ == '__main__':
 				columns = {'CaMKII':column}
 				utils.plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=False, scalebar=scalebar )
 			elif target == 'rdf':
+				plt.rcParams.update( {'font.size': 6} )
 				ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 				utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=scalebar )
 			else:

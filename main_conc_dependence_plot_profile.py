@@ -6,16 +6,12 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.axes_grid1
 
 import utils
+import parameters as p
 import colormap as c
 from scipy import ndimage
 
 
-plt.rcParams.update({
-                    'pdf.fonttype' : 'truetype',
-                    'svg.fonttype' : 'none',
-                    'font.family' : 'sans-serif',
-                    'font.sans-serif' : 'Arial',
-                    'font.style' : 'normal'})
+plt.rcParams.update(p.rc_params)
 	
 	
 def arrange_graph_bar(ax, panel_dx, y0, panel_size_x, panel_size_y):
@@ -84,9 +80,11 @@ def make_a_figure( d ):
 		columns = {'CaMKII':2, 'GluN2B':3, 'STG':4,'PSD95':5}
 		axes1 = utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp, pre_rotated=False )
 		axes.extend(axes1)
+		'''
 		columns = {'CaMKII':6, 'STG':7}
 		axes2 = utils.plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp)
 		axes.extend(axes2)
+		'''
 		
 		yloc.append(loc0.y0)
 		for a in axes:
@@ -98,6 +96,7 @@ def make_a_figure( d ):
 	
 	
 	# Plot the volume of watershed basin
+	'''
 	ratio_volumes_watershed = {k: v*100 for k, v in d['ratio_volumes_watershed'].items()}
 	cols = [c.cmap_universal_ratio[k] for k in ratio_volumes_watershed.keys()]
 	ax = fig.add_subplot( num_rows, num_columns, 8 )
@@ -106,6 +105,7 @@ def make_a_figure( d ):
 	ax.set_ylabel('/ total system volume (%)')
 	ax.set_ylim(0,3.0)
 	arrange_graph_bar(ax, panel_dx, yloc[0], panel_size/4, panel_size )
+	'''
 	
 	
 	# Plot concs in condensates
@@ -133,7 +133,7 @@ def make_a_figure( d ):
 	column = 10
 	targets_condensate = ['CaMKII','STG']
 	for i, t in enumerate(targets_condensate):
-		data   = { k: d['conc_condensate'][t][k]  for k in utils.molecules_without_all.keys()}
+		data   = { k: d['conc_condensate'][t][k]  for k in p.molecules_without_all.keys()}
 		colormap_conc_bargraph =[c.cmap_universal_ratio[k] for k in data.keys()]
 		ax = fig.add_subplot( num_rows, num_columns, column+num_columns*i )
 		ax.set_title('{} condensate'.format( t ))

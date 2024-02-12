@@ -18,60 +18,9 @@ from ovito.io import import_file
 import pyvista
 import trimesh
 import colormap as c
+import parameters as p
 
-plt.rcParams.update({
-                    'pdf.fonttype' : 'truetype',
-                    'svg.fonttype' : 'none',
-                    'font.family' : 'sans-serif',
-                    'font.sans-serif' : 'Arial',
-                    'font.style' : 'normal'})
-
-bsize     = 120
-space     = [bsize, bsize, bsize]
-space_np  = np.array(space)
-center_np = space_np / 2
-
-edge0 =  list(range(-int(space[0]/2), int(space[0]/2), 1))
-edge1 =  list(range(-int(space[1]/2), int(space[1]/2), 1))
-edge2 =  list(range(-int(space[2]/2), int(space[2]/2), 1))
-
-
-reference_molecule_for_centering = 'All'
-
-subunits = \
-	{'GluN2B binding site'	:{'id':3},\
-	'CaMKII hub'    :{'id':0},\
-	'CaMKII binding site':{'id':5},\
-	'STG binding site' :{'id':4},\
-	'STG hub'         :{'id':2},\
-	'PSD'			:{'id':1}}
-
-molecules_with_all = \
-	{'CaMKII'	:{'s':['CaMKII binding site', 'CaMKII hub']	,'c':'#228B22'},\
-	'GluN2B'	:{'s':['GluN2B binding site']			,'c':'#ED0DD9'},\
-	'STG'		:{'s':['STG binding site','STG hub']	,'c':'r'},\
-	'PSD95'		:{'s':['PSD']				,'c':'#00FFFF'},\
-	'All'		:{'s':['GluN2B binding site','CaMKII hub','CaMKII binding site','STG binding site','STG hub','PSD']			,'c':'k'}}
-
-molecules_without_all = \
-	{'CaMKII'	:{'s':['CaMKII binding site', 'CaMKII hub']	,'c':'#228B22'},\
-	'GluN2B'	:{'s':['GluN2B binding site']			,'c':'#ED0DD9'},\
-	'STG'		:{'s':['STG binding site','STG hub']	,'c':'r'},\
-	'PSD95'		:{'s':['PSD']							,'c':'#00FFFF'}}
-
-for k, v in molecules_with_all.items():
-	molecules_with_all[k]['id'] = [subunits[s]['id'] for s in v['s']]
-
-
-for k, v in molecules_without_all.items():
-	molecules_without_all[k]['id'] = [subunits[s]['id'] for s in v['s']]
-	
-
-# RDF parameters
-
-rdf_bins          = np.arange(0, 35) # You can set "np.arange(0, 35, 2)"
-rdf_num_sampling_frames = 5
-rdf_sampling_interval   = 2
+plt.rcParams.update(p.rc_param)
 
 
 ############### Save, load, and decoding
@@ -137,8 +86,8 @@ def decode_data(data_frame):
 	return type, position, id_molecule
 	
 def decode_species(types, positions):
-	types_binary = {k: [True if t in v['id'] else False for t in types] for k, v in molecules_with_all.items() }
-	types_positions = {k: positions[types_binary[k],:] for k in molecules_with_all.keys() }
+	types_binary = {k: [True if t in v['id'] else False for t in types] for k, v in p.molecules_with_all.items() }
+	types_positions = {k: positions[types_binary[k],:] for k in p.molecules_with_all.keys() }
 	return types_positions
 	
 	
@@ -149,15 +98,15 @@ def decode_species(types, positions):
 	## ids_loc = np.nonzero( get_hist(locs_subunits) )
 def get_locs_in_grid_coord(locs):
 	locs_int = np.floor(locs).astype(int)
-	loc0 = np.array( [edge0.index(i) for i in locs_int[:,0]] )
-	loc1 = np.array( [edge1.index(i) for i in locs_int[:,1]] )
-	loc2 = np.array( [edge2.index(i) for i in locs_int[:,2]] )
+	loc0 = np.array( [p.edge0.index(i) for i in locs_int[:,0]] )
+	loc1 = np.array( [p.edge1.index(i) for i in locs_int[:,1]] )
+	loc2 = np.array( [p.edge2.index(i) for i in locs_int[:,2]] )
 	locs_in_grid_space = np.vstack([loc0, loc1, loc2]).T
 	return locs_in_grid_space
 
 
 def get_periphery_in_grid_mesh():
-	radius = (np.min(space) - 1) / 2
+	radius = (np.min(p.space_np) - 1) / 2
 	ball   = morphology.ball(radius)
 	periphery = (ball == 0)
 	return periphery
@@ -185,18 +134,13 @@ def get_high(conc, th = 0.5):
 	
 	
 def get_hist(positions):
-	edges0 =  list(range(-int(space[0]/2), int(space[0]/2) + 1, 1))
-	edges1 =  list(range(-int(space[1]/2), int(space[1]/2) + 1, 1))
-	edges2 =  list(range(-int(space[2]/2), int(space[2]/2) + 1, 1))
-	H, (xedges, yedges, zedges) = np.histogramdd( positions, bins=(edges0, edges1, edges2) )
+
+	H, (xedges, yedges, zedges) = np.histogramdd( positions, bins=(p.edges0, p.edges1, p.edges2) )
 	return H
 	
 	
 def get_sum_energy(positions, energy):
-	edges0 =  list(range(-int(space[0]/2), int(space[0]/2) + 1, 1))
-	edges1 =  list(range(-int(space[1]/2), int(space[1]/2) + 1, 1))
-	edges2 =  list(range(-int(space[2]/2), int(space[2]/2) + 1, 1))
-	H, (xedges, yedges, zedges) = np.histogramdd( positions, bins=(edges0, edges1, edges2), weights=energy )
+	H, (xedges, yedges, zedges) = np.histogramdd( positions, bins=(p.edges0, p.edges1, p.edges2), weights=energy )
 	return H
 	
 	
@@ -220,8 +164,8 @@ def rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord ):
 	# Rotation
 	# https://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space
 	
-	targs_molecule  = molecules_with_all.keys()
-	ids_target = {t: np.linalg.norm( locs_in_real_coord[t], axis = 1 ) < np.min(center_np) for t in targs_molecule}
+	targs_molecule  = p.molecules_with_all.keys()
+	ids_target = {t: np.linalg.norm( locs_in_real_coord[t], axis = 1 ) < np.min(p.center_np) for t in targs_molecule}
 	targets_locs_in_real_coord = {t: locs_in_real_coord[t][ids_target[t]] for t in targs_molecule}
 	
 	directions = {t: np.mean(targets_locs_in_real_coord[t], axis = 0) for t in targs_molecule}
@@ -254,16 +198,16 @@ def rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord ):
 	# (numpy float) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
 	#
 	# grid_mesh : molecular existance in a 3D numpy variable
-	# (True/False in the 3D space (util.space[0], util.space[1], util.space[2]))
+	# (True/False in the 3D space (p.space[0], p.space[1], p.space[2]))
 	#
 	
 def get_concs_and_condensates(types, positions, ids_molecule, sigma=2):
 	
 	# Parameters
-	targs_molecule  = molecules_with_all.keys() # ['GluN2B', 'CaMKII', 'STG', 'PSD95', 'All']
+	targs_molecule  = p.molecules_with_all.keys() # ['GluN2B', 'CaMKII', 'STG', 'PSD95', 'All']
 	
 	# Get the locations of target molecules separately.
-	flag_type          = {t: [True if k in molecules_with_all[t]['id'] else False for k in types] for t in targs_molecule}
+	flag_type          = {t: [True if k in p.molecules_with_all[t]['id'] else False for k in types] for t in targs_molecule}
 	locs_in_real_coord = {k: positions[flag_type[k],:] for k in targs_molecule } 
 	locs_in_grid_mesh  = {k: get_hist(locs_in_real_coord[k]) for k in targs_molecule}
 	
@@ -308,12 +252,12 @@ def get_concs_and_condensates(types, positions, ids_molecule, sigma=2):
 ############### Watershed segmentation
 	
 def watershed_segmentation( d ):
-	markers = np.zeros(space, dtype = int)
-	loc = int(space[0]/2), int(space[1]/2), int(space[2]/2)
+	markers = np.zeros(p.space, dtype = int)
+	loc = int(p.space[0]/2), int(p.space[1]/2), int(p.space[2]/2)
 	markers[ loc ]    = 1
 	markers[10,10,10] = 2
 	
-	tot_volume = space[0] * space[1] * space[2]
+	tot_volume = p.space[0] * p.space[1] * p.space[2]
 	targets_watershed = ['CaMKII', 'STG']
 	
 	labels_watershed_in_grid_mesh = {}
@@ -329,15 +273,15 @@ def watershed_segmentation( d ):
 	
 ############### Centering
 
-def get_center_of_mass(types_, positions_, reference_molecule_for_centering = reference_molecule_for_centering):
+def get_center_of_mass(types_, positions_, reference_molecule_for_centering = p.reference_molecule_for_centering):
 	
-	types = [True if t in molecules_with_all[reference_molecule_for_centering]['id'] else False for t in types_ ]
+	types = [True if t in p.molecules_with_all[reference_molecule_for_centering]['id'] else False for t in types_ ]
 	position_ref = positions_[types,:]
 	
 	# print('position_ref: ', position_ref)
-	x = (position_ref[:,0] / space[0]) * 2 * np.pi
-	y = (position_ref[:,1] / space[1]) * 2 * np.pi
-	z = (position_ref[:,2] / space[2]) * 2 * np.pi
+	x = (position_ref[:,0] / p.space[0]) * 2 * np.pi
+	y = (position_ref[:,1] / p.space[1]) * 2 * np.pi
+	z = (position_ref[:,2] / p.space[2]) * 2 * np.pi
 	x0, x1 = np.cos(x), np.sin(x)
 	y0, y1 = np.cos(y), np.sin(y)
 	z0, z1 = np.cos(z), np.sin(z)
@@ -350,7 +294,7 @@ def get_center_of_mass(types_, positions_, reference_molecule_for_centering = re
 	theta_y = np.arctan2(y1, y0)
 	theta_z = np.arctan2(z1, z0)
 
-	center_of_mass = np.array( [theta_x * space[0], theta_y * space[1] , theta_z * space[2] ] ) + np.pi
+	center_of_mass = np.array( [theta_x * p.space[0], theta_y * p.space[1] , theta_z * p.space[2] ] ) + np.pi
 	center_of_mass /= (2 * np.pi)
 
 	return center_of_mass
@@ -359,13 +303,13 @@ def get_center_of_mass(types_, positions_, reference_molecule_for_centering = re
 	# https://en.wikipedia.org/wiki/Center_of_mass#Systems_with_periodic_boundary_conditions
 
 
-def centering(p, center): 
-	p_centered = p - center
+def centering(positions, center): 
+	p_centered = positions - center
 	for dim in [0,1,2]:
-		over  = (p_centered[:,dim]  >  space[dim]/2)
-		under = (p_centered[:,dim] <= -space[dim]/2)
-		p_centered[over ,dim] -= space[dim]
-		p_centered[under,dim] += space[dim]
+		over  = (p_centered[:,dim]  >  p.space[dim]/2)
+		under = (p_centered[:,dim] <= -p.space[dim]/2)
+		p_centered[over ,dim] -= p.space[dim]
+		p_centered[under,dim] += p.space[dim]
 	return p_centered
 
 
@@ -374,12 +318,12 @@ def get_average_center_of_mass( dir_lammpstrj, filename_input, sampling_time_fra
 	
 	for i, target_frame in enumerate( sampling_time_frames ):
 		types, positions_grid_coord,ids_molecule = load_data( dir_lammpstrj, filename_input, target_frame )
-		positions_real_coord = centering(positions_grid_coord, center_np)
-		centers[i,:] = get_center_of_mass(types, positions_real_coord) - center_np
+		positions_real_coord = centering(positions_grid_coord, p.center_np)
+		centers[i,:] = get_center_of_mass(types, positions_real_coord) - p.center_np
 	
 	center = np.mean(centers, axis = 0)
-	center -= space_np * (center >  center_np)
-	center += space_np * (center <= -center_np)
+	center -= p.space_np * (center >  p.center_np)
+	center += p.space_np * (center <= -p.center_np)
 	
 	return center
 
@@ -387,13 +331,13 @@ def get_average_center_of_mass( dir_lammpstrj, filename_input, sampling_time_fra
 ############### Radial distrbution function
 
 def get_lattice_grids():
-	x, y, z = np.meshgrid(edge0, edge1, edge2)
+	x, y, z = np.meshgrid(p.edge0, p.edge1, p.edge2)
 	x, y, z = np.ravel(x), np.ravel(y), np.ravel(z)
 	grids   = np.vstack((x,y,z)).T
 	return grids
 
 
-def get_a_rdf(types, positions, rdf_grid_points, rdf_bins, center = None):
+def get_a_rdf(types, positions, rdf_grid_points, center = None):
 	
 	# Centering
 	if center is None:
@@ -410,24 +354,24 @@ def get_a_rdf(types, positions, rdf_grid_points, rdf_bins, center = None):
 	dists_grid = np.linalg.norm(positions_grid_centered, axis=1)
 
 	# Get radial distribution function (rdf)
-	num_grid_around_center, _  = np.histogram(dists_grid , bins=rdf_bins)
+	num_grid_around_center, _  = np.histogram(dists_grid , bins=p.rdf_bins)
 	rdf = {}
 	for k, v in dists.items():
-		num_molecule_around_center, _  = np.histogram(v , bins=rdf_bins)
+		num_molecule_around_center, _  = np.histogram(v , bins=p.rdf_bins)
 		rdf[k] = num_molecule_around_center / num_grid_around_center
 	
 	return rdf
 
 
-def get_rdfs_from_multiple_frames( dir_lammpstrj, filename_input, sampling_time_frames, rdf_bins, rdf_grid_points, center = None ):
+def get_rdfs_from_multiple_frames( dir_lammpstrj, filename_input, sampling_time_frames, rdf_grid_points, center = None ):
 
 	if center is None:
 		get_average_center_of_mass( dir_lammpstrj, filename_input, sampling_time_frames )
 		
-	rdfs = { k: np.zeros( ( len(rdf_bins)-1, len(sampling_time_frames) ) ) for k in molecules_with_all.keys() }
+	rdfs = { k: np.zeros( ( len(p.rdf_bins)-1, len(sampling_time_frames) ) ) for k in p.molecules_with_all.keys() }
 	for i, id_frame in enumerate( sampling_time_frames ):
 		types, positions, _ = load_data( dir_lammpstrj, filename_input, id_frame )
-		current_rdfs = get_a_rdf(types, positions, rdf_grid_points, rdf_bins, center )
+		current_rdfs = get_a_rdf(types, positions, rdf_grid_points, center )
 		for k in rdfs.keys():
 			rdfs[k][:,i] = current_rdfs[k]
 	return rdfs
@@ -439,21 +383,21 @@ def get_rdfs( dir_input, filename_input, target_frame, center=None ):
 	rdf_grid_points   = get_lattice_grids()
 	
 	# Target frames
-	rdf_sampling_frames = list(range( target_frame - (rdf_num_sampling_frames - 1)*rdf_sampling_interval, \
-			target_frame + rdf_sampling_interval,\
-			rdf_sampling_interval))
+	rdf_sampling_frames = list(range( target_frame - (p.rdf_num_sampling_frames - 1)*p.rdf_sampling_interval, \
+			target_frame + p.rdf_sampling_interval,\
+			p.rdf_sampling_interval))
 	
 	if np.any(np.array(rdf_sampling_frames) < 0):
 		rdf_sampling_frames = [0]
 
 	print('rdf_sampling_frames ', rdf_sampling_frames)
 	rdf = get_rdfs_from_multiple_frames(dir_input, filename_input, \
-			rdf_sampling_frames, rdf_bins, rdf_grid_points, center = center)
+			rdf_sampling_frames, rdf_grid_points, center = center)
 	
-	return rdf, rdf_bins, rdf_sampling_frames
+	return rdf, p.rdf_bins, rdf_sampling_frames
 
 
-def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = molecules_without_all.keys() , ylim = (-0.006,0.66) ):
+def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.molecules_without_all.keys() , ylim = (-0.006,0.66) ):
 	r = d['rdf_bins'][1:-1]
 	for k in target_molecules:
 		rdf_mean  = np.mean( d['rdf'][k][1:], axis = 1 )
@@ -557,7 +501,7 @@ def make_a_panel_of_CaMKII_All_condenstates(d, transp, slice, pre_rotated=False 
 	
 	
 def plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, transp = (0,1,2), title=True, scalebar=True, pre_rotated=False ):
-	slice = int( space[0]/2 )
+	slice = int( p.space[0]/2 )
 	panel = make_a_panel_of_CaMKII_All_condenstates(d, transp, slice, pre_rotated=pre_rotated )
 	ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 	ax.imshow( panel )
@@ -570,7 +514,7 @@ def plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, c
 	
 	
 def plot_regions_condenstate_from_a_direction_(fig, num_rows, num_columns, row, column, d, transp = (0,1,2), title=True, scalebar=True, pre_rotated=False ):
-	slice = int( space[0]/2 )
+	slice = int( p.space[0]/2 )
 	panel = make_a_panel_of_CaMKII_STG_condenstates(d, transp, slice, pre_rotated=pre_rotated )
 	ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 	ax.imshow( panel )
@@ -583,7 +527,7 @@ def plot_regions_condenstate_from_a_direction_(fig, num_rows, num_columns, row, 
 	
 	
 def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True, colorbar=True, scalebar=True, vmin=0, vmax=None, pre_rotated=False ):
-	slice = int( space[0]/2 )
+	slice = int( p.space[0]/2 )
 	axes = []
 	for i, (target, column) in enumerate(columns.items()):
 		ax = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
@@ -598,7 +542,7 @@ def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, tra
 			panel = d['rotated_concs_in_grid_mesh'][target].transpose(transp)[slice,:,:]
 			cmap=c.cmap[target]
 			cmap.set_bad(alpha = 0.0)
-			mask = morphology.disk(center_np[0]-0.5)
+			mask = morphology.disk(p.center_np[0]-0.5)
 			panel[np.logical_not(mask)] = float('nan')
 			cs = ax.imshow( panel , cmap=cmap, vmin=vmin, vmax=vmax )
 			
@@ -621,7 +565,7 @@ def plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, tra
 	
 	
 def plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp = (0,1,2), title=True, scalebar=True ):
-	slice = int( space[0]/2 )
+	slice = int( p.space[0]/2 )
 	axes = []
 	for i, (target, column) in enumerate(columns.items()):
 		panel = d['labels_watershed_in_grid_mesh'][target].transpose(transp)[slice,:,:]
@@ -653,7 +597,7 @@ def plot_concs_condensate_bar(ax, targ, ref, d):
 	col = c.cmap_universal_ratio[targ]
 	ax.bar(['In '+targ+'\n condensates', 'In '+ref+'\n condensates'], [cc[targ][targ], cc[ref][targ]], width=0.5, color=col)
 	ax.set_title('Conc of {}'.format(targ))
-	ax.set_ylabel('(beads / volume)')
+	ax.set_ylabel('(beads / voxel)')
 	ax.set_ylim(0,0.6)
 	ax.tick_params(axis='x', rotation=45)
 	
@@ -672,8 +616,8 @@ def plot_conc_ratio_condensate_bar(ax, targs, counterparts, d):
 
 
 def square_zx():
-	x = space[0]/2
-	z = space[2]/2
+	x = p.space[0]/2
+	z = p.space[2]/2
 	pointa = [-x,  0.0, z]
 	pointb = [-x, 0.0, -z]
 	pointc = [x , 0.0, -z]
@@ -682,8 +626,8 @@ def square_zx():
 
 
 def square_xy():
-	x = space[0]/2
-	y = space[1]/2
+	x = p.space[0]/2
+	y = p.space[1]/2
 	pointa = [-x,  y, 0.0]
 	pointb = [-x, -y, 0.0]
 	pointc = [x , -y, 0.0]
@@ -692,8 +636,8 @@ def square_xy():
 
 
 def square_yz():
-	y = space[1]/2
-	z = space[2]/2
+	y = p.space[1]/2
+	z = p.space[2]/2
 	pointa = [0.0, -y,  z]
 	pointb = [0.0, -y, -z]
 	pointc = [0.0, y , -z]
@@ -729,7 +673,7 @@ def rotate(mesh_CaMKII, mesh_STG):
 	
 def generate_mesh(volume, num_smoothing = 1, flipx = False, flipy = False, flipz = False):
 	v_march, f_march, normals, values = measure.marching_cubes(volume, 0.5, spacing=(1,1,1), gradient_direction='ascent')
-	center = np.array(space)/2
+	center = np.array(p.space)/2
 	v_march = v_march - center
 	
 	if flipx == True:
@@ -744,4 +688,46 @@ def generate_mesh(volume, num_smoothing = 1, flipx = False, flipy = False, flipz
 	return mesh
 	
 	
+
+def plot_a_condensate_pyvista(d, pl, rotation=True): 
+	
+	flipz = False
+	# Generate mesh
+	r_CaMKII   = d['region_condensate_in_grid_mesh']['CaMKII'].astype(float)
+	r_STG      = d['region_condensate_in_grid_mesh']['STG'].astype(float)
+	
+	mesh_CaMKII = generate_mesh(r_CaMKII, flipz = flipz)
+	mesh_STG    = generate_mesh(r_STG   , flipz = flipz)
+	
+	if rotation == True:
+		utils.rotate(mesh_CaMKII, mesh_STG)
+	
+	# Add cube
+	'''
+	cube  = pyvista.Cube(center=(0,0,0), \
+		x_length=utils.space[0], y_length=utils.space[1], z_length=utils.space[2])
+	pl.add_mesh(cube, color='black', style='wireframe')
+	'''
+	
+	pl.add_mesh(mesh_CaMKII, color='green', show_edges=False,  opacity=0.4)
+	pl.add_mesh(mesh_STG   , color='red', show_edges=False,  opacity=0.4)
+	pl.set_background('white')
+	
+	
+
+def plot_a_pre_rotated_condensate_pyvista(d, pl): 
+	
+	flipz = False
+	# Generate mesh
+	r_CaMKII   = d['rotated_region_condensate_in_grid_mesh']['CaMKII'].astype(float)
+	if np.unique(r_CaMKII).shape[0] > 1:
+		mesh_CaMKII = generate_mesh(r_CaMKII, flipz = flipz)
+		pl.add_mesh(mesh_CaMKII, color='green', show_edges=False,  opacity=0.4)
+	
+	r_STG      = d['rotated_region_condensate_in_grid_mesh']['STG'].astype(float)
+	if np.unique(r_STG).shape[0] > 1:
+		mesh_STG    = generate_mesh(r_STG   , flipz = flipz)
+		pl.add_mesh(mesh_STG   , color='red', show_edges=False,  opacity=0.4)
+	
+	pl.set_background('white')
 	

@@ -8,13 +8,9 @@ import mpl_toolkits.axes_grid1
 from scipy.interpolate import griddata, RegularGridInterpolator
 import utils
 import colormap as c
+import parameters as p
 
-plt.rcParams.update({
-                    'pdf.fonttype' : 'truetype',
-                    'svg.fonttype' : 'none',
-                    'font.family' : 'sans-serif',
-                    'font.sans-serif' : 'Arial',
-                    'font.style' : 'normal'})
+plt.rcParams.update( p.rc_param )
 
 
 # Extrapolation works, but only for grid data.

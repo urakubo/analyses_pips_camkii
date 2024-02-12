@@ -14,7 +14,7 @@ import utils
 	# (numpy float) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
 	#
 	# grid_mesh : molecular existance in a 3D numpy variable
-	# (True/False in the 3D space (util.space[0], util.space[1], util.space[2]))
+	# (True/False in the 3D space (p.space[0], p.space[1], p.space[2]))
 	#
 	
 def get_rdfs( dir_input, filename_input, target_frame, center ):

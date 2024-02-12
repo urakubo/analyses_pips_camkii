@@ -7,15 +7,10 @@ import mpl_toolkits.axes_grid1
 
 import utils
 import colormap as c
+import parameters as p
 from scipy import ndimage
 
-
-plt.rcParams.update({
-                    'pdf.fonttype' : 'truetype',
-                    'svg.fonttype' : 'none',
-                    'font.family' : 'sans-serif',
-                    'font.sans-serif' : 'Arial',
-                    'font.style' : 'normal'})
+plt.rcParams.update(p.rc_param)
 	
 	
 def arrange_graph_bar(ax, panel_dx, y0, panel_size_x, panel_size_y):

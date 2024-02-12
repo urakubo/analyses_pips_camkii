@@ -16,21 +16,41 @@ import utils
 	#
 	
 	
-
 if __name__ == '__main__':
 	
+	# Dataset 1
+	# Input files
+	dir_lammpstrj    = os.path.join('..', 'lammpstrj','mix_two_three_components')
+	filenames_lammpstrj = ['CG.lammpstrj',\
+				'SP.lammpstrj',\
+				'SPG1.lammpstrj',\
+				'SPG2.lammpstrj']
 	
-	# Dataset
-	dir_lammpstrj    = os.path.join('..', 'lammpstrj','figure2_data')
-	dir_edited_data  = os.path.join('data', 'conc_dependence')
-	filenames_output = [str(i).zfill(3) for i in range(70) ]
-	filenames_input  = ['R1_{}.lammpstrj'.format(f) for f in filenames_output ] #70
+	# Output files
+	dir_edited_data  = os.path.join('data', 'mix_two_three_components')
+	filenames_edited_data = ['CG',\
+				'SP',\
+				'SPG1',\
+				'SPG2']
 	
+	'''
+	# Dataset 2
+	# Input files
+	dir_lammpstrj    = os.path.join('..', 'lammpstrj','self_affinity')
+	filenames_lammpstrj =  ['OnlyCaMKIICaMKIIAffinity.lammpstrj',\
+							'OnlyGluN2BGluN2B.lammpstrj',\
+							'onlySTGSTG.lammpstrj']
+	# Output files
+	dir_edited_data  = os.path.join('data','self_affinity')
+	filenames_edited_data = ['CaMKIIalone',\
+							'GluN2Balone',\
+							'STGalone']
+	'''
 	
-	# Init
-	os.makedirs(dir_edited_data, exist_ok=True)
-	
-	for filename_input, filename_output in zip(filenames_input, filenames_output):
+	for filename_input, filename_output in zip(filenames_lammpstrj, filenames_edited_data):
+		
+		
+		
 		# Load data
 		print("\n"+filename_input)
 		sampling_frame = utils.get_num_frames(dir_lammpstrj, filename_input)
@@ -75,4 +95,6 @@ if __name__ == '__main__':
 		prefix = filename_output
 		suffix = 'sigma_{}'.format(sigma)
 		utils.save(dir_edited_data, prefix, suffix, d)
+		
+		
 		
