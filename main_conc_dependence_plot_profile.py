@@ -165,22 +165,23 @@ if __name__ == '__main__':
 	dir_imgs = os.path.join('imgs', 'conc_dependence','profiles')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
-	sigmas = [2]
+	
+	
+	sigma = 2
 	for filename in filenames_edited_data:
-		for sigma in sigmas:
-			# Load data
-			prefix = filename
-			suffix = 'sigma_{}'.format(sigma)
-			print('Target: {}, sigma: {}'.format(filename, sigma))
-			d   = utils.load(dir_edited_data, prefix, suffix)
-			
-			# Make figure
-			fig = make_a_figure(d)
-			
-			# Save figure
-			fig.savefig( os.path.join(dir_imgs, '{}_sigma_{}.svg'.format( filename, sigma ) ) )
-			fig.savefig( os.path.join(dir_imgs, '{}_sigma_{}.png'.format( filename, sigma ) ) , dpi=150)
-			#plt.show()
-			plt.clf()
-			plt.close(fig=fig)
+		# Load data
+		prefix = filename
+		suffix = 'sigma_{}'.format(sigma)
+		print('Target: {}, sigma: {}'.format(filename, sigma))
+		d   = utils.load(dir_edited_data, prefix, suffix)
+		
+		# Make figure
+		fig = make_a_figure(d)
+		
+		# Save figure
+		fig.savefig( os.path.join(dir_imgs, '{}_sigma_{}.svg'.format( filename, sigma ) ) )
+		fig.savefig( os.path.join(dir_imgs, '{}_sigma_{}.png'.format( filename, sigma ) ) , dpi=150)
+		#plt.show()
+		plt.clf()
+		plt.close(fig=fig)
 
