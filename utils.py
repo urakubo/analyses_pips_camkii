@@ -191,10 +191,10 @@ def rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord ):
 	
 	
 	#
-	# grid_coord: Molecular locations in the grid space (0, 1,..., 119) 
+	# grid_coord: Molecular coordinate in the grid space (0, 1,..., 119) 
 	# (numpy uint) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
 	#
-	# real_coord: Molecular locations in the real space [-60, 60) 
+	# real_coord: Molecular coordinate in the real space [-60, 60) 
 	# (numpy float) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
 	#
 	# grid_mesh : molecular existance in the 3D space

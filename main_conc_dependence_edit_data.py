@@ -4,17 +4,17 @@ import numpy as np
 
 import utils
 	
-	
 	#
-	# grid_coord: Molecular locations in the grid space (0, 1,..., 119) 
+	# grid_coord: Molecular coordinate in the grid space (0, 1,..., 119) 
 	# (numpy uint) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
 	#
-	# real_coord: Molecular locations in the real space [-60, 60) 
+	# real_coord: Molecular coordinate in the real space [-60, 60) 
 	# (numpy float) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
 	#
 	# grid_mesh : molecular existance in the 3D space
 	# (numpy bool in 3D space) (p.space[0], p.space[1], p.space[2])
 	#
+	
 	
 if __name__ == '__main__':
 	
