@@ -7,34 +7,41 @@ import utils
 	
 if __name__ == '__main__':
 	
+	'''
 	# Dataset 1
-	# Input files
-	dir_lammpstrj    = os.path.join('..', 'lammpstrj','mix_two_three_components')
 	filenames_lammpstrj = ['CG.lammpstrj',\
 				'SP.lammpstrj',\
 				'SPG1.lammpstrj',\
 				'SPG2.lammpstrj']
-	
-	# Output files
-	dir_edited_data  = os.path.join('data', 'mix_two_three_components')
 	filenames_edited_data = ['CG',\
 				'SP',\
 				'SPG1',\
 				'SPG2']
+	target_dir = 'mix_two_three_components'
 	
-	'''
 	# Dataset 2
-	# Input files
-	dir_lammpstrj    = os.path.join('..', 'lammpstrj','self_affinity')
 	filenames_lammpstrj =  ['OnlyCaMKIICaMKIIAffinity.lammpstrj',\
 							'OnlyGluN2BGluN2B.lammpstrj',\
 							'onlySTGSTG.lammpstrj']
-	# Output files
-	dir_edited_data  = os.path.join('data','self_affinity')
 	filenames_edited_data = ['CaMKIIalone',\
 							'GluN2Balone',\
 							'STGalone']
+	target_dir = 'self_affinity'
 	'''
+	
+	# Dataset 2
+	filenames_lammpstrj =  ['Activated CaMKII_2.lammpstrj',\
+							'Unactivated CamKII_0.lammpstrj',\
+							'Unactivated CamKII_1.lammpstrj']
+	filenames_edited_data = ['activated_CaMKII_2',\
+							'unactivated_CamKII_0',\
+							'unactivated_CamKII_1']
+	target_dir = 'figure_1c'
+
+	#
+	dir_lammpstrj    = os.path.join('..', 'lammpstrj', target_dir)
+	dir_edited_data  = os.path.join('data',target_dir)
+	
 	
 	for filename_input, filename_output in zip(filenames_lammpstrj, filenames_edited_data):
 		

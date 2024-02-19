@@ -78,9 +78,8 @@ def make_a_figure( d, target_molecules ):
 	
 if __name__ == '__main__':
 	
+	'''
 	# Dataset 1
-	# Input files
-	dir_edited_data 		= os.path.join('data', 'mix_two_three_components')
 	filenames_edited_data = ['CG',\
 				'SP',\
 				'SPG1',\
@@ -89,24 +88,31 @@ if __name__ == '__main__':
 						{'STG':4,'PSD95':5},\
 						{'GluN2B':3, 'STG':4,'PSD95':5},\
 						{'GluN2B':3, 'STG':4,'PSD95':5}]
-	# Output files
-	dir_imgs = os.path.join('imgs', 'mix_two_three_components','profiles')
-	os.makedirs(dir_imgs, exist_ok=True)
+	target_dir = 'mix_two_three_components'
 	
 	
-	'''
 	# Dataset 2
-	# Input files
-	dir_edited_data 		= os.path.join('data', 'self_affinity')
 	filenames_edited_data   = ['CaMKIIalone',\
 							'GluN2Balone',\
 							'STGalone']
 	targets_molecules 		= [ {'CaMKII':2, 'GluN2B':3,'STG':4,'PSD95':5} ] * 3
-	# Output files
-	dir_imgs = os.path.join('imgs', 'self_affinity','profiles')
-	os.makedirs(dir_imgs, exist_ok=True)
+	target_dir = 'self_affinity'
 	'''
 	
+	
+	# Dataset 3
+	filenames_edited_data   = ['activated_CaMKII_2',\
+							'unactivated_CamKII_0',\
+							'unactivated_CamKII_1']
+	targets_molecules 		= [ {'CaMKII':2, 'GluN2B':3,'STG':4,'PSD95':5} ] * 3
+	target_dir = 'figure_1c'
+	
+	
+	##
+	dir_edited_data = os.path.join('data', target_dir)
+	dir_imgs        = os.path.join('imgs', target_dir, 'profiles')
+	os.makedirs(dir_imgs, exist_ok=True)
+	##
 	
 	for filename, target_molecules in zip(filenames_edited_data, targets_molecules):
 

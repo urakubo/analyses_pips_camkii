@@ -424,7 +424,7 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.mole
 		ax.legend(frameon=False)
 
 	ax.set_xlabel('Distance from \n center-of-mass (l.u.)')
-	ax.set_ylabel('(beads / volume)')
+	ax.set_ylabel('(beads / voxel)')
 	ax.set_xlim(0,30)
 	ax.set_ylim(*ylim)
 	ax.set_xticks(range(0,40,10))

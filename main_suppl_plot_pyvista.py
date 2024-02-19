@@ -105,14 +105,13 @@ if __name__ == '__main__':
 	
 	# I manually ran each of them,
 	# because I do not know how to reset the ovito visualization completely .
-	i = 2 # 0-3 for dataset 1, 0-2 for dataset 2
+	i = 2 # 0-3 for dataset 1, 0-2 for dataset 2, 0-2 for dataset 3
 	
 	
 	
 	'''
 	## Dataset 1
-	dir_lammpstrj   = os.path.join('..', 'lammpstrj','mix_two_three_components')
-	filenames_input = [		'CG.lammpstrj',\
+	filenames_lammpstrj = [		'CG.lammpstrj',\
 							'SP.lammpstrj',\
 							'SPG1.lammpstrj',\
 							'SPG2.lammpstrj']
@@ -120,31 +119,43 @@ if __name__ == '__main__':
 							'SP',\
 							'SPG1',\
 							'SPG2']
-	dir_imgs   = os.path.join( 'imgs', 'mix_two_three_components', 'snapshot' )
-	'''
-	
+	target_dir = 'mix_two_three_components'
 	
 	
 	## Dataset 2
-	dir_lammpstrj   = os.path.join('..', 'lammpstrj','self_affinity')
-	filenames_input = [		'OnlyCaMKIICaMKIIAffinity.lammpstrj',\
+	filenames_lammpstrj = [		'OnlyCaMKIICaMKIIAffinity.lammpstrj',\
 							'OnlyGluN2BGluN2B.lammpstrj',\
 							'onlySTGSTG.lammpstrj']
 	filenames_output = [	'CaMKIIalone',\
 							'GluN2Balone',\
 							'STGalone']	
-	
-	dir_imgs   = os.path.join( 'imgs', 'self_affinity', 'snapshot' )
-	
-	
+	target_dir = 'self_affinity'
+	'''
 	
 	
-	print('filename_input: ', filenames_input[i])
-	sampling_frame = utils.get_num_frames(dir_lammpstrj, filenames_input[i])
-	print("sampling_frame ", sampling_frame )
+	## Dataset 3
+
+	filenames_lammpstrj =  ['Activated CaMKII_2.lammpstrj',\
+							'Unactivated CamKII_0.lammpstrj',\
+							'Unactivated CamKII_1.lammpstrj']
+	filenames_output = ['activated_CaMKII_2',\
+							'unactivated_CamKII_0',\
+							'unactivated_CamKII_1']
+	target_dir = 'figure_1c'
+	
+	
+	##
+	dir_lammpstrj   = os.path.join('..', 'lammpstrj',target_dir)
+	dir_imgs        = os.path.join('imgs', target_dir, 'snapshot' )
 	os.makedirs(dir_imgs, exist_ok=True)
+	##
 	
 	
-	data_all   = import_file(os.path.join(dir_lammpstrj, filenames_input[i]), input_format= "lammps/dump" )
+	
+	print('filename_input: ', filenames_lammpstrj[i])
+	sampling_frame = utils.get_num_frames(dir_lammpstrj, filenames_lammpstrj[i])
+	print("sampling_frame ", sampling_frame )
+	
+	data_all   = import_file(os.path.join(dir_lammpstrj, filenames_lammpstrj[i]), input_format= "lammps/dump" )
 	plot_snapshots(data_all, sampling_frame, dir_imgs, filenames_output[i])
 

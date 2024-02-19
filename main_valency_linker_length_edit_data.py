@@ -19,9 +19,10 @@ from scipy import ndimage
 	#
 	
 	
-def get_region_condensate_conc_energy(types, positions, ids_molecule, energy, sigma=2):
+#def get_region_condensate_conc_energy(types, positions, ids_molecule, energy, sigma=2):
+def get_region_condensate_conc_energy(types, positions, ids_molecule, sigma=2):
 	# 
-	energy /= 2
+	#energy /= 2
 	
 	# Parameters
 	targs_molecule  = p.molecules_with_all.keys() # ['GluN2B', 'CaMKII', 'STG', 'PSD95', 'All']
@@ -29,10 +30,8 @@ def get_region_condensate_conc_energy(types, positions, ids_molecule, energy, si
 	# Get the locations of target molecules separately.
 	flag_type          = {t: [True if k in p.molecules_with_all[t]['id'] else False for k in types] for t in targs_molecule}
 	locs_in_real_coord = {k: positions[flag_type[k],:] for k in targs_molecule }
-	engy_in_real_coord = {k: energy[flag_type[k]] for k in targs_molecule }
 	
 	locs_in_grid_mesh  = {k: utils.get_hist(locs_in_real_coord[k]) for k in targs_molecule}
-	engy_in_grid_mesh  = {k: utils.get_sum_energy(locs_in_real_coord[k], engy_in_real_coord[k]) for k in targs_molecule}
 	
 	# Get a peripheral region (a region outside of a sphere) 
 	# and obtain the concentrations in this area (diluted region concentration for a baseline).
@@ -48,12 +47,21 @@ def get_region_condensate_conc_energy(types, positions, ids_molecule, energy, si
 				np.sum( regions_condensate_in_grid_mesh[ref_molecule] ) for t in targs_molecule }
 	concs_condensate = {t: get_concs_condensate(t) for t in targs_molecule}
 	
-	#
-	def get_sum_energy_condensate(ref_molecule):
-		return {t: np.sum(engy_in_grid_mesh[t] * regions_condensate_in_grid_mesh[ref_molecule]) for t in targs_molecule }
-	energy_condensate = {t: get_sum_energy_condensate(t) for t in targs_molecule}
 	
-	# Rotate particles and obtain their concentrations and 
+	# Summary
+	d = {	
+			'locs_in_grid_mesh':	locs_in_grid_mesh,
+			'concs_in_grid_mesh':	concs_in_grid_mesh,
+			'region_condensate_in_grid_mesh': regions_condensate_in_grid_mesh,
+			#
+			'conc_periphery'	:	concs_periphery,
+			'conc_condensate'	:	concs_condensate
+		}	
+	
+	
+	# Rotate particles and obtain the concentration.
+	
+	
 	rotated_in_real_coord = utils.rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord )
 	rotated_in_grid_mesh  = {k: utils.get_hist(rotated_in_real_coord[k]) for k in targs_molecule}
 	rotated_concs_in_grid_mesh = \
@@ -61,19 +69,19 @@ def get_region_condensate_conc_energy(types, positions, ids_molecule, energy, si
 	rotated_regions_condensate_in_grid_mesh = \
 		{t: utils.get_high(rotated_concs_in_grid_mesh[t]-concs_periphery[t]) for t in targs_molecule}
 	
-	# Summary
-	d = {
-			'locs_in_grid_mesh':	locs_in_grid_mesh,
-			'concs_in_grid_mesh':	concs_in_grid_mesh,
-			'region_condensate_in_grid_mesh': regions_condensate_in_grid_mesh,
-			#
-			'rotated_concs_in_grid_mesh':	rotated_concs_in_grid_mesh,
-			'rotated_region_condensate_in_grid_mesh': rotated_regions_condensate_in_grid_mesh,
-			#
-			'conc_periphery'	:	concs_periphery,
-			'conc_condensate'	:	concs_condensate,
-			'energy_condensate'	:	energy_condensate
-		}
+	d['rotated_concs_in_grid_mesh']             = rotated_concs_in_grid_mesh
+	d['rotated_region_condensate_in_grid_mesh'] = rotated_regions_condensate_in_grid_mesh
+	
+	
+	'''
+	engy_in_real_coord = {k: energy[flag_type[k]] for k in targs_molecule }
+	engy_in_grid_mesh  = {k: utils.get_sum_energy(locs_in_real_coord[k], engy_in_real_coord[k]) for k in targs_molecule}
+	def get_sum_energy_condensate(ref_molecule):
+		return {t: np.sum(engy_in_grid_mesh[t] * regions_condensate_in_grid_mesh[ref_molecule]) for t in targs_molecule }
+	energy_condensate      = {t: get_sum_energy_condensate(t) for t in targs_molecule}
+	d['energy_condensate'] = energy_condensate
+	'''
+	
 	return d
 	
 	
@@ -81,32 +89,26 @@ if __name__ == '__main__':
 	
 	
 	# Dataset
-	dir_lammpstrj    = os.path.join('..', 'lammpstrj', 'binding_energy')
-	dir_edited_data  = os.path.join('data', 'binding_energy')
-	filenames_input  = ['File_PIPS_ctl.lammpstrj',\
-		'File_partial_ctl.lammpstrj',\
-		'File_iPIPS_length12.lammpstrj',\
-		'File_homogeneous_valence4.lammpstrj',\
-		'File_homogeneous_linear.lammpstrj']
+	filenames_output = [str(i).zfill(3) for i in range(24) ]
+	filenames_input  = ['R1_{}.lammpstrj'.format(f) for f in filenames_output ] #70
 	
-	filenames_output = ['PIPS',\
-		'partial', \
-		'iPIPS', \
-		'homo_valence4', \
-		'homo_linear']
+	target_dir = 'valency_linker_length'
 	
+	#
+	dir_lammpstrj    = os.path.join('..', 'lammpstrj', target_dir)
+	dir_edited_data  = os.path.join('data',target_dir)
 	
-	
-	# Init
-	os.makedirs(dir_edited_data, exist_ok=True)
 	
 	for filename_input, filename_output in zip(filenames_input, filenames_output):
 		
 		# Load data
 		sampling_frame = utils.get_num_frames(dir_lammpstrj, filename_input)
 		
-		types, positions_grid_coord,ids_molecule, mc_step, energy = \
-			utils.load_lammpstrj_binding_energy( dir_lammpstrj, filename_input, sampling_frame )
+		#types, positions_grid_coord,ids_molecule, mc_step, energy = \
+		#	utils.load_lammpstrj_binding_energy( dir_lammpstrj, filename_input, sampling_frame )
+		
+		types, positions_grid_coord,ids_molecule, mc_step = \
+			utils.load_lammpstrj( dir_lammpstrj, filename_input, sampling_frame )
 		
 		print("\n"+filename_input)
 		print("sampling_frame ", sampling_frame )
@@ -118,7 +120,8 @@ if __name__ == '__main__':
 		positions_real_coord = utils.centering(positions_grid_coord, center)
 		
 		# Get concs and energy
-		d = get_region_condensate_conc_energy(types, positions_real_coord, ids_molecule, energy)
+		#d = get_region_condensate_conc_energy(types, positions_real_coord, ids_molecule, energy)
+		d = get_region_condensate_conc_energy( types, positions_real_coord, ids_molecule )
 		
 		# RDF
 		rdf, rdf_bins, rdf_sampling_frames = \
@@ -131,9 +134,9 @@ if __name__ == '__main__':
 		# Time info
 		d['time_frame'] = sampling_frame
 		d['mc_step']    = mc_step
-
+		
 		# Save the edited data
 		prefix = filename_output
 		suffix = 'sigma_{}'.format(2)
 		utils.save(dir_edited_data, prefix, suffix, d)
-
+		
