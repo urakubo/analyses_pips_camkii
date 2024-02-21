@@ -259,47 +259,55 @@ c2 = [246,170,0] # Orange
 c3 = [255,202,191] # Light pink
 
 gy = 230
-c0 = [gy ,gy, gy] # Gray
-c1 = [255,202,191] # Ligh pink
-c2 = [255,255,128] # Cream
-c3 = [gy, gy, gy] # Gray
-
-gy = 230
-c0 = [gy ,gy, gy] # Gray
+c0 = [gy ,gy, gy]  # Gray
 c1 = [255,128,130] # Pink
-c2 = [255,202,191] # Ligh pink
-c3 = [gy, gy, gy] # Gray
+c2 = [255,255,128] # Cream
+c3 = [0, 90, 255]  # Blue
+c3 = [77, 196, 255]  # Light blue
 
 
-phase_diagram1 = {
-    	"red": [
-        [0.00, 0.00 , c0[0]],
-        [0.25, c0[0], c1[0]],
-        [0.50, c1[0], c2[0]],
-        [0.75, c2[0], c3[0]],
-        [1.00, c3[0], c3[0]],
-        ],
-        "green": [
-        [0.00, 0.00 , c0[1]],
-        [0.25, c0[1], c1[1]],
-        [0.50, c1[1], c2[1]],
-        [0.75, c2[1], c3[1]],
-        [1.00, c3[1], c3[1]],
-        ],
-        "blue": [
-        [0.00, 0.00 , c0[2]],
-        [0.25, c0[2], c1[2]],
-        [0.50, c1[2], c2[2]],
-        [0.75, c2[2], c3[2]],
-        [1.00, c3[2], c3[2]],
-        ],
+
+#
+def make_colormap_phase_diagram(c):
+	ratios = np.linspace(0, 1, len(c)-1, endpoint=True)
+	phase_diagram = {
+    	"red"  : [[ r, c[i][0]/255, c[i+1][0]/255] for i, r in enumerate(ratios) ],
+        "green": [[ r, c[i][1]/255, c[i+1][1]/255] for i, r in enumerate(ratios) ],
+        "blue" : [[ r, c[i][2]/255, c[i+1][2]/255] for i, r in enumerate(ratios) ]
         }
+	phase_diagram = LinearSegmentedColormap('phase_diagram', phase_diagram, N=256)
+	phase_diagram.set_bad(color='k')
+	return phase_diagram
+#
+#
+gy   = 230
+c    = {}
+c[0] = [0.0 , 0.0, 0.0]
+c[1] = [gy ,gy, gy] # Gray
+c[2] = [255,128,130] # Pink
+c[3] = [255,202,191] # Ligh pink
+c[4] = [gy, gy, gy] # Gray
+c[5] = [gy, gy, gy] # Gray
+cmap_phase_diagram1 = make_colormap_phase_diagram(c)
+#
+#
+c    = {}
+c[0] = [255 ,128, 130] # Pink
+c[1] = [255 ,128, 130] # Pink
+c[2] = [255 ,255, 255] # Gray
+c[3] = [77  ,196, 255]  # Light blue
+c[4] = [gy  , gy,  gy] # Gray
+c[5] = [gy  , gy,  gy] # Gray
+cmap_phase_diagram2 = make_colormap_phase_diagram(c)
+#
+#
+c    = {}
+c[0] = [255 ,255, 255] # Pink
+c[1] = [255 ,255, 255] # Pink
+c[2] = [gy  , gy,  gy] # Gray
+c[3] = [gy  , gy,  gy] # Gray
+cmap_phase_diagram3 = make_colormap_phase_diagram(c)
 
-phase_diagram1 = {k: [[c[0], c[1]/255, c[2] / 255] for c in phase_diagram1[k] ] for k in phase_diagram1}
-
-
-cmap_phase_diagram1 = LinearSegmentedColormap('phase_diagram1', phase_diagram1, N=256)
-cmap_phase_diagram1.set_bad(color='k')
 
 
 cmap_black_red = LinearSegmentedColormap("black_red", black_red, N=256)

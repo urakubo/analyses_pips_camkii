@@ -65,8 +65,8 @@ def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels, method = 'RegularGridInt
 	ax.set_xlim( np.min(mx), np.max(mx) )
 	ax.set_ylim( np.min(my), np.max(my) )
 	
-	ax.set_xlabel('STG (beads / volume) x 10-3')
-	ax.set_ylabel('GluN2B (beads / volume) x 10-2')
+	ax.set_xlabel('STG (beads / voxel) x 10-3')
+	ax.set_ylabel('GluN2B (beads / voxel) x 10-2')
 	ax.set_box_aspect(1)
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
