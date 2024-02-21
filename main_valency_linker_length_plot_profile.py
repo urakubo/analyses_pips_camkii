@@ -139,7 +139,7 @@ def make_a_figure( d ):
 if __name__ == '__main__':
 	
 	# Dataset
-	filenames_edited_data = [str(i).zfill(3) for i in range(24) ]
+	filenames_edited_data = [str(i).zfill(3) for i in range(25) ] #  ['024']#
 	target_dir = 'valency_linker_length'
 	
 	

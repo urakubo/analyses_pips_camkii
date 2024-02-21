@@ -83,59 +83,61 @@ if __name__ == '__main__':
 	
 	
 	# Output files
-	dir_imgs = os.path.join('imgs', 'conc_dependence','phase_diagram')
-	filename_output = 'phase_diagram_conc_dependence'
+	target_dir = 'valency_linker_length'
+	dir_imgs = os.path.join('imgs', target_dir,'phase_diagram')
+	filename_output = 'phase_diagram'
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	
-	# GluN2B = [1, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000, 20000]
 	STG    = [1, 500, 1000, 1500, 2000, 2500, 3000] 
 	GluN2B = [20000, 16000, 12000, 8000, 6000, 4000, 2000, 1000, 500, 1]
 	
-	volume = np.prod(p.space_np)
-	STG    = [ s / volume for s in STG    ]
-	GluN2B = [ n / volume for n in GluN2B ]
-
-	STG    = np.array( STG ) * 1000
-	GluN2B = np.array( GluN2B ) * 100
-
-	'''
-	print('STG')
-	print(STG)
-	print('GluN2B')
-	print(GluN2B)
-	'''
+	linker_length  = [1, 3, 5, 7, 9, 12]
+	valency = [12, 10, 8, 6, 4] # [4, 6, 8, 10, 12] 
+	
+	#'''
+	print('Valency')
+	print(valency)
+	print('Linker_length')
+	print(linker_length)
+	#'''
 	
 	# -1: Unclear
 	# 1: Homogeneous LLPS (STG)
 	# 2: PIPS
 	# 3: Partial engulfment
-	# 4: Homogeneous LLPS (CaMKII)
+	# 4: iPIPS
+	# 5: Homogeneous LLPS (CaMKII)
 
 	phase_diagram = [\
-	[ 1, 1, 1, 1,   1, 1, 1], # 20000
-	[ 1, 1, 1, 1,   2, 2, 2], # 16000
-	[ 1, 1, 2, 2,   2, 2, 2], # 12000
-	[ 1, 2, 2, 2,   2, 2, 3], # 8000
-	[ 1, 2, 2, 2,   3, 3, 3], # 6000
-	[ 1, 2, 2, 2,   3, 3, 3], # 4000
-	[ 1, 2, 2, 2,   3, 3, 3], # 2000
-	[ 1, 2, 2, 3,   4, 4, 4], # 1000
-	[ 1, 3, 4, 4,   4, 4, 4], # 500
-	[-1, 4, 4, 4,   4, 4, 4]] # 1
+	[ 2, 2, 3, 3, 3], # 12
+	[ 2, 3, 3, 3, 3], # 10
+	[ 2, 3, 3, 3, 3], # 8
+	[ 2, 3, 3, 3, 4], # 6
+	[ 2, 3, 5, 5, 5]  # 4
+	]
 	
 	phase_diagram = np.array(phase_diagram).T
+	levels        = np.array([0.0,1.
 	
 	
-	num_levels = 40   #
-	max_conc = np.max(phase_diagram)
+	
+	
+	
+	
+	
+	5,2.5,3.5,4.5])
+	
+	
+	num_levels    = 40
+	max_conc      = np.max(phase_diagram)
 	
 	fig  = plt.figure(figsize=(5, 5))
 	fig.subplots_adjust(wspace=0.4,  hspace=0.6)
 	
 	colormap   = c.cmap_phase_diagram1 # cmap_gray_cr_pk_gray # c.cmap_white_green_universal, plt.colormaps['jet']# 'winter', etc
 	#levels  = np.linspace(0, max_conc, num_levels)
-	levels  = np.array([0.0,1.5,2.5,3.5,4.5])
+
 	ax = fig.add_subplot( 1, 1, 1 )
 	cs, cb = plot_a_panel(ax, phase_diagram, STG, GluN2B, colormap, levels)
 	# cb.set_label('(% Total volume)')

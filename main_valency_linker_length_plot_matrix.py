@@ -10,7 +10,7 @@ plt.rcParams.update(p.rc_param)
 
 if __name__ == '__main__':
 	
-	target = 'rdf' # 'region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf'
+	target = 'conc_CaMKII' # 'region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf'
 	
 	
 	# Files
@@ -54,17 +54,18 @@ if __name__ == '__main__':
 			print('column: ', column, ', row: ', row)
 			scalebar = True if (row == 0) and (column == 1) else False
 			
+			title = prefix # prefix, None
 			
 			if target == 'region_condensates':
 				utils.plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, title=False, scalebar=scalebar )
 			elif target == 'conc_CaMKII':
 				columns = {'CaMKII':column}
 				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
-					title=None, colorbar=False, scalebar=scalebar, pre_rotated=True )
+					title=title, colorbar=False, scalebar=scalebar, pre_rotated=True )
 			elif target == 'conc_STG':
 				columns = {'STG':column}
 				utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
-					title=None, colorbar=False, scalebar=scalebar, pre_rotated=True )
+					title=title, colorbar=False, scalebar=scalebar, pre_rotated=True )
 			elif target == 'rdf':
 				plt.rcParams.update( {'font.size': 6} )
 				ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )

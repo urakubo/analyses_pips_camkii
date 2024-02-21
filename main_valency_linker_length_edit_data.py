@@ -89,8 +89,8 @@ if __name__ == '__main__':
 	
 	
 	# Dataset
-	filenames_output = [str(i).zfill(3) for i in range(24) ]
-	filenames_input  = ['R1_{}.lammpstrj'.format(f) for f in filenames_output ] #70
+	filenames_output = [str(i).zfill(3) for i in range(24) ] # ['024']
+	filenames_input  = ['R1_{}.lammpstrj'.format(f) for f in filenames_output ]
 	
 	target_dir = 'valency_linker_length'
 	

@@ -42,7 +42,7 @@ def save_a_plot(d, dir_img, prefix, suffix):
 def save_plots_matrix(dir_data, dir_imgs, sigma): 
 	
 	valency = [4, 6, 8, 10, 12] 
-	linker_length  = [3, 5, 7, 9]
+	linker_length  = [3, 5, 7, 9, 12]
 	
 	num_rows		= len( valency )
 	num_columns		= len( linker_length )
