@@ -21,7 +21,7 @@ def make_grid_using_RegularGridInterpolator(STG, GluN2B, oZ, mX, mY):
 	return mZ
 	
 	
-def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels, method = 'RegularGridInterpolator'):
+def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels):
 	
 	# Observed data arrangement
 	oX, oY  = np.meshgrid(STG, GluN2B)
@@ -37,8 +37,6 @@ def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels, method = 'RegularGridInt
 	my = np.linspace(0.0, my_max*1.1, 55*4)
 	
 	mX, mY = np.meshgrid(mx,my)
-	
-	#print('oz_graph.shape ', oz_graph.shape )
 	
 	oZ_panel = copy.deepcopy( oZ )
 	oZ_panel[oZ_panel < 0] = 1
@@ -65,8 +63,6 @@ def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels, method = 'RegularGridInt
 	ax.set_xlim( np.min(mx), np.max(mx) )
 	ax.set_ylim( np.min(my), np.max(my) )
 	
-	ax.set_xlabel('STG (beads / voxel) x 10-3')
-	ax.set_ylabel('GluN2B (beads / voxel) x 10-2')
 	ax.set_box_aspect(1)
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
@@ -127,19 +123,19 @@ if __name__ == '__main__':
 	phase_diagram = np.array(phase_diagram).T
 	
 	
-	num_levels = 40   #
-	max_conc = np.max(phase_diagram)
-	
 	fig  = plt.figure(figsize=(5, 5))
 	fig.subplots_adjust(wspace=0.4,  hspace=0.6)
 	
-	colormap   = c.cmap_phase_diagram1 # cmap_gray_cr_pk_gray # c.cmap_white_green_universal, plt.colormaps['jet']# 'winter', etc
-	#levels  = np.linspace(0, max_conc, num_levels)
+	colormap   = c.cmap_phase_diagram1
+	# cmap_gray_cr_pk_gray # c.cmap_white_green_universal, plt.colormaps['jet']# 'winter', etc
+	
+	
 	levels  = np.array([0.0,1.5,2.5,3.5,4.5])
 	ax = fig.add_subplot( 1, 1, 1 )
 	cs, cb = plot_a_panel(ax, phase_diagram, STG, GluN2B, colormap, levels)
-	# cb.set_label('(% Total volume)')
 	ax.set_title('Phase diagram')
+	ax.set_xlabel('STG (beads / voxel) x 10-3')
+	ax.set_ylabel('GluN2B (beads / voxel) x 10-2')
 	
 	
 	fig.savefig( os.path.join(dir_imgs, '{}.svg'.format( filename_output ) ) )

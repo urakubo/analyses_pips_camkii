@@ -21,7 +21,7 @@ def make_grid_using_RegularGridInterpolator(STG, GluN2B, oZ, mX, mY):
 	return mZ
 	
 	
-def plot_a_panel(ax, oZ, x, y, colormap1, levels, oZ_except, colormap2, method = 'RegularGridInterpolator'):
+def plot_a_panel(ax, oZ, x, y, colormap1, levels, oZ_except, colormap2):
 	
 	# STG - x , GluN2B - y
 	# linker_length - x, valency - y
