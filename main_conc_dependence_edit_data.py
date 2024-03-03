@@ -20,10 +20,16 @@ if __name__ == '__main__':
 	
 	
 	# Dataset
+	'''
 	dir_lammpstrj    = os.path.join('..', 'lammpstrj','figure2_data')
 	dir_edited_data  = os.path.join('data', 'conc_dependence')
 	filenames_output = [str(i).zfill(3) for i in range(70) ]
 	filenames_input  = ['R1_{}.lammpstrj'.format(f) for f in filenames_output ] #70
+	'''
+	dir_lammpstrj    = os.path.join('..', 'lammpstrj2','Feb_Figure2')
+	dir_edited_data  = os.path.join('data2', 'conc_dependence')
+	filenames_output = [str(i).zfill(3) for i in range(30) ]
+	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ] #70
 	
 	
 	# Init
@@ -37,17 +43,16 @@ if __name__ == '__main__':
 		print("sampling_frame ", sampling_frame )
 		types, positions_grid_coord,ids_molecule, mc_step = \
 			utils.load_lammpstrj( dir_lammpstrj, filename_input, sampling_frame )
+		energy = \
+			utils.load_lammpstrj_binding_energy( dir_lammpstrj, filename_input, sampling_frame )
 		print("The last timeframe was loaded." )
 		
 		# Centering
 		center    = utils.get_center_of_mass(types, positions_grid_coord)
 		positions_real_coord = utils.centering(positions_grid_coord, center)
 		
-		# Blur
-		sigma = 2
-		print('sigma ', sigma)
 		# Get concs and condensates
-		d = utils.get_concs_and_condensates(types, positions_real_coord, ids_molecule, sigma)
+		d = utils.get_concs_and_condensates(types, positions_real_coord, ids_molecule, energy=energy, sigma = 2)
 		
 		# Watershed
 		'''
@@ -72,6 +77,6 @@ if __name__ == '__main__':
 		
 		# Save the edited data
 		prefix = filename_output
-		suffix = 'sigma_{}'.format(sigma)
+		suffix = 'sigma_2'
 		utils.save(dir_edited_data, prefix, suffix, d)
 		

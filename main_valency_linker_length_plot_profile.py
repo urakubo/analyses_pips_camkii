@@ -138,13 +138,16 @@ def make_a_figure( d ):
 	
 if __name__ == '__main__':
 	
-	# Dataset
-	filenames_edited_data = [str(i).zfill(3) for i in range(25) ] #  ['024']#
+	# Dataset1
+	#filenames_edited_data = [str(i).zfill(3) for i in range(25) ]
+	
+	# Dataset2
+	filenames_edited_data = [str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(5) ]
+	
 	target_dir = 'valency_linker_length'
 	
-	
-	dir_edited_data	= os.path.join('data', target_dir)
-	dir_imgs = os.path.join('imgs', target_dir,'profiles')
+	dir_edited_data	= os.path.join('data2', target_dir)
+	dir_imgs = os.path.join('imgs2', target_dir,'profiles')
 	sigma = 2
 	os.makedirs(dir_imgs, exist_ok=True)
 	

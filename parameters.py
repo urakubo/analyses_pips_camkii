@@ -53,7 +53,7 @@ for k, v in molecules_without_all.items():
 
 rdf_bins = np.arange(0, 35) # You can set "np.arange(0, 35, 2)"
 rdf_num_sampling_frames = 5
-rdf_sampling_interval   = 2
+rdf_sampling_interval   = 5 # 2
 
 
 # Matplotlib

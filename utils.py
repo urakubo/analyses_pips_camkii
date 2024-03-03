@@ -66,16 +66,17 @@ def load_lammpstrj(dir_data, filename_data, id_frame):
 	
 	
 def load_lammpstrj_binding_energy(dir_data, filename_data, id_frame):
-	print('Load data.')
+	#print('Load data.')
 	data_all            = import_file(os.path.join(dir_data, filename_data), input_format= "lammps/dump" )
 	data_target_frame   = data_all.compute(id_frame)
-	time_stamp 			= data_all.compute(id_frame).attributes['Timestep']
-	types, positions, id_molecule = decode_data(data_target_frame)
-	energy_isotropic    = np.array( data_target_frame.particles['energy_isotropic'] )
-	#energy_anisotropic      = np.array( data_frame.particles['energy_anisotropic'] )
-	#energy_anisotropic_self = np.array( data_frame.particles['energy_anisotropic_self'] )
-	
-	return types, positions, id_molecule, time_stamp, energy_isotropic
+	energy_isotropic        = np.array( data_target_frame.particles['energy_isotropic'] )
+	energy_anisotropic      = np.array( data_target_frame.particles['energy_anisotropic'] )
+	energy_anisotropic_self = np.array( data_target_frame.particles['energy_anisotropic_self'] )
+	energy = {\
+		'energy_isotropic'	: energy_isotropic,\
+		'energy_anisotropic': energy_anisotropic,\
+		'energy_anisotropic_self': energy_anisotropic_self}
+	return energy
 	
 	
 def decode_data(data_frame):
@@ -202,7 +203,7 @@ def rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord ):
 	#
 	
 	
-def get_concs_and_condensates(types, positions, ids_molecule, sigma=2):
+def get_concs_and_condensates(types, positions, ids_molecule, energy = None, sigma=2):
 	
 	# Parameters
 	targs_molecule  = p.molecules_with_all.keys() # ['GluN2B', 'CaMKII', 'STG', 'PSD95', 'All']
@@ -247,6 +248,21 @@ def get_concs_and_condensates(types, positions, ids_molecule, sigma=2):
 			'conc_periphery'	:	concs_periphery,
 			'conc_condensate'	:	concs_condensate,
 		}
+	
+	if energy is not None:
+		#iso        = energy['energy_isotropic']
+		#aniso      = energy['energy_anisotropic']
+		#aniso_self = energy['energy_anisotropic_self']
+		
+		for k, e in energy.items():
+			e /= 2
+			engy_in_real_coord = {m: e[flag_type[m]] for m in targs_molecule }
+			engy_in_grid_mesh  = {m: get_sum_energy(locs_in_real_coord[m], engy_in_real_coord[m]) for m in targs_molecule}
+			def get_sum_energy_condensate(ref_molecule):
+				return {m: np.sum(engy_in_grid_mesh[m] * regions_condensate_in_grid_mesh[ref_molecule]) for m in targs_molecule }
+			engy_condensate    = {m: get_sum_energy_condensate(m) for m in targs_molecule}
+			d[k] = engy_condensate
+	
 	return d
 	
 	

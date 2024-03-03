@@ -159,10 +159,10 @@ if __name__ == '__main__':
 	# Dataset 1
 	
 	# Input files
-	dir_edited_data 		= os.path.join('data', 'conc_dependence')
-	filenames_edited_data 	= [str(i).zfill(3) for i in range(70) ] # 70
+	dir_edited_data 		= os.path.join('data2', 'conc_dependence')
+	filenames_edited_data 	= [str(i).zfill(3) for i in range(30) ] # 70
 	# Output files
-	dir_imgs = os.path.join('imgs', 'conc_dependence','profiles')
+	dir_imgs = os.path.join('imgs2', 'conc_dependence','profiles')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	
