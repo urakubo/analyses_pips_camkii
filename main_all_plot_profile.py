@@ -35,7 +35,7 @@ def plot_concs_condensate_bar(ax, targ, ref, d):
 	col = c.cmap_universal_ratio[targ]
 	ax.bar(['In '+targ+'\n condensates', 'In '+ref+'\n condensates'], [cc[targ][targ], cc[ref][targ]], width=0.5, color=col)
 	ax.set_title('Conc of {}'.format(targ))
-	ax.set_ylabel('(beads / volume)')
+	ax.set_ylabel('(beads / voxel)')
 	ax.set_ylim(0,0.6)
 	ax.tick_params(axis='x', rotation=45)
 	
@@ -80,6 +80,11 @@ def make_a_figure( d ):
 		columns = {'CaMKII':2, 'GluN2B':3, 'STG':4,'PSD95':5}
 		axes1 = utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp, pre_rotated=False )
 		axes.extend(axes1)
+		'''
+		columns = {'CaMKII':6, 'STG':7}
+		axes2 = utils.plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp)
+		axes.extend(axes2)
+		'''
 		
 		yloc.append(loc0.y0)
 		for a in axes:
@@ -88,6 +93,19 @@ def make_a_figure( d ):
 			a.set_position([loc.x0, yloc[-1], panel_size, panel_size])
 	
 	panel_dx = 0.03
+	
+	
+	# Plot the volume of watershed basin
+	'''
+	ratio_volumes_watershed = {k: v*100 for k, v in d['ratio_volumes_watershed'].items()}
+	cols = [c.cmap_universal_ratio[k] for k in ratio_volumes_watershed.keys()]
+	ax = fig.add_subplot( num_rows, num_columns, 8 )
+	ax.bar(ratio_volumes_watershed.keys(), ratio_volumes_watershed.values(), width=0.5, color=cols) # , color=cols
+	ax.set_title('Volume of \n watershed basin')
+	ax.set_ylabel('/ total system volume (%)')
+	ax.set_ylim(0,3.0)
+	arrange_graph_bar(ax, panel_dx, yloc[0], panel_size/4, panel_size )
+	'''
 	
 	
 	# Plot concs in condensates
@@ -138,16 +156,20 @@ def make_a_figure( d ):
 	
 if __name__ == '__main__':
 	
-	# Dataset1
-	#filenames_edited_data = [str(i).zfill(3) for i in range(25) ]
+	# Datasets
 	
-	# Dataset2
+	# Conc dependence
+	dir_target  = 'conc_dependence'
+	filenames_edited_data 	= [str(i).zfill(3) for i in range(30) ] # 70
+	
+	# Linker length
 	filenames_edited_data = [str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(5) ]
+	dir_target  = 'valency_linker_length'
 	
-	target_dir = 'valency_linker_length'
 	
-	dir_edited_data	= os.path.join('data2', target_dir)
-	dir_imgs = os.path.join('imgs2', target_dir,'profiles')
+	# Shared init
+	dir_edited_data	= os.path.join('data2', dir_target)
+	dir_imgs = os.path.join('imgs2', dir_target,'profiles')
 	sigma = 2
 	os.makedirs(dir_imgs, exist_ok=True)
 	
@@ -157,7 +179,7 @@ if __name__ == '__main__':
 		prefix = filename
 		suffix = 'sigma_{}'.format(sigma)
 		print('Target: {}, sigma: {}'.format(filename, sigma))
-		d      = utils.load(dir_edited_data, prefix, suffix)
+		d   = utils.load(dir_edited_data, prefix, suffix)
 		
 		# Make figure
 		fig = make_a_figure(d)

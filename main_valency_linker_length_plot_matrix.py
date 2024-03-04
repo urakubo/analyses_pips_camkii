@@ -10,22 +10,21 @@ plt.rcParams.update(p.rc_param)
 
 if __name__ == '__main__':
 	
-	target = 'conc_CaMKII' # 'region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf'
+	target =  'region_condensates' # 'region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf'
 	
 	
 	# Files
-	dir_edited_data 		= os.path.join('data', 'conc_dependence')
-	filenames_edited_data 	= [str(i).zfill(3) for i in range(3) ] # 30
-	target_dir = 'valency_linker_length'
-	
-	
-	dir_edited_data	= os.path.join('data', target_dir)
-	dir_imgs = os.path.join('imgs', target_dir,'matrix')
+	dir_target  = 'valency_linker_length'
+	dir_edited_data	= os.path.join('data2', dir_target)
+	dir_imgs = os.path.join('imgs2', dir_target, 'matrix')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	
-	valency = [4, 6, 8, 10, 12] 
-	linker_length  = [3, 5, 7, 9]
+	valency = list(range(2,14,2)) 
+	linker_length  = [1, 3, 5, 7, 9]
+	
+	fnames_valency       = { v: str(v).zfill(2) for v in valency }
+	fnames_linker_length = {ll: str(i).zfill(3) for i,ll in enumerate(linker_length) }
 	
 	num_rows		= len( valency )
 	num_columns		= len( linker_length )
@@ -41,8 +40,7 @@ if __name__ == '__main__':
 	for i, v in enumerate(valency):
 		for j, ll in enumerate(linker_length):
 			# Load data
-			id = i + j * len(valency)
-			prefix = str(id).zfill(3)
+			prefix = fnames_valency[v]+'_'+fnames_linker_length[ll]
 			suffix = 'sigma_{}'.format(sigma)
 			d      = utils.load(dir_edited_data, prefix, suffix)
 			print('Target: {}, sigma: {}'.format(prefix, sigma))

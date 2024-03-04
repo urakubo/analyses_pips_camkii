@@ -41,8 +41,12 @@ def save_a_plot(d, dir_img, prefix, suffix):
 	
 def save_plots_matrix(dir_data, dir_imgs, sigma): 
 	
-	valency = [4, 6, 8, 10, 12] 
-	linker_length  = [3, 5, 7, 9, 12]
+	
+	valency = list(range(2,14,2)) 
+	linker_length  = [1, 3, 5, 7, 9]
+	
+	fnames_valency       = { v: str(v).zfill(2) for v in valency }
+	fnames_linker_length = {ll: str(i).zfill(3) for i,ll in enumerate(linker_length) }
 	
 	num_rows		= len( valency )
 	num_columns		= len( linker_length )
@@ -55,8 +59,7 @@ def save_plots_matrix(dir_data, dir_imgs, sigma):
 	for i, v in enumerate(valency):
 		for j, ll in enumerate(linker_length):
 			# Load data
-			id = i + j * len(valency)
-			prefix = str(id).zfill(3)
+			prefix = fnames_valency[v]+'_'+fnames_linker_length[ll]
 			suffix = 'sigma_{}'.format(sigma)
 			d      = utils.load(dir_edited_data, prefix, suffix)
 			print('Target: {}, sigma: {}'.format(prefix, sigma))
@@ -95,18 +98,19 @@ def save_plots_matrix(dir_data, dir_imgs, sigma):
 if __name__ == '__main__':
 	
 	# File
-	target_dir = 'valency_linker_length'
+	dir_target = 'valency_linker_length'
 	
 	
-	dir_edited_data	= os.path.join('data', target_dir)
-	dir_imgs = os.path.join('imgs', target_dir,'3d_condensate')
+	dir_edited_data	= os.path.join('data2', dir_target)
+	dir_imgs = os.path.join('imgs2', dir_target,'3d_condensate')
 	os.makedirs(dir_imgs, exist_ok=True)
 	sigma = 2
 	
 	
 	'''
 	# Plot the snapshots of each result from the three directions.
-	filenames_edited_data 	= [str(i).zfill(3) for i in range(24) ]
+	filenames_edited_data = [str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(5) ]
+	
 	for filename in filenames_edited_data:
 		# Load data
 		prefix = filename

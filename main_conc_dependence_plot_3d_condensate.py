@@ -40,10 +40,12 @@ def save_a_plot(d, dir_img, prefix, suffix):
 	
 	
 def save_plots_matrix(dir_data, dir_imgs, sigma): 
-	STG    = [1, 500, 1000, 1500, 2000, 2500, 3000] 
-	GluN2B = [1, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000, 20000]
-
-
+	#STG    = [1, 500, 1000, 1500, 2000, 2500, 3000] 
+	#GluN2B = [1, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000, 20000]
+	
+	STG    = [540 , 1620, 2160,  2700,  3240, 4520] 
+	GluN2B = [1080, 4320, 8640, 10800, 12960]
+	
 	suffix = 'sigma_{}'.format(sigma)
 	
 	pl = pyvista.Plotter(window_size=[1500,1500], shape=(len(GluN2B), len(STG)), border=False)
@@ -88,11 +90,12 @@ def save_plots_matrix(dir_data, dir_imgs, sigma):
 if __name__ == '__main__':
 
 	# Profiles
-	#'''
+	'''
 	# Files
-	dir_edited_data 		= os.path.join('data', 'conc_dependence')
+	dir_target = 'conc_dependence'
+	dir_edited_data 		= os.path.join('data2', dir_target)
 	filenames_edited_data 	= [str(i).zfill(3) for i in [50, 52, 67] ]
-	dir_imgs = os.path.join('imgs', 'conc_dependence','3d_condensate')
+	dir_imgs = os.path.join('imgs2', dir_target,'3d_condensate')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	sigma = 2
@@ -103,21 +106,21 @@ if __name__ == '__main__':
 		d      = utils.load(dir_edited_data, prefix, suffix)	
 		print('Target: {}, sigma: {}'.format(filename, sigma))
 		save_a_plot(d, dir_imgs, prefix, suffix)
-	#'''
+	'''
 	
 	
 	# Matrix
-	'''
+	#'''
 	# Input files
-	dir_edited_data 		= os.path.join('data', 'conc_dependence')
-	filenames_edited_data 	= [str(i).zfill(3) for i in range(3) ] # 30
+	dir_target = 'conc_dependence'
+	dir_edited_data 		= os.path.join('data2', dir_target)
 	# Output files
-	dir_imgs = os.path.join('imgs', 'conc_dependence','3d_condensate')
+	dir_imgs = os.path.join('imgs2', dir_target,'3d_condensate')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	
 	sigma    = 2 # 2, 3, or 4
 	save_plots_matrix(dir_edited_data, dir_imgs, sigma)
-	'''
+	#'''
 	
 
