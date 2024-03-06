@@ -10,10 +10,11 @@ plt.rcParams.update( {'font.size': 6} )
 
 if __name__ == '__main__':
 	
-	target =  'energy_isotropic_STG'
+	target =  'energy_isotropic_dilute'
 	# 'region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf', 'concs_in_CaMKII', 'concs_in_STG'
 	# 'energy_anisotropic_STG', 'energy_anisotropic_CaMKII'
 	# 'energy_isotropic_STG', 'energy_isotropic_CaMKII', 
+	# 'energy_isotropic_dilute'
 	
 	# Files
 	dir_target  = 'valency_linker_length'

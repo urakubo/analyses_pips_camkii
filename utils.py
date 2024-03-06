@@ -222,6 +222,7 @@ def get_concs_and_condensates(types, positions, ids_molecule, energy = None, sig
 	# Get the condenate regions of targs_molecule.
 	concs_in_grid_mesh = {t: ndimage.gaussian_filter(locs_in_grid_mesh[t], sigma = sigma) for t in targs_molecule}
 	regions_condensate_in_grid_mesh = {t: get_high(concs_in_grid_mesh[t]-concs_periphery[t]) for t in targs_molecule}
+	regions_condensate_in_grid_mesh['dilute'] = region_periphery
 	
 	def get_concs_condensate(ref_molecule):
 		return {t: np.sum(locs_in_grid_mesh[t] * regions_condensate_in_grid_mesh[ref_molecule])/ \
@@ -262,7 +263,7 @@ def get_concs_and_condensates(types, positions, ids_molecule, energy = None, sig
 			def get_sum_energy_condensate(ref_molecule):
 				return {m: np.sum(engy_in_grid_mesh[m] * regions_condensate_in_grid_mesh[ref_molecule]) for m in targs_molecule }
 			engy_condensate    = {r: get_sum_energy_condensate(r) for r in targs_molecule}
-			engy_condensate['dilute_phase'] = {m: np.sum(engy_in_grid_mesh[m] * region_periphery) for m in targs_molecule }
+			engy_condensate['dilute'] = {m: np.sum(engy_in_grid_mesh[m] * region_periphery) for m in targs_molecule }
 			
 			d[k] = engy_condensate
 	
