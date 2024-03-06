@@ -113,13 +113,13 @@ def make_a_figure( d ):
 	targ = 'STG'
 	ref  = 'CaMKII'
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*1 )
-	plot_concs_condensate_bar(ax, targ, ref, d)
+	plot_conc_condensate_bar(ax, targ, ref, d)
 	arrange_graph_bar(ax, panel_dx, yloc[1], panel_size/4, panel_size)
 	
 	targ = 'CaMKII'
 	ref  = 'STG'
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*2 )
-	plot_concs_condensate_bar(ax, targ, ref, d)
+	plot_conc_condensate_bar(ax, targ, ref, d)
 	arrange_graph_bar(ax, panel_dx, yloc[2], panel_size/4, panel_size)
 	
 	targs        = ['STG','CaMKII']

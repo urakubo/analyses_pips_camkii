@@ -191,6 +191,8 @@ def rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord ):
 	return targets_locs_in_real_coord
 	
 	
+	
+	
 	#
 	# grid_coord: Molecular coordinate in the grid space (0, 1,..., 119) 
 	# (numpy uint) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
@@ -201,7 +203,6 @@ def rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord ):
 	# grid_mesh : molecular existance in the 3D space
 	# (numpy bool in 3D space) (p.space[0], p.space[1], p.space[2])
 	#
-	
 	
 def get_concs_and_condensates(types, positions, ids_molecule, energy = None, sigma=2):
 	
@@ -260,7 +261,9 @@ def get_concs_and_condensates(types, positions, ids_molecule, energy = None, sig
 			engy_in_grid_mesh  = {m: get_sum_energy(locs_in_real_coord[m], engy_in_real_coord[m]) for m in targs_molecule}
 			def get_sum_energy_condensate(ref_molecule):
 				return {m: np.sum(engy_in_grid_mesh[m] * regions_condensate_in_grid_mesh[ref_molecule]) for m in targs_molecule }
-			engy_condensate    = {m: get_sum_energy_condensate(m) for m in targs_molecule}
+			engy_condensate    = {r: get_sum_energy_condensate(r) for r in targs_molecule}
+			engy_condensate['dilute_phase'] = {m: np.sum(engy_in_grid_mesh[m] * region_periphery) for m in targs_molecule }
+			
 			d[k] = engy_condensate
 	
 	return d
@@ -441,9 +444,9 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.mole
 
 	ax.set_xlabel('Distance from \n center-of-mass (l.u.)')
 	ax.set_ylabel('(beads / voxel)')
-	ax.set_xlim(0,30)
+	ax.set_xlim(0,40)
 	ax.set_ylim(*ylim)
-	ax.set_xticks(range(0,40,10))
+	ax.set_xticks(range(0,50,10))
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
 
@@ -609,7 +612,7 @@ def arrange_graph_bar(ax, panel_dx, y0, panel_size_x, panel_size_y):
 	ax.set_position([loc.x0+panel_dx, y0, panel_size_x, panel_size_y])
 	
 	
-def plot_concs_condensate_bar(ax, targ, ref, d):
+def plot_conc_condensate_bar(ax, targ, ref, d):
 	cc = d['conc_condensate']
 	col = c.cmap_universal_ratio[targ]
 	ax.bar(['In '+targ+'\n condensates', 'In '+ref+'\n condensates'], [cc[targ][targ], cc[ref][targ]], width=0.5, color=col)
@@ -628,6 +631,31 @@ def plot_conc_ratio_condensate_bar(ax, targs, counterparts, d):
 	ax.set_ylabel('(target / counterpart)')
 	ax.set_ylim(0,40)
 	
+	
+def plot_concs_condensate_bar(ax,ref, d):
+	data   = { k: d['conc_condensate'][ref][k]  for k in p.molecules_without_all.keys()}
+	colormap_conc_bargraph =[c.cmap_universal_ratio[k] for k in data.keys()]
+	ax.set_title('Concentration \n in {} condensate'.format( ref ))
+	ax.bar(*zip(*data.items()), width=0.6, color=colormap_conc_bargraph )
+	ax.set_ylim(0,0.5)
+	ax.set_ylabel('(beads / voxel)')
+	ax.tick_params(axis='x', rotation=45)
+
+def plot_binding_energy_bar(ax,d, type_energy, target_condensate, ymax):
+	# type_energy: 'energy_anisotropic', 'energy_anisotropic_self', 'energy_isotropic'
+	# target_condensate: 'CaMKII', 'STG'
+	
+	vol   = np.sum( d['region_condensate_in_grid_mesh'][target_condensate] )
+	data  = { k: -d[type_energy][target_condensate][k] / vol for k in p.molecules_with_all.keys()}
+	colormap_conc_bargraph =[c.cmap_universal_ratio[k] for k in data.keys()]
+	data['Total'] = data.pop('All') ###
+	ax.set_title('{} per voxel \n in {} cond (Total: {:.3g})'.format( type_energy, target_condensate, data['Total'] ))
+	ax.bar(*zip(*data.items()), width=0.6, color=colormap_conc_bargraph )
+	ax.set_ylim(0,ymax)
+	ax.set_ylabel('(1 / voxel)')
+	ax.tick_params(axis='x', rotation=45)
+	
+	return data['Total']
 
 ############### 3D plot using pyvista
 
@@ -748,3 +776,54 @@ def plot_a_pre_rotated_condensate_pyvista(d, pl):
 	
 	pl.set_background('white')
 	
+
+
+
+def select_plot(target, fig, num_rows, num_columns, row, column, d, title):
+	
+	scalebar = (row == 0) and (column == 1)
+	value = True
+	
+	if target == 'region_condensates':
+		plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, title=title, scalebar=scalebar )
+	elif target == 'conc_CaMKII':
+		columns = {'CaMKII':column}
+		plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
+			title=title, colorbar=False, scalebar=scalebar, pre_rotated=True )
+	elif target == 'conc_STG':
+		columns = {'STG':column}
+		plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
+			title=title, colorbar=False, scalebar=scalebar, pre_rotated=True )
+	elif target == 'watershed_CaMKII':
+		columns = {'CaMKII':column}
+		plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, title=False, scalebar=scalebar )
+	elif target == 'rdf':
+		errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
+		ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
+		plot_a_rdf( ax, d, errorbar=errorbar, legend=scalebar )
+	elif target == 'concs_in_CaMKII':
+		ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
+		t = 'CaMKII'
+		plot_concs_condensate_bar(ax, t, d)
+		ax.spines['right'].set_visible(False)
+		ax.spines['top'].set_visible(False)
+	elif target == 'concs_in_STG':
+		ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
+		t = 'STG'
+		plot_concs_condensate_bar(ax, t, d)
+		ax.spines['right'].set_visible(False)
+		ax.spines['top'].set_visible(False)
+	elif 'energy' in target: # target == 'energy_anisotropic_STG'
+		targets = target.split('_')
+		type_energy       = targets[0] + '_' + targets[1]
+		target_condensate = targets[-1]
+		ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
+		ymax = 1.5
+		value = plot_binding_energy_bar(ax, d, type_energy, target_condensate, ymax)
+		ax.spines['right'].set_visible(False)
+		ax.spines['top'].set_visible(False)
+	else:
+		raise ValueError("Target function has not been implemented: {}".format(target))
+
+	return value
+

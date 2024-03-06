@@ -69,20 +69,14 @@ def make_a_figure( d ):
 	panel_dx = 0.06
 	
 	
-	# Average concs in CaMKII/STG condensate
+	# Average concs in CaMKII/ condensate
 	column = 5
 	targets_condensate = ['CaMKII','STG']
 	for i, t in enumerate(targets_condensate):
-		data   = { k: d['conc_condensate'][t][k]  for k in p.molecules_without_all.keys()}
-		colormap_conc_bargraph =[c.cmap_universal_ratio[k] for k in data.keys()]
 		ax = fig.add_subplot( num_rows, num_columns, column+num_columns*i )
-		ax.set_title('Concentration \n in {} condensate'.format( t ))
-		ax.bar(*zip(*data.items()), width=0.6, color=colormap_conc_bargraph )
-		ax.set_ylim(0,0.5)
-		ax.set_ylabel('(beads / voxel)')
+		utils.plot_concs_condensate_bar(ax, t, d)
 		arrange_graph_bar(ax, panel_dx, yloc[i], panel_size/2, panel_size)
-		ax.tick_params(axis='x', rotation=45)
-	
+
 	
 	# Plot RDF
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*2 )
@@ -98,41 +92,28 @@ def make_a_figure( d ):
 	
 	column = 8
 	targets_condensate = ['CaMKII','STG']
-	vols  = { t: np.sum( d['region_condensate_in_grid_mesh'][t] ) for t in targets_condensate }
 	ymax = 1.5
 	
-	for i, t in enumerate(targets_condensate):
-		data   = { k: -d['energy_anisotropic'][t][k] / vols[t]  for k in p.molecules_with_all.keys()}
-		colormap_conc_bargraph =[c.cmap_universal_ratio[k] for k in data.keys()]
-		data['Total'] = data.pop('All') ###
+	type_energy = 'energy_anisotropic'
+	for i, target_condensate in enumerate(targets_condensate):
 		ax = fig.add_subplot( num_rows, num_columns, column+num_columns*i )
-		ax.set_title('Anisotropic energy per voxel \n in {} cond (Total: {:.3g})'.format( t, data['Total'] ))
-		ax.bar(*zip(*data.items()), width=0.6, color=colormap_conc_bargraph )
-		ax.set_ylim(0,ymax)
-		ax.set_ylabel('(1 / volume)')
+		utils.plot_binding_energy_bar(ax,d, type_energy, target_condensate, ymax)
 		arrange_graph_bar(ax, panel_dx, yloc[i], panel_size/2, panel_size)
-		ax.tick_params(axis='x', rotation=45)
-	
+		
 	# Volume of  CaMKII/STG condensate
-	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*2 )
+	ax   = fig.add_subplot( num_rows, num_columns, column+num_columns*2 )
+	vols = { t: np.sum( d['region_condensate_in_grid_mesh'][t] ) for t in targets_condensate }
 	plot_vols_condensate_bar(ax, vols)
 	arrange_graph_bar(ax, panel_dx, yloc[2], panel_size/3, panel_size)
 	
 	
 	column = 10
 	targets_condensate = ['CaMKII','STG']
-	for i, t in enumerate(targets_condensate):
-		data   = { k: -d['energy_isotropic'][t][k] / vols[t]  for k in p.molecules_with_all.keys()}
-		colormap_conc_bargraph =[c.cmap_universal_ratio[k] for k in data.keys()]
-		data['Total'] = data.pop('All') ###
+	type_energy = 'energy_isotropic'
+	for i, target_condensate in enumerate(targets_condensate):
 		ax = fig.add_subplot( num_rows, num_columns, column+num_columns*i )
-		ax.set_title('Isotropic energy per voxel \n in {} cond (Total: {:.3g})'.format( t, data['Total'] ))
-		ax.bar(*zip(*data.items()), width=0.6, color=colormap_conc_bargraph )
-		ax.set_ylim(0,ymax)
-		ax.set_ylabel('(1 / volume)')
+		utils.plot_binding_energy_bar(ax,d, type_energy, target_condensate, ymax)
 		arrange_graph_bar(ax, panel_dx, yloc[i], panel_size/2, panel_size)
-		ax.tick_params(axis='x', rotation=45)
-
 	
 	return fig
 	

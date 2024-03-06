@@ -122,28 +122,6 @@ if __name__ == '__main__':
 	target_dir = 'mix_two_three_components'
 	
 	
-	## Dataset 2
-	filenames_lammpstrj = [		'OnlyCaMKIICaMKIIAffinity.lammpstrj',\
-							'OnlyGluN2BGluN2B.lammpstrj',\
-							'onlySTGSTG.lammpstrj']
-	filenames_output = [	'CaMKIIalone',\
-							'GluN2Balone',\
-							'STGalone']	
-	target_dir = 'self_affinity'
-	'''
-	
-	
-	## Dataset 3
-
-	filenames_lammpstrj =  ['Activated CaMKII_2.lammpstrj',\
-							'Unactivated CamKII_0.lammpstrj',\
-							'Unactivated CamKII_1.lammpstrj']
-	filenames_output = ['activated_CaMKII_2',\
-							'unactivated_CamKII_0',\
-							'unactivated_CamKII_1']
-	target_dir = 'figure_1c'
-	
-	
 	##
 	dir_lammpstrj   = os.path.join('..', 'lammpstrj',target_dir)
 	dir_imgs        = os.path.join('imgs', target_dir, 'snapshot' )

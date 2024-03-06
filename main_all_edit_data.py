@@ -19,6 +19,7 @@ import utils
 if __name__ == '__main__':
 	
 	# Valency length
+	#'''
 	subdirs    = ['val{}'.format(i) for i in range(2,14,2)]
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(5)]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
@@ -26,32 +27,48 @@ if __name__ == '__main__':
 	
 	dir_lammpstrj    = 'Feb_Figure3'
 	dir_edited_data  = 'valency_linker_length'
-	
+	has_energy = True
+	#'''
 	
 	# Conc dependnece
+	'''
 	filenames_output = [str(i).zfill(3) for i in range(30) ]
 	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ] #70
 	dir_lammpstrj    = 'Feb_Figure2'
 	dir_edited_data  = 'conc_dependence'
+	has_energy = True
+	'''
 	
+	# Figure 1
+	'''
+	filenames_output = ['CG','CPG','SP']
+	filenames_input  = ['CG_trj.lammpstrj', 'CPG_trj.lammpstrj', 'SP_trj.lammpstrj' ]
+	dir_lammpstrj    = 'Feb_Sub_Figure1'
+	dir_edited_data  = 'types_mixture'
+	has_energy = False
+	'''
 	
-	#
+	# Shared part of initialization
 	dir_lammpstrj    = os.path.join('..', 'lammpstrj2', dir_lammpstrj)
 	dir_edited_data  = os.path.join('data2',dir_edited_data)
-	# Init
 	os.makedirs(dir_edited_data, exist_ok=True)
-	
+	#
+	#
 	for filename_input, filename_output in zip(filenames_input, filenames_output):
 		# Load data
 		print("\n"+filename_input)
 		sampling_frame = utils.get_num_frames(dir_lammpstrj, filename_input)
+		print("The last timeframe was loaded." )
 		
 		print("sampling_frame ", sampling_frame )
 		types, positions_grid_coord,ids_molecule, mc_step = \
 			utils.load_lammpstrj( dir_lammpstrj, filename_input, sampling_frame )
-		energy = \
-			utils.load_lammpstrj_binding_energy( dir_lammpstrj, filename_input, sampling_frame )
-		print("The last timeframe was loaded." )
+		
+		if has_energy == True:
+			energy = \
+				utils.load_lammpstrj_binding_energy( dir_lammpstrj, filename_input, sampling_frame )
+		else:
+			energy = None
 		
 		# Centering
 		center    = utils.get_center_of_mass(types, positions_grid_coord)

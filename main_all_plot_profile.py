@@ -17,37 +17,11 @@ plt.rcParams.update(p.rc_param)
 def arrange_graph_bar(ax, panel_dx, y0, panel_size_x, panel_size_y):
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
-	# ax.set_aspect("equal")
-	#ax.set_aspect(1.0 / ax.get_data_ratio())
 	ax_h, ax_w = ax.bbox.height, ax.bbox.width
-	#ax.bbox.width = ax_w / 2
-	#print('ax_h, ax_w ', ax_h, ax_w)
-	# ax.set_aspect('auto')
-	#x, y, w, h = ax.get_position().bounds
 	loc = ax.get_position()
 	if y0 is None:
 		y0 = loc.y0
 	ax.set_position([loc.x0+panel_dx, y0, panel_size_x, panel_size_y])
-	
-	
-def plot_concs_condensate_bar(ax, targ, ref, d):
-	cc = d['conc_condensate']
-	col = c.cmap_universal_ratio[targ]
-	ax.bar(['In '+targ+'\n condensates', 'In '+ref+'\n condensates'], [cc[targ][targ], cc[ref][targ]], width=0.5, color=col)
-	ax.set_title('Conc of {}'.format(targ))
-	ax.set_ylabel('(beads / voxel)')
-	ax.set_ylim(0,0.6)
-	ax.tick_params(axis='x', rotation=45)
-	
-	
-def plot_conc_ratio_condensate_bar(ax, targs, counterparts, d):
-	cc = d['conc_condensate']
-	conc_ratio = [ cc[t][t] / cc[c][t] for t, c in zip(targs, counterparts)]
-	cols = [ c.cmap_universal_ratio[targ] for targ in targs ]
-	ax.bar(targs, conc_ratio, width=0.5, color=cols)
-	ax.set_title('Partition index')
-	ax.set_ylabel('(target / counterpart)')
-	ax.set_ylim(0,40)
 	
 	
 def make_a_figure( d ):
@@ -113,19 +87,19 @@ def make_a_figure( d ):
 	targ = 'STG'
 	ref  = 'CaMKII'
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*1 )
-	plot_concs_condensate_bar(ax, targ, ref, d)
+	utils.plot_conc_condensate_bar(ax, targ, ref, d)
 	arrange_graph_bar(ax, panel_dx, yloc[1], panel_size/4, panel_size)
 	
 	targ = 'CaMKII'
 	ref  = 'STG'
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*2 )
-	plot_concs_condensate_bar(ax, targ, ref, d)
+	utils.plot_conc_condensate_bar(ax, targ, ref, d)
 	arrange_graph_bar(ax, panel_dx, yloc[2], panel_size/4, panel_size)
 	
 	targs        = ['STG','CaMKII']
 	counterparts = ['CaMKII','STG']
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*0 )
-	plot_conc_ratio_condensate_bar(ax, targs, counterparts, d)
+	utils.plot_conc_ratio_condensate_bar(ax, targs, counterparts, d)
 	arrange_graph_bar(ax, panel_dx, yloc[0], panel_size/4, panel_size )
 	
 	
@@ -133,15 +107,9 @@ def make_a_figure( d ):
 	column = 10
 	targets_condensate = ['CaMKII','STG']
 	for i, t in enumerate(targets_condensate):
-		data   = { k: d['conc_condensate'][t][k]  for k in p.molecules_without_all.keys()}
-		colormap_conc_bargraph =[c.cmap_universal_ratio[k] for k in data.keys()]
 		ax = fig.add_subplot( num_rows, num_columns, column+num_columns*i )
-		ax.set_title('{} condensate'.format( t ))
-		ax.bar(*zip(*data.items()), width=0.6, color=colormap_conc_bargraph )
-		ax.set_ylim(0,0.5)
-		ax.set_ylabel('(beads / volume)')
+		utils.plot_concs_condensate_bar(ax, t, d)
 		arrange_graph_bar(ax, panel_dx, yloc[i], panel_size/2, panel_size)
-		ax.tick_params(axis='x', rotation=45)
 	
 	
 	# Plot RDF
@@ -149,7 +117,6 @@ def make_a_figure( d ):
 	errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
 	utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=True )
 	arrange_graph_bar(ax, panel_dx, yloc[2], panel_size/2, panel_size)
-	
 	
 	return fig
 	
@@ -159,13 +126,21 @@ if __name__ == '__main__':
 	# Datasets
 	
 	# Conc dependence
+	#'''
 	dir_target  = 'conc_dependence'
 	filenames_edited_data 	= [str(i).zfill(3) for i in range(30) ] # 70
+	#'''
 	
 	# Linker length
+	'''
 	filenames_edited_data = [str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(5) ]
 	dir_target  = 'valency_linker_length'
-	
+	'''
+	# Figure 1
+	#'''
+	filenames_edited_data = ['CG','CPG','SP']
+	dir_target  = 'types_mixture'
+	#'''
 	
 	# Shared init
 	dir_edited_data	= os.path.join('data2', dir_target)
