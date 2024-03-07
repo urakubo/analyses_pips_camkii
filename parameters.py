@@ -61,6 +61,7 @@ rc_param = {'pdf.fonttype' : 'truetype',
 	'svg.fonttype' : 'none',
 	'font.family' : 'sans-serif',
 	'font.sans-serif' : 'Arial',
-	'font.style' : 'normal'}
+	'font.style' : 'normal',
+	'legend.frameon': False}
 
 

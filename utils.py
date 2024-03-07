@@ -86,6 +86,7 @@ def decode_data(data_frame):
 	# data_target_frame.particles['bp']
 	return type, position, id_molecule
 	
+	
 def decode_species(types, positions):
 	types_binary = {k: [True if t in v['id'] else False for t in types] for k, v in p.molecules_with_all.items() }
 	types_positions = {k: positions[types_binary[k],:] for k in p.molecules_with_all.keys() }
@@ -634,11 +635,12 @@ def plot_conc_ratio_condensate_bar(ax, targs, counterparts, d):
 	
 	
 def plot_concs_condensate_bar(ax,ref, d):
-	data   = { k: d['conc_condensate'][ref][k]  for k in p.molecules_without_all.keys()}
+	data   = { k: d['conc_condensate'][ref][k]  for k in p.molecules_with_all.keys()}
 	colormap_conc_bargraph =[c.cmap_universal_ratio[k] for k in data.keys()]
+	data['Total'] = data.pop('All') ###
 	ax.set_title('Concentration \n in {} condensate'.format( ref ))
 	ax.bar(*zip(*data.items()), width=0.6, color=colormap_conc_bargraph )
-	ax.set_ylim(0,0.5)
+	ax.set_ylim(0,1.0)
 	ax.set_ylabel('(beads / voxel)')
 	ax.tick_params(axis='x', rotation=45)
 
