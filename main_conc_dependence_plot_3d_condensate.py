@@ -112,7 +112,7 @@ if __name__ == '__main__':
 	# Matrix
 	#'''
 	# Input files
-	dir_target = 'conc_dependence'
+	dir_target = 'conc_dependence_0.2'
 	dir_edited_data 		= os.path.join('data2', dir_target)
 	# Output files
 	dir_imgs = os.path.join('imgs2', dir_target,'3d_condensate')
