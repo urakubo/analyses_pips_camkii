@@ -10,10 +10,11 @@ plt.rcParams.update( {'font.size': 6} )
 
 if __name__ == '__main__':
 	
-	target = 'energy_anisotropic_CaMKII'
+	target = 'energy_anisotropic_dilute'
 	# 'region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf', 'concs_in_CaMKII', 'concs_in_STG'
 	# 'energy_anisotropic_STG', 'energy_anisotropic_CaMKII'
 	# 'energy_isotropic_STG', 'energy_isotropic_CaMKII', 
+	# 'energy_anisotropic_dilute', 'energy_isotropic_dilute'
 	
 
 	sigma    = 2 # 2 or 4

@@ -19,7 +19,7 @@ import utils
 if __name__ == '__main__':
 	
 	# Valency length
-	#'''
+	'''
 	subdirs    = ['val{}'.format(i) for i in range(2,14,2)]
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(5)]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
@@ -28,16 +28,16 @@ if __name__ == '__main__':
 	dir_lammpstrj    = 'Feb_Figure3'
 	dir_edited_data  = 'valency_linker_length'
 	has_energy = True
-	#'''
+	'''
 	
 	# Conc dependnece
-	'''
+	#'''
 	filenames_output = [str(i).zfill(3) for i in range(30) ]
 	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ] #70
 	dir_lammpstrj    = 'Feb_Figure2'
 	dir_edited_data  = 'conc_dependence'
 	has_energy = True
-	'''
+	#'''
 	
 	# Figure 1
 	'''
