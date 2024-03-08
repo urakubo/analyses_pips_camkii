@@ -33,7 +33,7 @@ molecules_with_all = \
 	'GluN2B'	:{'s':['GluN2B binding site']			,'c':'#ED0DD9'},\
 	'STG'		:{'s':['STG binding site','STG hub']	,'c':'r'},\
 	'PSD95'		:{'s':['PSD']				,'c':'#00FFFF'},\
-	'All'		:{'s':['GluN2B binding site','CaMKII hub','CaMKII binding site','STG binding site','STG hub','PSD']			,'c':'k'}}
+	'All'		:{'s':['GluN2B binding site','CaMKII hub','CaMKII binding site','STG binding site','STG hub','PSD']	,'c':'k'}}
 
 molecules_without_all = \
 	{'CaMKII'	:{'s':['CaMKII binding site', 'CaMKII hub']	,'c':'#228B22'},\
@@ -64,4 +64,7 @@ rc_param = {'pdf.fonttype' : 'truetype',
 	'font.style' : 'normal',
 	'legend.frameon': False}
 
+m = [-1, 0, 1]
+neighbors26 = np.stack(np.meshgrid(m, m, m), axis=-1).reshape(-1, 3)
+neighbors26 = np.delete(neighbors26, 13, axis=0)
 

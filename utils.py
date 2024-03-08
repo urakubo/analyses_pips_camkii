@@ -335,6 +335,16 @@ def centering(positions, center):
 	return p_centered
 
 
+def centering_lattice_space(positions, center): 
+	p_centered = (positions - center) + p.center_np.astype('int')
+	for dim in [0,1,2]:
+		over  = (p_centered[:,dim]  >=  p.space[dim])
+		under = (p_centered[:,dim]  <  0)
+		p_centered[over ,dim] -= p.space[dim]
+		p_centered[under,dim] += p.space[dim]
+	return p_centered
+
+
 def get_average_center_of_mass( dir_lammpstrj, filename_input, sampling_time_frames ):
 	centers = np.zeros( (len(sampling_time_frames), 3) )
 	

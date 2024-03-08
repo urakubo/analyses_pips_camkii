@@ -12,21 +12,32 @@ import colormap as c
 	
 if __name__ == '__main__':
 	
-	i = 2
+	# Dataset 1: conc_dependence
+	ii = 3 # 0,...,3
 	
-	# Dataset 1
 	dir_input       = './../lammpstrj2/Feb_Figure2'
 	fnames = [27,21,15,9]
 	filenames_input  = [ 'R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in fnames ]
 	dir_target       = 'conc_dependence'
-	
 	filenames_output = [ format(str(i).zfill(3)) for i in fnames ]
+	filename_input, filename_output = filenames_input[ii], filenames_output[ii]
+	
+	
+	# Dataset 2: linker_length
+	dir_input       = './../lammpstrj2/Feb_Figure3'
+	j = 12  # range(2,14,2)
+	ii = 4 # 0,...,4
+	subdirs	= ['val{}'.format(j)]
+	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(5)]
+	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
+	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(5) ]
+	dir_target       =  'valency_linker_length'
+	filename_input, filename_output = filenames_input[ii], filenames_output[ii]
+	
+	
+	
 	dir_imgs = os.path.join('imgs2', dir_target,'prof3d')
 	os.makedirs(dir_imgs, exist_ok=True)
-	
-	
-	reference_molecule_for_centering = 'All'
-	filename_input, filename_output = filenames_input[i], filenames_output[i]
 	
 	
 	# Load data
@@ -48,7 +59,7 @@ if __name__ == '__main__':
 	
 	
 	# Plot
-	m = 25
+	m = 50
 	rng = np.random.default_rng(seed=13)
 	
 	fig = plt.figure(figsize=(10, 7), tight_layout=True)
@@ -60,7 +71,7 @@ if __name__ == '__main__':
 			pos = positions_real_coord[ids_molecule == id]
 			dist = np.max( np.linalg.norm(pos, axis=1) )
 			if dist < m:
-				if rng.random() > 0.8:
+				if rng.random() > 0.95:
 					if t == 'CaMKII':
 						for i in range(12):
 							ax.plot([pos[0,0],pos[i+1,0]], [pos[0,1], pos[i+1,1]], [pos[0,2],pos[i+1,2]],\
