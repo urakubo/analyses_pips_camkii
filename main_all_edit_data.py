@@ -32,11 +32,13 @@ if __name__ == '__main__':
 	
 	# Conc dependnece
 	#
+	'''
 	filenames_output = [str(i).zfill(3) for i in range(30) ]
 	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ] #70
 	dir_lammpstrj    = 'Feb_Figure2_0.2'
 	dir_edited_data  = 'conc_dependence'
 	has_energy = True
+	'''
 	#
 	
 	# Figure 1
@@ -47,9 +49,17 @@ if __name__ == '__main__':
 	dir_edited_data  = 'types_mixture'
 	has_energy = False
 	'''
+	# Linear
+	#'''
+	filenames_output = [str(i).zfill(3) for i in range(12) ]
+	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ]
+	dir_lammpstrj    = os.path.join('Feb_Figure4', 'linear-glun_6480_8640')
+	dir_edited_data  = 'linear'
+	has_energy = True
+	#'''
 	
 	# Shared part of initialization
-	'''dir_lammpstrj    = os.path.join('..', 'lammpstrj2', dir_lammpstrj)
+	dir_lammpstrj    = os.path.join('..', 'lammpstrj2', dir_lammpstrj)
 	dir_edited_data  = os.path.join('data2',dir_edited_data)
 	os.makedirs(dir_edited_data, exist_ok=True)
 	#'''

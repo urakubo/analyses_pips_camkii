@@ -15,52 +15,70 @@ import colormap as c
 plt.rcParams.update(p.rc_param)
 plt.rcParams.update( {'font.size': 6} )
 
+def equal_list(lst1, lst2):
+    lst = lst1.copy()
+    for element in lst2:
+        try:
+            lst.remove(element)
+        except ValueError:
+            break
+    else:
+        if not lst:
+            return True
+    return False
 
-def plot_a_binding(ax, d, prefix, species = 'GluN2B'):
+def plot_a_binding(ax, d, prefix, species, vv ):
 	
-
 	if species == 'GluN2B':
-		binding_types = [ {None, None}, \
-			{None, 'GluN2B_CaMKII'}, {'GluN2B_CaMKII', 'GluN2B_CaMKII'}, \
-			{None, 'GluN2B_PSD95'}, {'GluN2B_PSD95', 'GluN2B_PSD95'}, {'GluN2B_CaMKII', 'GluN2B_PSD95'}]
+		binding_types = [ [0, 0], \
+			[0, 'GluN2B_CaMKII'], ['GluN2B_CaMKII', 'GluN2B_CaMKII'], \
+			[0, 'GluN2B_PSD95'], ['GluN2B_PSD95', 'GluN2B_PSD95'], ['GluN2B_CaMKII', 'GluN2B_PSD95']]
 		titles_binding_type = ['None', 'CaMKII, None', 'CaMKII, CaMKII', 'PSD95, None',  'PSD95, PSD95', 'CaMKII, PSD95' ]
 		ymax = 6000
 		
 	elif species == 'STG':
 		binding_types = [\
-			{None, None, None, None}, \
-			{None, None, None, 'STG_PSD95'}, \
-			{None, None, 'STG_PSD95', 'STG_PSD95'}, \
-			{None, 'STG_PSD95', 'STG_PSD95', 'STG_PSD95'}, \
-			{'STG_PSD95', 'STG_PSD95', 'STG_PSD95', 'STG_PSD95'}, \
+			[0, 0, 0, 0], \
+			[0, 0, 0, 'STG_PSD95'], \
+			[0, 0, 'STG_PSD95', 'STG_PSD95'], \
+			[0, 'STG_PSD95', 'STG_PSD95', 'STG_PSD95'], \
+			['STG_PSD95', 'STG_PSD95', 'STG_PSD95', 'STG_PSD95'], \
 			]
 		titles_binding_type = ['None', '1 PSD95', '2 PSD95', '3 PSD95', '4 PSD95' ]
 		ymax = 3000
 	elif species == 'PSD95':
 		binding_types = [\
-			{None, None, None}, \
-			{None, None, 'STG_PSD95'},{None, 'STG_PSD95', 'STG_PSD95'},{'STG_PSD95', 'STG_PSD95', 'STG_PSD95'}, \
-			{None, None, 'GluN2B_PSD95'}, {None, 'GluN2B_PSD95', 'GluN2B_PSD95'},{'GluN2B_PSD95', 'GluN2B_PSD95', 'GluN2B_PSD95'},\
-			{None, 'STG_PSD95', 'GluN2B_PSD95'},\
-			{'STG_PSD95', 'STG_PSD95', 'GluN2B_PSD95'},\
-			{'STG_PSD95', 'GluN2B_PSD95', 'GluN2B_PSD95'}\
+			[0, 0, 0], \
+			[0, 0, 'STG_PSD95'],[0, 'STG_PSD95', 'STG_PSD95'],['STG_PSD95', 'STG_PSD95', 'STG_PSD95'], \
+			[0, 0, 'GluN2B_PSD95'], [0, 'GluN2B_PSD95', 'GluN2B_PSD95'],['GluN2B_PSD95', 'GluN2B_PSD95', 'GluN2B_PSD95'],\
+			[0, 'STG_PSD95', 'GluN2B_PSD95'],\
+			['STG_PSD95', 'STG_PSD95', 'GluN2B_PSD95'],\
+			['STG_PSD95', 'GluN2B_PSD95', 'GluN2B_PSD95']\
 			]
 		titles_binding_type = ['None', \
 				'1 STG', '2 STG', '3 STG', \
 				'1 GluN2B', '2 GluN2B', '3 GluN2B', \
 				'1 STG, 1 GluN2B', '2 STG, 1 GluN2B', '1 STG, 2 GluN2B'
 				 ]
-		ymax = 3000
-	
-	
-	
+		ymax = 1200
+	elif species == 'CaMKII':
+		titles_binding_type = ['{} GluN2B'.format(i) for i in range(vv+1)]
+		binding_types = [ [0]*(vv - i + 1) +['GluN2B_CaMKII'] * i for i in range(vv+1)]
+		ymax = 6000 / (vv-1)
+		if vv == 2:
+			binding_types = [ [0, 0], [0, 'GluN2B_CaMKII'], ['GluN2B_CaMKII','GluN2B_CaMKII'] ]
+			ymax = 5000
+
+
 	numbers_binding_type = np.zeros(len(binding_types), dtype='int')
 	for id, v in  d[species].items():
-		binding = set(v['binding_types'])
+		binding = v['binding_types']
 		for j, binding_ref in enumerate( binding_types ):
-			if binding == binding_ref:
+			#if vv == 2:
+			#	print('Compare ', binding, binding_ref)
+			if equal_list(binding, binding_ref):
 				numbers_binding_type[j] += 1
-	
+	ax.grid()
 	ax.set_title(prefix)
 	ax.bar(titles_binding_type, numbers_binding_type, width=0.5)
 	ax.spines['right'].set_visible(False)
@@ -76,7 +94,7 @@ if __name__ == '__main__':
 
 	
 	# Dataset 1
-	species = 'GluN2B' # 'STG','GluN2B', 'PSD95'
+	species = 'CaMKII' # 'STG','GluN2B', 'PSD95', 'CaMKII'
 	
 
 	dir_target  = 'valency_linker_length'
@@ -113,7 +131,8 @@ if __name__ == '__main__':
 			column = j+1
 			print('column: ', column, ', row: ', row)
 			ax = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
-			plot_a_binding(ax, d, prefix, species)
+			print('valency  ', v)
+			plot_a_binding(ax, d, prefix, species, v)
 	
 	# Save figure
 	filename = 'binding_partner_{}'.format(species)

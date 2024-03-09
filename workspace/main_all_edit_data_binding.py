@@ -15,19 +15,20 @@ import colormap as c
 	
 def get_molecular_binding(ids_molecule, types, energy_aniso):
 	
-	
 	unique_ids_molecule = np.unique( ids_molecule )
+	'''
 	possible_types_connection = (\
 		{ p.subunits['GluN2B binding site']['id'], p.subunits['CaMKII binding site']['id'] },\
 		{ p.subunits['STG binding site']['id'], p.subunits['PSD']['id'] },\
 		{ p.subunits['STG binding site']['id'], p.subunits['GluN2B binding site']['id']})
 	print('possible_types_connection')
 	print( possible_types_connection )
+	'''
 	
 	GluN2B_PSD95  = -4.75
 	GluN2B_CaMKII = -3.5
 	STG_PSD95     = -3.0
-	binding_energy = {0.0: None, -4.75: 'GluN2B_PSD95', -3.5:'GluN2B_CaMKII', -3.0:'STG_PSD95'}
+	binding_energy = {0.0: 0, -4.75: 'GluN2B_PSD95', -3.5:'GluN2B_CaMKII', -3.0:'STG_PSD95'}
 	# 
 	
 	# Create a graph and nodes
@@ -43,11 +44,14 @@ def get_molecular_binding(ids_molecule, types, energy_aniso):
 		
 		molecular_species = [k for k, i in p.molecules_without_all.items() if targ_types[0] in i['id']]
 		
+		nums = {b: targ_types_binding.count(b) for b in ['GluN2B_PSD95', 'GluN2B_CaMKII', 'STG_PSD95']}
+		
 		molecular_binding[id] = {\
 			'id': id,
 			'species': molecular_species[0], \
 			'energies': targ_energies, \
-			'binding_types':targ_types_binding
+			'binding_types':targ_types_binding,\
+			'nums': nums
 			}
 	return molecular_binding
 	
@@ -62,15 +66,15 @@ if __name__ == '__main__':
 	dir_edited_data  = 'conc_dependence_cluster'
 	'''
 	
+	#'''
 	# Dataset 2:  Valency length
 	subdirs    = ['val{}'.format(i) for i in range(2,14,2)]
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(5)]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
 	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(5) ]
-	
 	dir_input        = 'Feb_Figure3'
 	dir_edited_data  = 'valency_linker_length'
-	
+	#'''
 	
 	# Shared part of initialization
 	dir_lammpstrj    = os.path.join('..','..', 'lammpstrj2', dir_input)
@@ -100,6 +104,13 @@ if __name__ == '__main__':
 		molecular_binding_species = {k: {} for k in p.molecules_without_all.keys()}
 		for k, v in molecular_binding.items():
 			molecular_binding_species[v['species']][k] = v
+		
+		# Average binding number per molecule
+		for species in p.molecules_without_all.keys():
+			nums = {k :[ v['nums'][k] for v in molecular_binding_species[species].values() ]
+				for k in ['GluN2B_PSD95', 'GluN2B_CaMKII', 'STG_PSD95']}
+			molecular_binding_species[species]['nums'] = nums
+		
 		
 		# Save the edited data
 		prefix = filename_output

@@ -126,10 +126,10 @@ if __name__ == '__main__':
 	# Datasets
 	
 	# Conc dependence
-	#'''
+	'''
 	dir_target  = 'conc_dependence'
 	filenames_edited_data 	= [str(i).zfill(3) for i in range(30) ] # 70
-	#'''
+	'''
 	
 	# Linker length
 	'''
@@ -137,11 +137,16 @@ if __name__ == '__main__':
 	dir_target  = 'valency_linker_length'
 	'''
 	# Figure 1
-	#'''
+	'''
 	filenames_edited_data = ['CG','CPG','SP']
 	dir_target  = 'types_mixture'
-	#'''
+	'''
 	
+	# Linear
+	dir_target  = 'linear'
+	filenames_edited_data 	= [str(i).zfill(3) for i in range(12) ] # 70
+	
+		
 	# Shared init
 	dir_edited_data	= os.path.join('data2', dir_target)
 	dir_imgs = os.path.join('imgs2', dir_target,'profiles')
