@@ -55,18 +55,26 @@ def load_data(dir_data, filename_data, id_frame):
 	
 	
 def load_lammpstrj(dir_data, filename_data, id_frame):
-	print('Load data.')
+	print('Load types, positions, ids_molecule, time_stamp.')
 	data_all            = import_file(os.path.join(dir_data, filename_data), input_format= "lammps/dump" )
 	data_target_frame   = data_all.compute(id_frame)
-	types, positions, id_molecule = decode_data(data_target_frame)
+	types, positions, ids_molecule = decode_data(data_target_frame)
 	time_stamp 			= data_all.compute(id_frame).attributes['Timestep']
 	# data_target_frame.particles['bp']
 	
-	return types, positions, id_molecule, time_stamp
+	return types, positions, ids_molecule, time_stamp
+	
+	
+def load_lammpstrj_binding_partners(dir_data, filename_data, id_frame):
+	print('Load binding partners.')
+	data_all            = import_file(os.path.join(dir_data, filename_data), input_format= "lammps/dump" )
+	data_target_frame   = data_all.compute(id_frame)
+	bp 	= np.array( data_target_frame.particles['bp'] ).astype('int')
+	return bp
 	
 	
 def load_lammpstrj_binding_energy(dir_data, filename_data, id_frame):
-	#print('Load data.')
+	print('Load binding energies.')
 	data_all            = import_file(os.path.join(dir_data, filename_data), input_format= "lammps/dump" )
 	data_target_frame   = data_all.compute(id_frame)
 	energy_isotropic        = np.array( data_target_frame.particles['energy_isotropic'] )

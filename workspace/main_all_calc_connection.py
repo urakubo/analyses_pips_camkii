@@ -80,6 +80,7 @@ if __name__ == '__main__':
 	dir_lammpstrj    = os.path.join('..','..', 'lammpstrj2', dir_input)
 	dir_edited_data  = os.path.join('..','data2',dir_edited_data)
 	os.makedirs(dir_edited_data, exist_ok=True)
+	suffix = 'connection'
 	
 	#
 	for filename_input, filename_output in zip(filenames_input, filenames_output):
@@ -114,7 +115,6 @@ if __name__ == '__main__':
 		
 		# Save the edited data
 		prefix = filename_output
-		suffix = '_'
 		utils.save(dir_edited_data, prefix, suffix, molecular_binding_species)
 		
 		

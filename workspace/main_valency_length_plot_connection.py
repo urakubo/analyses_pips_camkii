@@ -113,7 +113,7 @@ if __name__ == '__main__':
 	num_rows		= len( valency )
 	num_columns		= len( linker_length )
 	
-	
+	suffix = 'connection'
 	vals = np.zeros([num_rows, num_columns])
 	fig  = plt.figure(figsize=(10, 10), tight_layout=True)
 	#
@@ -122,7 +122,6 @@ if __name__ == '__main__':
 		for j, ll in enumerate(linker_length):
 			# Load data
 			prefix = fnames_valency[v]+'_'+fnames_linker_length[ll]
-			suffix = '_'
 			d      = utils.load(dir_edited_data, prefix, suffix)
 			print('Target: {}'.format(prefix))
 			# sys.exit(0)
