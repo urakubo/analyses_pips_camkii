@@ -105,18 +105,20 @@ if __name__ == '__main__':
 	
 	# I manually ran each of them,
 	# because I do not know how to reset the ovito visualization completely .
-	i = 3 # 0-3 for dataset 1, 0-2 for dataset 2, 0-2 for dataset 3
+	i = 2 # 0-3 for dataset 1, 0-2 for dataset 2, 0-2 for dataset 3
 	
 	
-	## Mixtures
-	filenames_output    = ['CG','CPG','PG','SP'] # ,'SPG'
-	filenames_lammpstrj = ['{}.lammpstrj'.format(f) for f in filenames_output]
-	dir_lammpstrj    = 'mixtures'
-	dir_output = 'mixtures'
+	
+
+	## Dataset 1
+	filenames_lammpstrj = ['CG_trj.lammpstrj', 'CPG_trj.lammpstrj', 'SP_trj.lammpstrj' ]
+	dir_lammpstrj    = 'Feb_Sub_Figure1'
+	filenames_output = ['CG','CPG','SP']
+	dir_output = 'types_mixture'
 	
 	##
-	dir_lammpstrj   = os.path.join('..'   , 'lammpstrj3',dir_lammpstrj)
-	dir_imgs        = os.path.join('imgs3', dir_output, 'snapshot' )
+	dir_lammpstrj   = os.path.join('..'   , 'lammpstrj2',dir_lammpstrj)
+	dir_imgs        = os.path.join('imgs2', dir_output, 'snapshot' )
 	os.makedirs(dir_imgs, exist_ok=True)
 	##
 	

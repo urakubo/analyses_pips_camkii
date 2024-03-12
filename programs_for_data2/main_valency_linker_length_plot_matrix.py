@@ -7,17 +7,24 @@ import matplotlib.pyplot as plt
 plt.rcParams.update(p.rc_param)
 plt.rcParams.update( {'font.size': 6} )
 
-def run_a_type(target):
+
+if __name__ == '__main__':
+	
+	target =  'concs_in_STG'
+	# 'region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf', 'concs_in_CaMKII', 'concs_in_STG'
+	# 'energy_anisotropic_STG', 'energy_anisotropic_CaMKII'
+	# 'energy_isotropic_STG', 'energy_isotropic_CaMKII', 
+	# 'energy_isotropic_dilute'
 	
 	# Files
-	dir_target  = 'valency_length'
-	dir_edited_data	= os.path.join('data3', dir_target)
-	dir_imgs = os.path.join('imgs3', dir_target, 'matrix')
+	dir_target  = 'valency_linker_length'
+	dir_edited_data	= os.path.join('data2', dir_target)
+	dir_imgs = os.path.join('imgs2', dir_target, 'matrix')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	
 	valency = list(range(2,14,2)) 
-	linker_length  = [1, 2, 3, 4, 5, 6, 9]
+	linker_length  = [1, 3, 5, 7, 9]
 	
 	fnames_valency       = { v: str(v).zfill(2) for v in valency }
 	fnames_linker_length = {ll: str(i).zfill(3) for i,ll in enumerate(linker_length) }
@@ -61,12 +68,3 @@ def run_a_type(target):
 	print(vals)
 
 
-
-if __name__ == '__main__':
-	
-	
-	# 'region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf', 'concs_in_CaMKII', 'concs_in_STG'
-	targets = ['region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf', 'concs_in_CaMKII', 'concs_in_STG']
-	for target in targets:
-		run_a_type(target)
-	

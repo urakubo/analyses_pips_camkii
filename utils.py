@@ -11,7 +11,7 @@ import mpl_toolkits.axes_grid1
 
 
 
-from sklearn import mixture
+# from sklearn import mixture
 #https://matsci.org/t/compatibility-issue-between-python-ovito-library-and-matplotlib/50794
 os.environ['OVITO_GUI_MODE'] = '1'
 from ovito.io import import_file
@@ -848,3 +848,16 @@ def select_plot(target, fig, num_rows, num_columns, row, column, d, title):
 
 	return value
 
+
+
+def equal_list(lst1, lst2):
+    lst = lst1.copy()
+    for element in lst2:
+        try:
+            lst.remove(element)
+        except ValueError:
+            break
+    else:
+        if not lst:
+            return True
+    return False

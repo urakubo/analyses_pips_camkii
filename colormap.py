@@ -287,7 +287,7 @@ c[1] = [gy ,gy, gy] # Gray
 c[2] = [255,128,130] # Pink
 c[3] = [255,255,255] # Ligh pink
 # c[3] = [255,202,191] # Ligh pink
-c[4] = [gy, gy, gy] # Gray
+c[4] = [77  ,196, 255]  # Light blue
 c[5] = [gy, gy, gy] # Gray
 cmap_phase_diagram1 = make_colormap_phase_diagram(c)
 #

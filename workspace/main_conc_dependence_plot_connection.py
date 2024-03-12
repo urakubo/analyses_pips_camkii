@@ -15,17 +15,6 @@ import colormap as c
 plt.rcParams.update(p.rc_param)
 plt.rcParams.update( {'font.size': 6} )
 
-def equal_list(lst1, lst2):
-    lst = lst1.copy()
-    for element in lst2:
-        try:
-            lst.remove(element)
-        except ValueError:
-            break
-    else:
-        if not lst:
-            return True
-    return False
 
 def plot_a_binding(ax, d, prefix, species = 'GluN2B'):
 	
@@ -45,7 +34,7 @@ def plot_a_binding(ax, d, prefix, species = 'GluN2B'):
 			['STG_PSD95', 'STG_PSD95', 'STG_PSD95', 'STG_PSD95'], \
 			]
 		titles_binding_type = ['None', '1 PSD95', '2 PSD95', '3 PSD95', '4 PSD95' ]
-		ymax = 6000
+		ymax = 4000
 	elif species == 'PSD95':
 		binding_types = [\
 			[0, 0, 0], \
@@ -61,12 +50,20 @@ def plot_a_binding(ax, d, prefix, species = 'GluN2B'):
 				'1 STG, 1 GluN2B', '2 STG, 1 GluN2B', '1 STG, 2 GluN2B'
 				 ]
 		ymax = 3000
+	elif species == 'CaMKII':
+		vv = 12
+		titles_binding_type = ['{} GluN2B'.format(i) for i in range(vv+1)]
+		binding_types = [ [0]*(vv - i + 1) +['GluN2B_CaMKII'] * i for i in range(vv+1)]
+		ymax = 1400
 
 	numbers_binding_type = np.zeros(len(binding_types), dtype='int')
-	for id, v in  d[species].items():
+	for k, v in  d[species].items():
+		if k == 'nums':
+			continue
+		# print('v ', v)
 		binding = v['binding_types']
 		for j, binding_ref in enumerate( binding_types ):
-			if equal_list(binding, binding_ref):
+			if utils.equal_list(binding, binding_ref):
 				numbers_binding_type[j] += 1
 	
 	ax.set_title(prefix)
@@ -83,7 +80,7 @@ if __name__ == '__main__':
 
 	
 	# Dataset 1
-	species = 'PSD95' # 'STG','GluN2B', 'PSD95'
+	species = 'PSD95' # 'STG','GluN2B', 'PSD95','CaMKII'
 	
 	dir_target = 'conc_dependence'
 	dir_edited_data  = 'conc_dependence_cluster'
@@ -91,6 +88,7 @@ if __name__ == '__main__':
 	
 	dir_imgs = os.path.join('imgs2', dir_target)
 	os.makedirs(dir_imgs, exist_ok=True)
+	suffix = 'connection'
 	
 	
 	STG    = [540 , 1620, 2160,  2700,  3240, 4520] 
@@ -111,7 +109,6 @@ if __name__ == '__main__':
 			# Load data
 			id = i + j * len(STG)
 			prefix = str(id).zfill(3)
-			suffix = '_'
 			d      = utils.load(dir_edited_data, prefix, suffix)
 			print('Target: {}'.format(prefix))
 			

@@ -2,12 +2,13 @@
 import os, glob, pickle, pprint, copy
 import numpy as np
 
+import parameters as p
 import utils
+
 import pyvista
 
 
 
-	
 def save_a_plot(d, dir_img, prefix, suffix):
 	pl = pyvista.Plotter(window_size=[400,1000], shape=(3, 1), border=False)
 	#pl.add_text( '{}_{}'.format(prefix, suffix), position='lower_left', color='k', font='arial', font_size=10)
@@ -40,11 +41,13 @@ def save_a_plot(d, dir_img, prefix, suffix):
 	
 	
 def save_plots_matrix(dir_data, dir_imgs, sigma): 
-	#STG    = [1, 500, 1000, 1500, 2000, 2500, 3000] 
-	#GluN2B = [1, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000, 20000]
 	
-	STG    = [540 , 1620, 2160,  2700,  3240, 4520] 
-	GluN2B = [1080, 4320, 8640, 10800, 12960]
+	STG    = [540, 1620, 2160, 2700, 3240, 4520] 
+	GluN2B = [570, 1080, 4320, 6480, 8640, 10800, 12960, 17280]
+	
+	volume = np.prod(p.space_np)
+	STG    = [ s / volume for s in STG    ]
+	GluN2B = [ n / volume for n in GluN2B ]
 	
 	suffix = 'sigma_{}'.format(sigma)
 	
@@ -112,10 +115,10 @@ if __name__ == '__main__':
 	# Matrix
 	#'''
 	# Input files
-	dir_target = 'conc_dependence_0.2'
-	dir_edited_data 		= os.path.join('data2', dir_target)
+	dir_target = 'conc_dependence'
+	dir_edited_data = os.path.join('data3', dir_target)
 	# Output files
-	dir_imgs = os.path.join('imgs2', dir_target,'3d_condensate')
+	dir_imgs = os.path.join('imgs3', dir_target,'3d_condensate')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	

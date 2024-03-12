@@ -15,17 +15,6 @@ import colormap as c
 plt.rcParams.update(p.rc_param)
 plt.rcParams.update( {'font.size': 6} )
 
-def equal_list(lst1, lst2):
-    lst = lst1.copy()
-    for element in lst2:
-        try:
-            lst.remove(element)
-        except ValueError:
-            break
-    else:
-        if not lst:
-            return True
-    return False
 
 def plot_a_binding(ax, d, prefix, species, vv ):
 	
@@ -72,11 +61,13 @@ def plot_a_binding(ax, d, prefix, species, vv ):
 
 	numbers_binding_type = np.zeros(len(binding_types), dtype='int')
 	for id, v in  d[species].items():
+		if k == 'nums':
+			continue
 		binding = v['binding_types']
 		for j, binding_ref in enumerate( binding_types ):
 			#if vv == 2:
 			#	print('Compare ', binding, binding_ref)
-			if equal_list(binding, binding_ref):
+			if utils.equal_list(binding, binding_ref):
 				numbers_binding_type[j] += 1
 	ax.grid()
 	ax.set_title(prefix)
@@ -94,7 +85,7 @@ if __name__ == '__main__':
 
 	
 	# Dataset 1
-	species = 'CaMKII' # 'STG','GluN2B', 'PSD95', 'CaMKII'
+	species = 'STG' # 'STG','GluN2B', 'PSD95', 'CaMKII'
 	
 
 	dir_target  = 'valency_linker_length'

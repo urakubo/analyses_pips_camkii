@@ -43,7 +43,7 @@ def save_plots_matrix(dir_data, dir_imgs, sigma):
 	
 	
 	valency = list(range(2,14,2)) 
-	linker_length  = [1, 2, 3, 4, 5, 6, 9]
+	linker_length  = [1, 3, 5, 7, 9]
 	
 	fnames_valency       = { v: str(v).zfill(2) for v in valency }
 	fnames_linker_length = {ll: str(i).zfill(3) for i,ll in enumerate(linker_length) }
@@ -98,13 +98,14 @@ def save_plots_matrix(dir_data, dir_imgs, sigma):
 if __name__ == '__main__':
 	
 	# File
-	dir_target = 'valency_length'
+	dir_target = 'valency_linker_length'
 	
 	
-	dir_edited_data	= os.path.join('data3', dir_target)
-	dir_imgs = os.path.join('imgs3', dir_target,'3d_condensate')
+	dir_edited_data	= os.path.join('data2', dir_target)
+	dir_imgs = os.path.join('imgs2', dir_target,'3d_condensate')
 	os.makedirs(dir_imgs, exist_ok=True)
 	sigma = 2
+	
 	
 	'''
 	# Plot the snapshots of each result from the three directions.

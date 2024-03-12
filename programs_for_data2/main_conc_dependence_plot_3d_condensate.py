@@ -40,35 +40,27 @@ def save_a_plot(d, dir_img, prefix, suffix):
 	
 	
 def save_plots_matrix(dir_data, dir_imgs, sigma): 
+	#STG    = [1, 500, 1000, 1500, 2000, 2500, 3000] 
+	#GluN2B = [1, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000, 20000]
 	
-	
-	valency = list(range(2,14,2)) 
-	linker_length  = [1, 2, 3, 4, 5, 6, 9]
-	
-	fnames_valency       = { v: str(v).zfill(2) for v in valency }
-	fnames_linker_length = {ll: str(i).zfill(3) for i,ll in enumerate(linker_length) }
-	
-	num_rows		= len( valency )
-	num_columns		= len( linker_length )
+	STG    = [540 , 1620, 2160,  2700,  3240, 4520] 
+	GluN2B = [1080, 4320, 8640, 10800, 12960]
 	
 	suffix = 'sigma_{}'.format(sigma)
 	
-	pl = pyvista.Plotter(window_size=[1500,1500], shape=(num_rows, num_columns), border=False)
+	pl = pyvista.Plotter(window_size=[1500,1500], shape=(len(GluN2B), len(STG)), border=False)
 	
-	
-	for i, v in enumerate(valency):
-		for j, ll in enumerate(linker_length):
+	for i, stg in enumerate(STG):
+		for j, glun in enumerate(GluN2B):
 			# Load data
-			prefix = fnames_valency[v]+'_'+fnames_linker_length[ll]
-			suffix = 'sigma_{}'.format(sigma)
-			d      = utils.load(dir_edited_data, prefix, suffix)
+			id = i + j * len(STG)
+			prefix = str(id).zfill(3)
+			d      = utils.load(dir_data, prefix, suffix)
 			print('Target: {}, sigma: {}'.format(prefix, sigma))
 			
-			# Specify row and column
-			row    = num_rows - i - 1
-			column = j
-			
-			pl.subplot(row, column)
+			row    = i
+			column = len(GluN2B)-j-1
+			pl.subplot(column, row)
 			#utils.plot_a_condensate_pyvista(d, pl)
 			utils.plot_a_pre_rotated_condensate_pyvista(d, pl)
 
@@ -96,20 +88,17 @@ def save_plots_matrix(dir_data, dir_imgs, sigma):
 	
 	
 if __name__ == '__main__':
-	
-	# File
-	dir_target = 'valency_length'
-	
-	
-	dir_edited_data	= os.path.join('data3', dir_target)
-	dir_imgs = os.path.join('imgs3', dir_target,'3d_condensate')
-	os.makedirs(dir_imgs, exist_ok=True)
-	sigma = 2
-	
+
+	# Profiles
 	'''
-	# Plot the snapshots of each result from the three directions.
-	filenames_edited_data = [str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(5) ]
+	# Files
+	dir_target = 'conc_dependence'
+	dir_edited_data 		= os.path.join('data2', dir_target)
+	filenames_edited_data 	= [str(i).zfill(3) for i in [50, 52, 67] ]
+	dir_imgs = os.path.join('imgs2', dir_target,'3d_condensate')
+	os.makedirs(dir_imgs, exist_ok=True)
 	
+	sigma = 2
 	for filename in filenames_edited_data:
 		# Load data
 		prefix = filename
@@ -120,8 +109,17 @@ if __name__ == '__main__':
 	'''
 	
 	
-	# Plot the matrix
+	# Matrix
 	#'''
+	# Input files
+	dir_target = 'conc_dependence_0.2'
+	dir_edited_data 		= os.path.join('data2', dir_target)
+	# Output files
+	dir_imgs = os.path.join('imgs2', dir_target,'3d_condensate')
+	os.makedirs(dir_imgs, exist_ok=True)
+	
+	
+	sigma    = 2 # 2, 3, or 4
 	save_plots_matrix(dir_edited_data, dir_imgs, sigma)
 	#'''
 	

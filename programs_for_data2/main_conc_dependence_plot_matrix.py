@@ -7,19 +7,28 @@ import matplotlib.pyplot as plt
 plt.rcParams.update(p.rc_param)
 plt.rcParams.update( {'font.size': 6} )
 
-def run_a_type(target):
+
+if __name__ == '__main__':
+	
+	target = 'concs_in_STG'
+	# 'region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf', 'concs_in_CaMKII', 'concs_in_STG'
+	# 'energy_anisotropic_STG', 'energy_anisotropic_CaMKII'
+	# 'energy_isotropic_STG', 'energy_isotropic_CaMKII', 
+	# 'energy_anisotropic_dilute', 'energy_isotropic_dilute'
+	
+
 	sigma    = 2 # 2 or 4
 	
 	# Input files
-	dir_edited_data 		= os.path.join('data3', 'conc_dependence')
+	dir_edited_data 		= os.path.join('data2', 'conc_dependence')
 	filenames_edited_data 	= [str(i).zfill(3) for i in range(3) ] # 30
 	# Output files
-	dir_imgs = os.path.join('imgs3', 'conc_dependence','matrix')
+	dir_imgs = os.path.join('imgs2', 'conc_dependence','matrix')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	
-	STG    = [540, 1620, 2160, 2700, 3240, 4520] 
-	GluN2B = [570, 1080, 4320, 6480, 8640, 10800, 12960, 17280]
+	STG    = [540 , 1620, 2160,  2700,  3240, 4520] 
+	GluN2B = [1080, 4320, 8640, 10800, 12960]
 	
 	volume = np.prod(p.space_np)
 	STG    = [ s / volume for s in STG    ]
@@ -57,15 +66,3 @@ def run_a_type(target):
 	print(target)
 	print(vals)
 
-
-if __name__ == '__main__':
-	
-	target = 'conc_STG'
-	# 'region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf', 'concs_in_CaMKII', 'concs_in_STG'
-	# 'energy_anisotropic_STG', 'energy_anisotropic_CaMKII'
-	# 'energy_isotropic_STG', 'energy_isotropic_CaMKII', 
-	# 'energy_anisotropic_dilute', 'energy_isotropic_dilute'
-	targets = ['region_condensates', 'rdf', 'concs_in_CaMKII', 'concs_in_STG']
-	for target in targets:
-		run_a_type(target)
-	

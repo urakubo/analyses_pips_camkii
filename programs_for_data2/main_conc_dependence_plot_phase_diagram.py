@@ -51,14 +51,12 @@ def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels):
 	
 	
 	# Overlay exception (not clean).
-	'''
 	oz_except = (oZ < 1)
 	mZ_except = make_grid_using_RegularGridInterpolator(STG, GluN2B, oz_except, mX, mY)
 	mZ_except[mZ_except > 0.5] = 1.0
 	mZ_except[mZ_except <= 0.5] = np.nan
 	print('np.unique(mZ_except) ' , np.unique(mZ_except) )
-	cs = ax.contourf(mX, mY, mZ_except, vmin=0.3, vmax=0.4, cmap='binary' )
-	'''
+	cs = ax.contourf(mX, mY, mZ_except, vmin=0.3, vmax=0.4, cmap='binary' ) 
 	#ax.set_facecolor("black")
 	
 	
@@ -81,15 +79,14 @@ if __name__ == '__main__':
 	
 	
 	# Output files
-	dir_imgs = os.path.join('imgs3', 'conc_dependence','phase_diagram')
+	dir_imgs = os.path.join('imgs', 'conc_dependence','phase_diagram')
 	filename_output = 'phase_diagram_conc_dependence'
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	
-	
-	STG    = [540, 1620, 2160, 2700, 3240, 4520] 
-	GluN2B = ([-570, 570, 1080, 4320, 6480, 8640, 10800, 12960, 17280])
-	GluN2B.reverse()
+	# GluN2B = [1, 500, 1000, 2000, 4000, 6000, 8000, 12000, 16000, 20000]
+	STG    = [1, 500, 1000, 1500, 2000, 2500, 3000] 
+	GluN2B = [20000, 16000, 12000, 8000, 6000, 4000, 2000, 1000, 500, 1]
 	
 	volume = np.prod(p.space_np)
 	STG    = [ s / volume for s in STG    ]
@@ -112,17 +109,16 @@ if __name__ == '__main__':
 	# 4: Homogeneous LLPS (CaMKII)
 
 	phase_diagram = [\
-	[ 1, 1, 1, 1,   1, 1], # 17280
-	[ 1, 1, 1, 1,   2, 2], # 12960
-	[ 1, 2, 2, 2,   2, 2], # 10800
-	[ 2, 2, 2, 2,   2, 2], # 8640
-	[ 2, 3, 2, 2,   2, 2], # 6480
-	[ 3, 3, 3, 3,   3, 3], # 4320
-	[ 4, 4, 4, 3,   3, 3], # 1080
-	[ 4, 4, 4, 4,   4, 4], # 570
-	[ 4, 4, 4, 4,   4, 4]] # -570
-	
-	
+	[ 1, 1, 1, 1,   1, 1, 1], # 20000
+	[ 1, 1, 1, 1,   2, 2, 2], # 16000
+	[ 1, 1, 2, 2,   2, 2, 2], # 12000
+	[ 1, 2, 2, 2,   2, 2, 3], # 8000
+	[ 1, 2, 2, 2,   3, 3, 3], # 6000
+	[ 1, 2, 2, 2,   3, 3, 3], # 4000
+	[ 1, 2, 2, 2,   3, 3, 3], # 2000
+	[ 1, 2, 2, 3,   4, 4, 4], # 1000
+	[ 1, 3, 4, 4,   4, 4, 4], # 500
+	[-1, 4, 4, 4,   4, 4, 4]] # 1
 	
 	phase_diagram = np.array(phase_diagram).T
 	

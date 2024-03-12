@@ -125,13 +125,22 @@ if __name__ == '__main__':
 	
 	# Datasets
 	
-
+	# Conc dependence
+	'''
+	dir_target  = 'conc_dependence'
+	filenames_edited_data 	= [str(i).zfill(3) for i in range(30) ] # 70
+	'''
 	
 	# Linker length
-	#'''
-	filenames_edited_data = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
-	dir_target  = 'valency_length'
-	#'''
+	'''
+	filenames_edited_data = [str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(5) ]
+	dir_target  = 'valency_linker_length'
+	'''
+	# Figure 1
+	'''
+	filenames_edited_data = ['CG','CPG','SP']
+	dir_target  = 'types_mixture'
+	'''
 	
 	# Linear
 	'''
@@ -139,29 +148,21 @@ if __name__ == '__main__':
 	filenames_edited_data 	= [str(i).zfill(3) for i in range(12) ] # 70
 	'''
 	
-	# Conc dependence
+	# Shared init
 	'''
-	dir_target  = 'conc_dependence'
-	filenames_edited_data 	= [str(i).zfill(3) for i in range(48) ] # 70
-	'''	
-	
-	# Mixtures
-	'''
-	filenames_edited_data 	= ['CG','CPG','PG','SP'] # ,'SPG'
-	dir_target  = 'mixtures'
+	dir_edited_data	= os.path.join('data2', dir_target)
+	dir_imgs = os.path.join('imgs2', dir_target,'profiles')
+	sigma = 2
+	os.makedirs(dir_imgs, exist_ok=True)
 	'''
 	
 	# Long GluN2B length 4
-	'''
 	dir_target  = 'GluN2B_length4'
 	filenames_edited_data 	= [str(i).zfill(3) for i in range(10,15) ]
-	'''
 	
 	# Short GluN2B length 1
-	'''
 	dir_target  = 'GluN2B_length1'
 	filenames_edited_data 	= [str(i).zfill(3) for i in range(0,5) ]
-	'''
 	
 	# Shared init
 	dir_edited_data	= os.path.join('data3', dir_target)
