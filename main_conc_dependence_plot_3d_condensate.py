@@ -40,53 +40,62 @@ def save_a_plot(d, dir_img, prefix, suffix):
 	pl.screenshot(filename)
 	
 	
-def save_plots_matrix(dir_data, dir_imgs, sigma): 
+def save_plots_matrix(dir_data, dir_imgs, sub = True): 
 	
 	STG    = [540, 1620, 2160, 2700, 3240, 4520] 
 	GluN2B = [570, 1080, 4320, 6480, 8640, 10800, 12960, 17280]
 	
+	sub_STG    = [540, 1620, 2160, 2700, 3240] 
+	sub_GluN2B = [1080, 4320, 6480, 10800, 17280]
+	
+	'''
 	volume = np.prod(p.space_np)
 	STG    = [ s / volume for s in STG    ]
 	GluN2B = [ n / volume for n in GluN2B ]
+	'''
 	
-	suffix = 'sigma_{}'.format(sigma)
+	if sub == True:
+		sampling_STG    = {num: i for i, num in enumerate(sub_STG)}
+		sampling_GluN2B = {num: i for i, num in enumerate(sub_GluN2B)}
+		filename = 'summary_3d_sub.png'
+	else:
+		sampling_STG    = {num: i for i, num in enumerate(STG)}
+		sampling_GluN2B = {num: i for i, num in enumerate(GluN2B)}
+		filename = 'summary_3d_all.png'
 	
-	pl = pyvista.Plotter(window_size=[1500,1500], shape=(len(GluN2B), len(STG)), border=False)
+	
+	pl = pyvista.Plotter(window_size=[1500,1500], \
+		shape=(len(sampling_GluN2B), len(sampling_STG)),\
+		border=False)
 	
 	for i, stg in enumerate(STG):
 		for j, glun in enumerate(GluN2B):
 			# Load data
-			id = i + j * len(STG)
-			prefix = str(id).zfill(3)
-			d      = utils.load(dir_data, prefix, suffix)
-			print('Target: {}, sigma: {}'.format(prefix, sigma))
-			
-			row    = i
-			column = len(GluN2B)-j-1
-			pl.subplot(column, row)
-			#utils.plot_a_condensate_pyvista(d, pl)
-			utils.plot_a_pre_rotated_condensate_pyvista(d, pl)
-
-			if i == 0 and j == 0:
-				pl.set_position( [100.0, 0.0, 0.0], reset=True )
-				pl.view_yz()
-				pl.camera.roll -= 90
-				pos = pl.camera_position
-				print('pl.camera_position', pl.camera_position)
-				pl.camera_position =  [(150.0, 0.0, 0.0),\
-					 (7.0, -0.2, 2.5),\
-					 (0.0, -1.0, 0.0)]
-			else:
+			if (stg in sampling_STG.keys()) and (glun in sampling_GluN2B.keys()):
+				# Load data
+				id = i + j * len(STG)
+				prefix = str(id).zfill(3)
+				suffix = 'sigma_2'
+				d      = utils.load(dir_data, prefix, suffix)
+				print('Target: {}'.format(prefix))
+				sub_i = sampling_STG[stg]
+				sub_j = sampling_GluN2B[glun]
+				row    = sub_i
+				column = len(sampling_GluN2B)-sub_j-1
+				pl.subplot(column, row)
+				#utils.plot_a_condensate_pyvista(d, pl)
+				utils.plot_a_pre_rotated_condensate_pyvista(d, pl)
+				
 				pl.camera_position = [(150.0, 0.0, 0.0),\
 					 (7.0, -0.2, 2.5),\
 					 (0.0, -1.0, 0.0)]
-			
-			#pl.camera.Zoom(1)
-			
+				
+				#pl.camera.Zoom(1)
+				
 	pl.show(interactive=False, auto_close=True) # off_screen = True
 	#pl.show(interactive=True, auto_close=False) # off_screen = True
 	
-	filename = os.path.join(dir_imgs, 'summary_{}.png'.format(suffix))
+	filename = os.path.join(dir_imgs, filename)
 	pl.screenshot(filename)
 	
 	
@@ -96,9 +105,9 @@ if __name__ == '__main__':
 	'''
 	# Files
 	dir_target = 'conc_dependence'
-	dir_edited_data 		= os.path.join('data2', dir_target)
-	filenames_edited_data 	= [str(i).zfill(3) for i in [50, 52, 67] ]
-	dir_imgs = os.path.join('imgs2', dir_target,'3d_condensate')
+	dir_edited_data 		= os.path.join('data3', dir_target)
+	filenames_edited_data 	= [str(i).zfill(3) for i in [30, 31, 46] ]
+	dir_imgs = os.path.join('imgs3', dir_target,'3d_condensate')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	sigma = 2
@@ -113,7 +122,7 @@ if __name__ == '__main__':
 	
 	
 	# Matrix
-	#'''
+	'''
 	# Input files
 	dir_target = 'conc_dependence'
 	dir_edited_data = os.path.join('data3', dir_target)
@@ -121,9 +130,7 @@ if __name__ == '__main__':
 	dir_imgs = os.path.join('imgs3', dir_target,'3d_condensate')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
-	
-	sigma    = 2 # 2, 3, or 4
-	save_plots_matrix(dir_edited_data, dir_imgs, sigma)
-	#'''
+	save_plots_matrix(dir_edited_data, dir_imgs)
+	'''
 	
 

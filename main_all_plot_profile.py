@@ -115,7 +115,7 @@ def make_a_figure( d ):
 	# Plot RDF
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*2 )
 	errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
-	utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=True )
+	utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=True ) # , ylim = (-0.006,0.46)
 	arrange_graph_bar(ax, panel_dx, yloc[2], panel_size/2, panel_size)
 	
 	return fig
@@ -128,10 +128,11 @@ if __name__ == '__main__':
 
 	
 	# Linker length
-	#'''
-	filenames_edited_data = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
+	'''
+	#filenames_edited_data = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
+	filenames_edited_data = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in [2,12] for id_f in [2,5] ]
 	dir_target  = 'valency_length'
-	#'''
+	'''
 	
 	# Linear
 	'''
@@ -143,13 +144,14 @@ if __name__ == '__main__':
 	'''
 	dir_target  = 'conc_dependence'
 	filenames_edited_data 	= [str(i).zfill(3) for i in range(48) ] # 70
+	#filenames_edited_data 	= [str(i).zfill(3) for i in [30,31,46] ] # 70
 	'''	
 	
 	# Mixtures
-	'''
-	filenames_edited_data 	= ['CG','CPG','PG','SP'] # ,'SPG'
+	#'''
+	filenames_edited_data 	= ['CGSP'] #  ['CG','CPG','PG','SP'] # ,'SPG'
 	dir_target  = 'mixtures'
-	'''
+	#'''
 	
 	# Long GluN2B length 4
 	'''

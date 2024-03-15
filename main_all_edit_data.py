@@ -19,7 +19,7 @@ import utils
 if __name__ == '__main__':
 	
 	# Valency length
-	#'''
+	'''
 	subdirs    = ['val_{}'.format(i) for i in range(2,14,2)]
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
@@ -27,7 +27,7 @@ if __name__ == '__main__':
 	dir_lammpstrj    = 'valency_length'
 	dir_edited_data  = 'valency_length'
 	has_energy = False
-	#'''
+	'''
 	
 	# Conc dependnece
 	'''
@@ -39,13 +39,13 @@ if __name__ == '__main__':
 	'''
 	
 	# Mixtures
-	'''
-	filenames_output = ['CG','CPG','PG','SP'] # ,'SPG'
+	#'''
+	filenames_output = ['CG','CPG','PG','SP','CGSP'] # ,'SPG'
 	filenames_input  = ['{}.lammpstrj'.format(n) for n in filenames_output]
 	dir_lammpstrj    = 'mixtures'
 	dir_edited_data  = 'mixtures'
 	has_energy = False
-	'''
+	#'''
 	# Long GluN2B
 	'''
 	filenames_output = [str(i).zfill(3) for i in range(10,15) ]

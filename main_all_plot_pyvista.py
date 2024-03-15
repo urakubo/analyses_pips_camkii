@@ -105,11 +105,11 @@ if __name__ == '__main__':
 	
 	# I manually ran each of them,
 	# because I do not know how to reset the ovito visualization completely .
-	i = 3 # 0-3 for dataset 1, 0-2 for dataset 2, 0-2 for dataset 3
+	i = 0 # 0-3 for dataset 1, 0-2 for dataset 2, 0-2 for dataset 3
 	
 	
 	## Mixtures
-	filenames_output    = ['CG','CPG','PG','SP'] # ,'SPG'
+	filenames_output    = ['CGSP'] # ['CG','CPG','PG','SP'] # ,'SPG'
 	filenames_lammpstrj = ['{}.lammpstrj'.format(f) for f in filenames_output]
 	dir_lammpstrj    = 'mixtures'
 	dir_output = 'mixtures'

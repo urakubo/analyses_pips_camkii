@@ -37,7 +37,7 @@ def plot_a_panel(ax, oZ, x, y, colormap1, levels, oZ_except, colormap2):
 	my_max = np.max(y)
 	
 	mx = np.linspace(0.0, mx_max*1.1, 55*4)
-	my = np.linspace(3.0, my_max*1.1, 55*4)
+	my = np.linspace(1.0, my_max*1.1, 55*4)
 	
 	mX, mY = np.meshgrid(mx,my)
 	
@@ -94,17 +94,14 @@ def plot_a_panel(ax, oZ, x, y, colormap1, levels, oZ_except, colormap2):
 if __name__ == '__main__':
 	
 	# Output files
-	target_dir = 'valency_linker_length'
-	dir_imgs = os.path.join('imgs', target_dir,'phase_diagram')
+	target_dir = 'valency_length'
+	dir_imgs = os.path.join('imgs3', target_dir,'phase_diagram')
 	filename_output = 'phase_diagram'
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	
-	#STG    = [1, 500, 1000, 1500, 2000, 2500, 3000] 
-	#GluN2B = [20000, 16000, 12000, 8000, 6000, 4000, 2000, 1000, 500, 1]
-	
-	linker_length  = [1, 3, 5, 7, 9]
-	valency = [12, 10, 8, 6, 4] # [4, 6, 8, 10, 12] 
+	linker_length  = [1, 2, 3, 4, 5, 6, 9]
+	valency = [12, 10, 8, 6, 4, 2] # [4, 6, 8, 10, 12] 
 	
 	#'''
 	print('Valency')
@@ -118,21 +115,25 @@ if __name__ == '__main__':
 	# 3: iPIPS
 	# 4: Homogeneous LLPS
 	
+	# 1, 2, 3, 4, 5, 6, 9
 	phase_diagram = [\
-		[ 1, 1, 2, 2, 2], # 12
-		[ 1, 2, 2, 2, 2], # 10
-		[ 1, 1, 2, 2, 2], # 8
-		[ 1, 1, 2, 2, 3], # 6
-		[ 1, 1, 2, 2, 3]  # 4
+		[ 1, 1, 1, 2,  2, 2, 2], # 12
+		[ 1, 1, 1, 2,  2, 2, 2], # 10
+		[ 1, 1, 1, 2,  2, 2, 2], # 8
+		[ 1, 1, 1, 2,  2, 2, 2], # 6
+		[ 1, 1, 1, 2,  2, 2, 2], # 4
+		[ 1, 1, 1, 2,  2, 2, 2], # 2
 		]
 	
 	homogeneous_LLPS = [\
-		[ 0, 0, 0, 0, 0], # 12
-		[ 0, 0, 0, 0, 0], # 10
-		[ 0, 0, 0, 0, 0], # 8
-		[ 0, 0, 0, 0, 0], # 6
-		[ 0, 0, 1, 1, 1]  # 4
+		[ 0, 0, 0, 0,  0, 0, 0], # 12
+		[ 0, 0, 0, 0,  0, 0, 0], # 10
+		[ 0, 0, 0, 0,  0, 0, 0], # 8
+		[ 0, 0, 0, 0,  0, 0, 0], # 6
+		[ 0, 0, 0, 0,  0, 0, 0], # 4
+		[ 1, 1, 1, 1,  1, 1, 1], # 2
 		]
+	
 	
 	phase_diagram = np.array(phase_diagram).T
 	levels        = np.array([0.5, 1.5, 2.5, 3.5, 4.5])
@@ -142,9 +143,8 @@ if __name__ == '__main__':
 	
 	max_conc      = np.max(phase_diagram)
 	
-	#fig  = plt.figure(figsize=(5, 5))
-	
-	fig  = plt.figure(figsize=(4, 4))
+	fig  = plt.figure(figsize=(5, 5))
+	#fig  = plt.figure(figsize=(4, 4))
 	fig.subplots_adjust(wspace=0.4,  hspace=0.6)
 	
 	colormap1  = c.cmap_phase_diagram2
@@ -161,8 +161,8 @@ if __name__ == '__main__':
 	ax.set_ylabel('Valency')
 	
 	
-	fig.savefig( os.path.join(dir_imgs, '{}.svg'.format( filename_output ) ) )
-	fig.savefig( os.path.join(dir_imgs, '{}.png'.format( filename_output ) ) , dpi=150)
+	fig.savefig( os.path.join(dir_imgs, '{}_.svg'.format( filename_output ) ) )
+	fig.savefig( os.path.join(dir_imgs, '{}_.png'.format( filename_output ) ) , dpi=150)
 	
 	plt.show()
 	plt.clf()
