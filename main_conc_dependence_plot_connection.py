@@ -21,31 +21,36 @@ def get_statistics_connection(multi_graph, species, distribution_or_average):
 	
 	
 	ids = [ i for i, attr in multi_graph.nodes('species') if attr == species ]
+	numbers_of_connections = [ multi_graph.degree[id] for id in ids ]
 	
-	if species == 'CaMKII' and distribution_or_average == 'distribution':
-		numbers_of_connections = [ multi_graph.degree[id] for id in ids ]
-		dist = {'{:d} GluN2B'.format(i): numbers_of_connections.count(i) for i in range(13)}
+	edges_from_molecules = [ multi_graph.edges(id, keys=True, data=True) for id in ids ]
+	connections_from_one_molecules = [ [e[3]['type_connection'] for e in es] for es in edges_from_molecules ]
+	
+	if species == 'GluN2B' and distribution_or_average == 'double_connection':
+	
+		.neighbors
+		# https://networkx.org/documentation/stable/reference/classes/generated/networkx.MultiGraph.neighbors.html
+		pass
+	
+	elif species == 'CaMKII' and distribution_or_average == 'distribution':
 		ymax = 1000
-		#nx.get_node_attributes(multi_graph, 'species').keys()
+		dist = {'{:d} GluN2B'.format(i): numbers_of_connections.count(i) for i in range(13)}
+		
 	elif species == 'CaMKII' and distribution_or_average == 'average':
-		numbers_of_connections = np.average( [ multi_graph.degree[id] for id in ids ] )
-		dist = {'GluN2B \n {:.2f}'.format(numbers_of_connections): numbers_of_connections}
 		ymax = 12
+		ave_numbers_of_connections = np.average( numbers_of_connections )
+		dist = {'GluN2B \n {:.2f}'.format(ave_numbers_of_connections): ave_numbers_of_connections}
+		
 	elif species == 'STG' and distribution_or_average == 'distribution':
-		numbers_of_connections = [ multi_graph.degree[id] for id in ids ]
-		dist = {'{:d} PSD95'.format(i): numbers_of_connections.count(i) for i in range(5)}
 		ymax = 4000
-		#nx.get_node_attributes(multi_graph, 'species').keys()
+		dist = {'{:d} PSD95'.format(i): numbers_of_connections.count(i) for i in range(5)}
+		
 	elif species == 'STG' and distribution_or_average == 'average':
-		numbers_of_connections = np.average( [ multi_graph.degree[id] for id in ids ] )
-		dist = {'PSD95 \n {:.2f}'.format(numbers_of_connections): numbers_of_connections}
 		ymax = 4
+		dist = {'PSD95 \n {:.2f}'.format(numbers_of_connections): numbers_of_connections}
 		
 	elif species == 'GluN2B' and distribution_or_average == 'average':
 		ymax = 4
-		edges_from_molecules = [ multi_graph.edges(id, keys=True, data=True) for id in ids ]
-		connections_from_one_molecules = [ [e[3]['type_connection'] for e in es] for es in edges_from_molecules ]
-		
 		num_GluN2B_CaMKII = np.average( [ c.count('GluN2B_CaMKII') for c in connections_from_one_molecules ] )
 		num_GluN2B_PSD95  = np.average( [ c.count('GluN2B_PSD95') for c in connections_from_one_molecules ] )
 		dist = {'GluN2B_CaMKII \n {:.2f}'.format(num_GluN2B_CaMKII): num_GluN2B_CaMKII,
@@ -68,8 +73,6 @@ def get_statistics_connection(multi_graph, species, distribution_or_average):
 			'PSD95, PSD95', \
 			'CaMKII, PSD95' ]
 		dist = {t: 0 for t in titles}
-		edges_from_molecules = [ multi_graph.edges(id, keys=True, data=True) for id in ids ]
-		connections_from_one_molecules = [ [e[3]['type_connection'] for e in es] for es in edges_from_molecules ]
 		for connections_from_a_molecule in connections_from_one_molecules:
 			for j, ref in enumerate( reference_types_connection ):
 				if utils.equal_list(connections_from_a_molecule, ref):
@@ -77,9 +80,6 @@ def get_statistics_connection(multi_graph, species, distribution_or_average):
 
 	elif species == 'PSD95' and distribution_or_average == 'average':
 		ymax = 4
-		edges_from_molecules = [ multi_graph.edges(id, keys=True, data=True) for id in ids ]
-		connections_from_one_molecules = [ [e[3]['type_connection'] for e in es] for es in edges_from_molecules ]
-		
 		num_STG_PSD95    = np.average( [c.count('STG_PSD95')  for c in connections_from_one_molecules ]   )
 		num_GluN2B_PSD95 = np.average( [c.count('GluN2B_PSD95') for c in connections_from_one_molecules ] )
 		dist = {'STG_PSD95 \n {:.2f}'.format(num_STG_PSD95): num_STG_PSD95, \
@@ -101,16 +101,28 @@ def get_statistics_connection(multi_graph, species, distribution_or_average):
 			'1 STG, 1 GluN2B', '2 STG, 1 GluN2B', '1 STG, 2 GluN2B'
 			 ]
 		dist = {t: 0 for t in titles}
-		edges_from_molecules = [ multi_graph.edges(id, keys=True, data=True) for id in ids ]
-		connections_from_one_molecules = [ [e[3]['type_connection'] for e in es] for es in edges_from_molecules ]
 		for connections_from_a_molecule in connections_from_one_molecules:
 			for j, ref in enumerate( reference_types_connection ):
 				if utils.equal_list(connections_from_a_molecule, ref):
 					dist[titles[j]] += 1
+					
+	elif species == 'PSD95' and distribution_or_average == 'ratio':
+		ymax = 4
+		types.connection = []
+		for c in connections_from_one_molecules:
+			if (c not in ['STG_PSD95']) and (c not in ['GluN2B_PSD95']):
+				types_connection.append('None')
+			elif (c in ['STG_PSD95']) and (c not in ['GluN2B_PSD95']):
+				types_connection.append('STG only')
+			elif (c not in ['STG_PSD95']) and (c in ['GluN2B_PSD95']):
+				types_connection.append('PSD95 only')
+			elif (c in ['STG_PSD95']) and (c in ['GluN2B_PSD95']):
+				types_connection.append('Both')
+		dist = {t: types_connection.count(t) for t in [ 'None', 'STG only', 'PSD95 only', 'Both' ]}
 	
-	return dist
-
-
+	return dist, ymax
+	
+	
 if __name__ == '__main__':
 
 	
@@ -153,7 +165,7 @@ if __name__ == '__main__':
 			multi_graph = g[1]
 			#sys.exit(0)
 			
-			dist = get_statistics_connection(multi_graph, species, distribution_or_average)
+			dist, ymax = get_statistics_connection(multi_graph, species, distribution_or_average)
 			
 			title = prefix # prefix, None
 			row    = num_rows-j-1
