@@ -59,7 +59,6 @@ def plot_a_binding(ax, multi_graph, prefix, species, distribution_or_average = '
 			for j, ref in enumerate( reference_types_connection ):
 				if utils.equal_list(connections_from_a_molecule, ref):
 					dist[titles[j]] += 1
-	
 	elif species == 'PSD95' and distribution_or_average == 'distribution':
 		ymax = 3000
 		reference_types_connection = [\
@@ -82,6 +81,39 @@ def plot_a_binding(ax, multi_graph, prefix, species, distribution_or_average = '
 			for j, ref in enumerate( reference_types_connection ):
 				if utils.equal_list(connections_from_a_molecule, ref):
 					dist[titles[j]] += 1
+
+	elif species == 'PSD95' and distribution_or_average == 'average':
+
+		numbers_of_connections = [ multi_graph.degree[id] for id in ids ]
+		dist = {'GluN2B \n {:.2f}'.format(ave_GluN2B): np.average(numbers_of_connections)}
+		ymax = 12
+
+		edges_from_molecules = [ multi_graph.edges(id, keys=True, data=True) for id in ids ]
+		connections_from_one_molecules = [ [e[3]['type_connection'] for e in es] for es in edges_from_molecules ]
+		
+		
+		ymax = 3000
+		reference_types_connection = [\
+			[], \
+			['STG_PSD95'],['STG_PSD95']*2,['STG_PSD95']*3, \
+			['GluN2B_PSD95'], ['GluN2B_PSD95']*2, ['GluN2B_PSD95']*3,\
+			['STG_PSD95', 'GluN2B_PSD95'],\
+			['STG_PSD95']*2 + ['GluN2B_PSD95'],\
+			['STG_PSD95'] + ['GluN2B_PSD95']*2]
+		titles = [\
+			'None', \
+			'1 STG', '2 STG', '3 STG', \
+			'1 GluN2B', '2 GluN2B', '3 GluN2B', \
+			'1 STG, 1 GluN2B', '2 STG, 1 GluN2B', '1 STG, 2 GluN2B'
+			 ]
+		dist = {t: 0 for t in titles}
+		edges_from_molecules = [ multi_graph.edges(id, keys=True, data=True) for id in ids ]
+		connections_from_one_molecules = [ [e[3]['type_connection'] for e in es] for es in edges_from_molecules ]
+		for connections_from_a_molecule in connections_from_one_molecules:
+			for j, ref in enumerate( reference_types_connection ):
+				if utils.equal_list(connections_from_a_molecule, ref):
+					dist[titles[j]] += 1
+
 
 	ax.set_title(prefix)
 	ax.bar(*zip(*dist.items()), width=0.5)
