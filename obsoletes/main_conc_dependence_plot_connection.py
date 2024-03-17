@@ -6,8 +6,6 @@ import math
 import matplotlib
 import matplotlib.pyplot as plt
 
-sys.path.append('../')
-
 import utils
 import parameters as p
 import colormap as c
@@ -17,8 +15,7 @@ plt.rcParams.update( {'font.size': 5} )
 
 
 
-def get_statistics_connection(multi_graph, species, distribution_or_average):
-	
+def get_connection_statistics(multi_graph, species, type_analysis):
 	
 	ids = [ i for i, attr in multi_graph.nodes('species') if attr == species ]
 	numbers_of_connections = [ multi_graph.degree[id] for id in ids ]
@@ -26,37 +23,42 @@ def get_statistics_connection(multi_graph, species, distribution_or_average):
 	edges_from_molecules = [ multi_graph.edges(id, keys=True, data=True) for id in ids ]
 	connections_from_one_molecules = [ [e[3]['type_connection'] for e in es] for es in edges_from_molecules ]
 	
-	if species == 'GluN2B' and distribution_or_average == 'double_connection':
-	
-		.neighbors
-		# https://networkx.org/documentation/stable/reference/classes/generated/networkx.MultiGraph.neighbors.html
-		pass
-	
-	elif species == 'CaMKII' and distribution_or_average == 'distribution':
+	if species == 'GluN2B' and type_analysis in ['CaMKII','PSD95']:
+		ymax = 10000
+		types_connection = [[len(v) for k, v in multi_graph[id].items() if multi_graph.nodes[k]['species'] == type_analysis] for id in ids]
+		reference_types_connection = {\
+			'No {}'.format(type_analysis) :[],\
+			'One {} (single)'.format(type_analysis) :[1],\
+			'One {} (double)'.format(type_analysis) :[2],\
+			'Two {}s'.format(type_analysis) :[1, 1]\
+			}
+		dist = {k: types_connection.count(v) for k, v in reference_types_connection.items()}
+		
+	elif species == 'CaMKII' and type_analysis == 'distribution':
 		ymax = 1000
 		dist = {'{:d} GluN2B'.format(i): numbers_of_connections.count(i) for i in range(13)}
 		
-	elif species == 'CaMKII' and distribution_or_average == 'average':
+	elif species == 'CaMKII' and type_analysis == 'average':
 		ymax = 12
 		ave_numbers_of_connections = np.average( numbers_of_connections )
 		dist = {'GluN2B \n {:.2f}'.format(ave_numbers_of_connections): ave_numbers_of_connections}
 		
-	elif species == 'STG' and distribution_or_average == 'distribution':
+	elif species == 'STG' and type_analysis == 'distribution':
 		ymax = 4000
 		dist = {'{:d} PSD95'.format(i): numbers_of_connections.count(i) for i in range(5)}
 		
-	elif species == 'STG' and distribution_or_average == 'average':
+	elif species == 'STG' and type_analysis == 'average':
 		ymax = 4
 		dist = {'PSD95 \n {:.2f}'.format(numbers_of_connections): numbers_of_connections}
 		
-	elif species == 'GluN2B' and distribution_or_average == 'average':
+	elif species == 'GluN2B' and type_analysis == 'average':
 		ymax = 4
 		num_GluN2B_CaMKII = np.average( [ c.count('GluN2B_CaMKII') for c in connections_from_one_molecules ] )
 		num_GluN2B_PSD95  = np.average( [ c.count('GluN2B_PSD95') for c in connections_from_one_molecules ] )
 		dist = {'GluN2B_CaMKII \n {:.2f}'.format(num_GluN2B_CaMKII): num_GluN2B_CaMKII,
 				'GluN2B_PSD95  \n {:.2f}'.format(num_GluN2B_PSD95) : num_GluN2B_PSD95 }
 		
-	elif species == 'GluN2B' and distribution_or_average == 'distribution':
+	elif species == 'GluN2B' and type_analysis == 'distribution':
 		ymax = 8000
 		reference_types_connection = [\
 			[], \
@@ -78,14 +80,14 @@ def get_statistics_connection(multi_graph, species, distribution_or_average):
 				if utils.equal_list(connections_from_a_molecule, ref):
 					dist[titles[j]] += 1
 
-	elif species == 'PSD95' and distribution_or_average == 'average':
+	elif species == 'PSD95' and type_analysis == 'average':
 		ymax = 4
 		num_STG_PSD95    = np.average( [c.count('STG_PSD95')  for c in connections_from_one_molecules ]   )
 		num_GluN2B_PSD95 = np.average( [c.count('GluN2B_PSD95') for c in connections_from_one_molecules ] )
 		dist = {'STG_PSD95 \n {:.2f}'.format(num_STG_PSD95): num_STG_PSD95, \
 				'GluN2B_PSD95 \n {:.2f}'.format(num_GluN2B_PSD95): num_GluN2B_PSD95 }
 
-	elif species == 'PSD95' and distribution_or_average == 'distribution':
+	elif species == 'PSD95' and type_analysis == 'distribution':
 		ymax = 3000
 		reference_types_connection = [\
 			[], \
@@ -106,9 +108,9 @@ def get_statistics_connection(multi_graph, species, distribution_or_average):
 				if utils.equal_list(connections_from_a_molecule, ref):
 					dist[titles[j]] += 1
 					
-	elif species == 'PSD95' and distribution_or_average == 'ratio':
+	elif species == 'PSD95' and type_analysis == 'ratio':
 		ymax = 4
-		types.connection = []
+		types_connection = []
 		for c in connections_from_one_molecules:
 			if (c not in ['STG_PSD95']) and (c not in ['GluN2B_PSD95']):
 				types_connection.append('None')
@@ -127,8 +129,11 @@ if __name__ == '__main__':
 
 	
 	# Dataset 1
-	species = 'PSD95' # 'STG','GluN2B', 'PSD95','CaMKII', 'PSD95_connection'
-	distribution_or_average = 'average'
+	species = 'GluN2B' # 'STG','GluN2B', 'PSD95','CaMKII', 'PSD95_connection'
+	type_analysis = 'CaMKII'
+	# 'average' and 'distribution' for all,
+	# 'CaMKII' and 'PSD95' for GluN2B
+	# 'ratio' for PSD95
 	
 	dir_target  = 'conc_dependence'
 	dir_target2 = 'nums_connection'
@@ -152,7 +157,7 @@ if __name__ == '__main__':
 	
 	vals = np.zeros([num_rows, num_columns])
 	fig  = plt.figure(figsize=(10, 10), tight_layout=True)
-	plt.suptitle('Species: {}, {}'.format( species, distribution_or_average ), )
+	plt.suptitle('Species: {}, {}'.format( species, type_analysis ), )
 	#
 	for i, stg in enumerate(STG):
 		for j, glun in enumerate(GluN2B):
@@ -163,9 +168,9 @@ if __name__ == '__main__':
 			print('Target: {}'.format(prefix))
 			graph = g[0]
 			multi_graph = g[1]
-			#sys.exit(0)
+			# sys.exit(0)
 			
-			dist, ymax = get_statistics_connection(multi_graph, species, distribution_or_average)
+			dist, ymax = get_connection_statistics(multi_graph, species, type_analysis)
 			
 			title = prefix # prefix, None
 			row    = num_rows-j-1
@@ -180,12 +185,12 @@ if __name__ == '__main__':
 			ax.set_ylabel('(Number)')
 			# ax.set_aspect(1.0 / ax.get_data_ratio())
 
-			if distribution_or_average == 'distribution':
+			if  type_analysis in ['distribution', 'CaMKII', 'PSD95'] :
 				ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
 
 	
 	# Save figure
-	filename = 'ave_num_binding_{}'.format(species)
+	filename = '{}_{}'.format(species, type_analysis)
 	fig.savefig( os.path.join(dir_imgs, '{}.svg'.format( filename ) ) )
 	fig.savefig( os.path.join(dir_imgs, '{}.png'.format( filename ) ) , dpi=150)
 	plt.show()
