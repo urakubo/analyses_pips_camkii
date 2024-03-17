@@ -13,77 +13,46 @@ import parameters as p
 
 plt.rcParams.update(p.rc_param)
 
-# Extrapolation works, but only for grid data.
-def make_grid_using_RegularGridInterpolator(STG, GluN2B, oZ, mX, mY):
-	m_points = np.array([mX.ravel(), mY.ravel()]).T
-	f = RegularGridInterpolator((STG, GluN2B), oZ, bounds_error=False, fill_value=None)
-	mZ = f(m_points).reshape(mX.shape)
-	return mZ
 	
 	
-def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels):
-	
-	# Observed data arrangement
-	oX, oY  = np.meshgrid(STG, GluN2B)
-	ox      = np.ravel(oX)
-	oy      = np.ravel(oY)
-	oz  = np.ravel(oZ.T)
-	
-	# Mesh grids for interpolation
-	mx_max = np.max(STG)
-	my_max = np.max(GluN2B)
-	
-	mx = np.linspace(0.0, mx_max*1.1, 55*4)
-	my = np.linspace(0.0, my_max*1.1, 55*4)
-	
-	mX, mY = np.meshgrid(mx,my)
-	
-	oZ_panel = copy.deepcopy( oZ )
-	oZ_panel[oZ_panel < 0] = 1
-	mZ = make_grid_using_RegularGridInterpolator(STG, GluN2B, oZ_panel, mX, mY)
-	
-	# Plot
-	# colormap.set_bad(color='magenta')
-	cs = ax.contourf(mX, mY, mZ, levels=levels, alpha=0.5, \
-				cmap= colormap, extend='both' ) # vmin=0, vmax=np.max(levels), 
-	# ax.contour(cs, colors='k')
-	vmin = 0
-	vmax = np.max(levels)
-	
-	ax.scatter(ox, oy, c=oz, cmap=colormap, marker='o', edgecolors='k', s=16, vmin=vmin, vmax=vmax)
-	
-	
-	# Overlay exception (not clean).
-	'''
-	oz_except = (oZ < 1)
-	mZ_except = make_grid_using_RegularGridInterpolator(STG, GluN2B, oz_except, mX, mY)
-	mZ_except[mZ_except > 0.5] = 1.0
-	mZ_except[mZ_except <= 0.5] = np.nan
-	print('np.unique(mZ_except) ' , np.unique(mZ_except) )
-	cs = ax.contourf(mX, mY, mZ_except, vmin=0.3, vmax=0.4, cmap='binary' )
-	'''
-	#ax.set_facecolor("black")
-	
-	
-	ax.set_xlim( np.min(mx), np.max(mx) )
-	ax.set_ylim( np.min(my), np.max(my) )
-	
-	ax.set_box_aspect(1)
-	ax.spines['right'].set_visible(False)
-	ax.spines['top'].set_visible(False)
-	
-	divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
-	cax = divider.append_axes('right', '5%', pad='3%')
-	cb = plt.colorbar(cs, cax=cax, ticks=np.linspace(vmin, vmax, 5))
-	#cb.ax.set_yticklabels(["{:.2f}".format(i) for i in cb.get_ticks()])
-	
-	return cs, cb
-	
-	
-	
-
 if __name__ == '__main__':
-
+	
+	
+	'''	
+	data  = ave_num_binding_GluN2B
+	title = 'Number of GluN2B bound to one PSD95'
+	filename_output = 'num_GluN2B_bound_to_one_PSD95'
+	colormap   =  c.cmap_white_purple_universal
+	levels  = np.linspace(0,3,10)
+	
+	data  = ave_num_binding_GluN2B_CaMKII
+	title = 'Number of GluN2B bound to one CaMKII'
+	filename_output = 'num_GluN2B_bound_to_one_CaMKII'
+	colormap   =  c.cmap_white_green_universal
+	levels  = np.linspace(0,12,7)
+	
+	data  = ave_num_binding_PSD95_STG
+	title = 'Number of PSD95 bound to one STG'
+	filename_output = 'num_PSD95_bound_to_one_STG'
+	colormap   = c.cmap_white_red_universal
+	levels  = np.linspace(0,4,6)
+	
+	
+	data  = ave_num_binding_STG
+	title = 'Number of STG bound to one PSD95'
+	filename_output = 'num_STG_bound_to_one_PSD95'
+	colormap   = c.cmap_white_red_universal
+	levels  = np.linspace(0,3,6)
+	'''
+	#'''
+	data  = ratio_binding_Both
+	title = 'Ratio of PSD95 bound to both GluN2B and STG'
+	filename_output = 'PSD95_bound_to_both_GluN2B_STG'
+	colormap   =  plt.colormaps['Greys']
+	#levels  = np.linspace(0,0.8,9)
+	levels  = np.linspace(0,1.0,11)
+	#'''
+	
 	
 	# Dataset 1
 	species = 'PSD95_connection' # 'STG','GluN2B', 'PSD95','CaMKII', 'PSD95_connection'
@@ -112,14 +81,7 @@ if __name__ == '__main__':
 	
 	
 	#
-	ave_num_binding_GluN2B = np.zeros([num_columns, num_rows], dtype = 'float')
-	ave_num_binding_GluN2B_CaMKII = np.zeros([num_columns, num_rows], dtype = 'float')
-	ave_num_binding_STG    = np.zeros([num_columns, num_rows], dtype = 'float')
-	ave_num_binding_PSD95_STG= np.zeros([num_columns, num_rows], dtype = 'float')
-	ratio_binding_None     = np.zeros([num_columns, num_rows], dtype = 'float')
-	ratio_binding_STG      = np.zeros([num_columns, num_rows], dtype = 'float')
-	ratio_binding_GluN2B   = np.zeros([num_columns, num_rows], dtype = 'float')
-	ratio_binding_Both     = np.zeros([num_columns, num_rows], dtype = 'float')
+	data = np.zeros([num_columns, num_rows], dtype = 'float')
 	#
 	for i, stg in enumerate(STG):
 		for j, glun in enumerate(GluN2B):
@@ -153,40 +115,6 @@ if __name__ == '__main__':
 			ratio_binding_Both[i,j]   = d[species]['Both'] / total_number
 	
 	
-	data  = ave_num_binding_GluN2B
-	title = 'Number of GluN2B bound to one PSD95'
-	filename_output = 'num_GluN2B_bound_to_one_PSD95'
-	colormap   =  c.cmap_white_purple_universal
-	levels  = np.linspace(0,3,10)
-	
-	data  = ave_num_binding_GluN2B_CaMKII
-	title = 'Number of GluN2B bound to one CaMKII'
-	filename_output = 'num_GluN2B_bound_to_one_CaMKII'
-	colormap   =  c.cmap_white_green_universal
-	levels  = np.linspace(0,12,7)
-	
-	data  = ave_num_binding_PSD95_STG
-	title = 'Number of PSD95 bound to one STG'
-	filename_output = 'num_PSD95_bound_to_one_STG'
-	colormap   = c.cmap_white_red_universal
-	levels  = np.linspace(0,4,6)
-	
-	'''
-	data  = ave_num_binding_STG
-	title = 'Number of STG bound to one PSD95'
-	filename_output = 'num_STG_bound_to_one_PSD95'
-	colormap   = c.cmap_white_red_universal
-	levels  = np.linspace(0,3,6)
-	'''
-	#'''
-	data  = ratio_binding_Both
-	title = 'Ratio of PSD95 bound to both GluN2B and STG'
-	filename_output = 'PSD95_bound_to_both_GluN2B_STG'
-	colormap   =  plt.colormaps['Greys']
-	#levels  = np.linspace(0,0.8,9)
-	levels  = np.linspace(0,1.0,11)
-	#'''
-	
 	
 	#colormap   =  plt.colormaps['Oranges']
 	
@@ -199,7 +127,7 @@ if __name__ == '__main__':
 	
 	
 	ax = fig.add_subplot( 1, 1, 1 )
-	cs, cb = plot_a_panel(ax, data, STG, GluN2B, colormap, levels)
+	cs, cb = utils.plot_a_panel(ax, data, STG, GluN2B, colormap, levels)
 	ax.set_title( title )
 	ax.set_xlabel('STG (beads / voxel) x 10-3')
 	ax.set_ylabel('GluN2B (beads / voxel) x 10-2')
