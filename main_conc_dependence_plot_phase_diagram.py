@@ -13,140 +13,163 @@ import parameters as p
 plt.rcParams.update( p.rc_param )
 
 
-# Extrapolation works, but only for grid data.
-def make_grid_using_RegularGridInterpolator(STG, GluN2B, oZ, mX, mY):
-	m_points = np.array([mX.ravel(), mY.ravel()]).T
-	f = RegularGridInterpolator((STG, GluN2B), oZ, bounds_error=False, fill_value=None)
-	mZ = f(m_points).reshape(mX.shape)
-	return mZ
+class MatrixConcDependence():
+	def __init__( self ):
+		
+		# Parameters
+		self.sigma = 2
+		dir_target = 'conc_dependence'
+		self.dir_edited_data = os.path.join('data3',dir_target)
+		self.dir_imgs        = os.path.join('imgs3', dir_target,'phase_diagram')
+		
+		os.makedirs(self.dir_imgs, exist_ok=True)
+		
+		
+		STG    = [540, 1620, 2160, 2700, 3240, 4520] 
+		GluN2B = [570, 1080, 4320, 6480, 8640, 10800, 12960, 17280]
+		
+		volume = np.prod(p.space_np)
+		STG    = [ s / volume for s in STG    ]
+		GluN2B = [ n / volume for n in GluN2B ]
+		
+		self.STG    = np.array( STG ) * 1000
+		self.GluN2B = np.array( GluN2B ) * 100
+		
+		self.num_rows		= len( GluN2B )
+		self.num_columns		= len( STG )
+		
+	def prepare_plot( self ):
+		self.fig  = plt.figure(figsize=(5, 5))
+		self.fig.subplots_adjust(wspace=0.4,  hspace=0.6)
+		ax = self.fig.add_subplot( 1, 1, 1 )
+		ax.set_title( self.title )
+		ax.set_xlabel('STG (beads / voxel) x 10-3')	
+		ax.set_ylabel('GluN2B (beads / voxel) x 10-2')
+		return ax
+		
+		
+	def run( self ):
+		#
+		data = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
+		#
+		for i, stg in enumerate(self.STG):
+			for j, glun in enumerate(self.GluN2B):
+				id = i + j * len(self.STG)
+				prefix = str(id).zfill(3)
+				print('Target file: ', prefix)
+				d           = utils.load(self.dir_edited_data, prefix, self.suffix)
+				data[i,j]   = self._modify_data(d)
+		
+		print('data ', data)
+		ax = self.prepare_plot()
+		cs, cb = utils.plot_a_panel(ax, data, self.STG, self.GluN2B, self.colormap, self.levels)
+		
+		
+	def save( self ):
+		
+		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.svg' ) )
+		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.png' ) , dpi=150)
+		plt.show()
+		plt.clf()
+		plt.close(fig=self.fig)
+
+
+class PlotPhaseDiagramConnectivity(MatrixConcDependence):
+	def __init__( self, species, type_analysis ):
+		
+		super().__init__()
+		
+		if species == 'CaMKII' and type_analysis == 'average':
+			self.title    = 'Number of GluN2B bound to one CaMKII'
+			self.basename = 'num_GluN2B_bound_to_one_CaMKII'
+			self.colormap =  c.cmap_white_green_universal
+			self.levels   = np.linspace(0,12,7)
+		elif species == 'PSD95' and type_analysis == 'average':
+			self.title    = 'Number of STG bound to one PSD95'
+			self.basename = 'num_STG_bound_to_one_PSD95'
+			self.colormap = c.cmap_white_red_universal
+			self.levels   = np.linspace(0,3,6)
+		elif species == 'PSD95' and type_analysis == 'ratio':
+			self.title    = 'Ratio of PSD95 bound to both GluN2B and STG'
+			self.basename = 'PSD95_bound_to_both_GluN2B_STG'
+			self.colormap =  plt.colormaps['Greys']
+			self.levels   = np.linspace(0,1.0,11)		
+		else:
+			raise ValueError("Not implemented, species: ", species, ", type_analysis: ", type_analysis)
+		
+		self.species = species
+		self.type_analysis = type_analysis
+		self.basename = '{}_{}'.format( self.species, self.type_analysis )
+		self.suffix = 'connectivity_graph'
 	
-	
-def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels):
-	
-	# Observed data arrangement
-	oX, oY  = np.meshgrid(STG, GluN2B)
-	ox      = np.ravel(oX)
-	oy      = np.ravel(oY)
-	oz  = np.ravel(oZ.T)
-	
-	# Mesh grids for interpolation
-	mx_max = np.max(STG)
-	my_max = np.max(GluN2B)
-	
-	mx = np.linspace(0.0, mx_max*1.1, 55*4)
-	my = np.linspace(0.0, my_max*1.1, 55*4)
-	
-	mX, mY = np.meshgrid(mx,my)
-	
-	oZ_panel = copy.deepcopy( oZ )
-	oZ_panel[oZ_panel < 0] = 1
-	mZ = make_grid_using_RegularGridInterpolator(STG, GluN2B, oZ_panel, mX, mY)
-	
-	# Plot
-	colormap.set_bad(color='magenta')
-	cs = ax.contourf(mX, mY, mZ, levels=levels, alpha=0.5, \
-				cmap= colormap ) # vmin=0, vmax=np.max(levels), 
-	ax.contour(cs, colors='k')
-	ax.scatter(ox, oy, c=oz, cmap=colormap, marker='o', edgecolors='k', s=16, vmin=0, vmax=np.max(levels))
-	
-	
-	# Overlay exception (not clean).
-	'''
-	oz_except = (oZ < 1)
-	mZ_except = make_grid_using_RegularGridInterpolator(STG, GluN2B, oz_except, mX, mY)
-	mZ_except[mZ_except > 0.5] = 1.0
-	mZ_except[mZ_except <= 0.5] = np.nan
-	print('np.unique(mZ_except) ' , np.unique(mZ_except) )
-	cs = ax.contourf(mX, mY, mZ_except, vmin=0.3, vmax=0.4, cmap='binary' )
-	'''
-	#ax.set_facecolor("black")
-	
-	
-	ax.set_xlim( np.min(mx), np.max(mx) )
-	ax.set_ylim( np.min(my), np.max(my) )
-	
-	ax.set_box_aspect(1)
-	ax.spines['right'].set_visible(False)
-	ax.spines['top'].set_visible(False)
-	
-	divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
-	cax = divider.append_axes('right', '5%', pad='3%')
-	cb = plt.colorbar(cs, cax=cax)
-	cb.ax.set_yticklabels(["{:.2f}".format(i) for i in cb.get_ticks()])
-	
-	return cs, cb
-	
+	def _modify_data(self, d):
+		#print('d ')
+		#print(d[self.species][self.type_analysis])
+		if species == 'CaMKII' and type_analysis == 'average':
+			data      = d[self.species][self.type_analysis]['GluN2B']
+		elif species == 'PSD95' and type_analysis == 'average':
+			data      = d[self.species][self.type_analysis]['STG_PSD95']
+		elif self.species == 'PSD95' and self.type_analysis == 'ratio':
+			num_total = sum( d[self.species][self.type_analysis].values() )
+			#print('num_total: ', num_total)
+			data      = d[self.species][self.type_analysis]['Both'] / num_total
+		return data
+		
+		
+class PlotPhaseDiagram(MatrixConcDependence):
+	def __init__( self ):
+		
+		super().__init__()
+		
+		GluN2B = ([-570, 570, 1080, 4320, 6480, 8640, 10800, 12960, 17280])
+		GluN2B.reverse()
+		volume = np.prod(p.space_np)
+		GluN2B = [ n / volume for n in GluN2B ]
+		self.GluN2B = np.array( GluN2B ) * 100
+		self.num_columns		= len( STG )
+		
+		self.basename = 'phase_diagram_conc_dependence'
+		# -1: Unclear
+		# 1: Homogeneous LLPS (STG)
+		# 2: PIPS
+		# 3: Partial engulfment
+		# 4: Homogeneous LLPS (CaMKII)
+		
+		phase_diagram = [\
+			[ 1, 1, 1, 1,   1, 1], # 17280
+			[ 1, 1, 1, 1,   2, 2], # 12960
+			[ 1, 2, 2, 2,   2, 2], # 10800
+			[ 2, 2, 2, 2,   2, 2], # 8640
+			[ 2, 3, 2, 2,   2, 2], # 6480
+			[ 3, 3, 3, 3,   3, 3], # 4320
+			[ 4, 4, 4, 3,   3, 3], # 1080
+			[ 4, 4, 4, 4,   4, 4], # 570
+			[ 4, 4, 4, 4,   4, 4]] # -570
+		self.phase_diagram = np.array(phase_diagram).T
+		
+	def plot( self ):
+		
+		colormap = c.cmap_phase_diagram1
+		levels   = np.array([0.0,1.5,2.5,3.5,4.5])
+		# cmap_gray_cr_pk_gray # c.cmap_white_green_universal, plt.colormaps['jet']# 'winter', etc
+		
+		ax = self.prepare_plot()
+		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.STG, self.GluN2B, colormap, levels)
+		
 	
 if __name__ == '__main__':
 	
-	
-	# Output files
-	dir_imgs = os.path.join('imgs3', 'conc_dependence','phase_diagram')
-	filename_output = 'phase_diagram_conc_dependence'
-	os.makedirs(dir_imgs, exist_ok=True)
-	
-	
-	
-	STG    = [540, 1620, 2160, 2700, 3240, 4520] 
-	GluN2B = ([-570, 570, 1080, 4320, 6480, 8640, 10800, 12960, 17280])
-	GluN2B.reverse()
-	
-	volume = np.prod(p.space_np)
-	STG    = [ s / volume for s in STG    ]
-	GluN2B = [ n / volume for n in GluN2B ]
-
-	STG    = np.array( STG ) * 1000
-	GluN2B = np.array( GluN2B ) * 100
-
 	'''
-	print('STG')
-	print(STG)
-	print('GluN2B')
-	print(GluN2B)
+	p = PlotPhaseDiagram()
+	p.plot()
+	p.save()
 	'''
 	
-	# -1: Unclear
-	# 1: Homogeneous LLPS (STG)
-	# 2: PIPS
-	# 3: Partial engulfment
-	# 4: Homogeneous LLPS (CaMKII)
-
-	phase_diagram = [\
-	[ 1, 1, 1, 1,   1, 1], # 17280
-	[ 1, 1, 1, 1,   2, 2], # 12960
-	[ 1, 2, 2, 2,   2, 2], # 10800
-	[ 2, 2, 2, 2,   2, 2], # 8640
-	[ 2, 3, 2, 2,   2, 2], # 6480
-	[ 3, 3, 3, 3,   3, 3], # 4320
-	[ 4, 4, 4, 3,   3, 3], # 1080
-	[ 4, 4, 4, 4,   4, 4], # 570
-	[ 4, 4, 4, 4,   4, 4]] # -570
+	#species, type_analysis = 'CaMKII', 'average'
+	species, type_analysis = 'PSD95' , 'average'
+	#species, type_analysis = 'PSD95' , 'ratio'
 	
-	
-	
-	phase_diagram = np.array(phase_diagram).T
-	
-	
-	fig  = plt.figure(figsize=(5, 5))
-	fig.subplots_adjust(wspace=0.4,  hspace=0.6)
-	
-	colormap   = c.cmap_phase_diagram1
-	# cmap_gray_cr_pk_gray # c.cmap_white_green_universal, plt.colormaps['jet']# 'winter', etc
-	
-	
-	levels  = np.array([0.0,1.5,2.5,3.5,4.5])
-	ax = fig.add_subplot( 1, 1, 1 )
-	cs, cb = plot_a_panel(ax, phase_diagram, STG, GluN2B, colormap, levels)
-	ax.set_title('Phase diagram')
-	ax.set_xlabel('STG (beads / voxel) x 10-3')
-	ax.set_ylabel('GluN2B (beads / voxel) x 10-2')
-	
-	
-	fig.savefig( os.path.join(dir_imgs, '{}.svg'.format( filename_output ) ) )
-	fig.savefig( os.path.join(dir_imgs, '{}.png'.format( filename_output ) ) , dpi=150)
-	
-	plt.show()
-	plt.clf()
-	plt.close(fig=fig)
-	
+	p = PlotPhaseDiagramConnectivity(species, type_analysis)
+	p.run()
+	p.save()
 	

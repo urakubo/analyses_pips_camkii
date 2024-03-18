@@ -108,8 +108,8 @@ def get_connection_statistics(multi_graph, species, type_analysis):
 	elif species == 'GluN2B' and type_analysis == 'average':
 		num_GluN2B_CaMKII = np.average( [ c.count('GluN2B_CaMKII') for c in connections_from_one_molecules ] )
 		num_GluN2B_PSD95  = np.average( [ c.count('GluN2B_PSD95') for c in connections_from_one_molecules ] )
-		dist = {'GluN2B_CaMKII \n {:.2f}'.format(num_GluN2B_CaMKII): num_GluN2B_CaMKII,
-				'GluN2B_PSD95  \n {:.2f}'.format(num_GluN2B_PSD95) : num_GluN2B_PSD95 }
+		dist = {'GluN2B_CaMKII': num_GluN2B_CaMKII,
+				'GluN2B_PSD95' : num_GluN2B_PSD95 }
 		
 	elif species == 'GluN2B' and type_analysis == 'distribution':
 		reference_types_connection = [\
@@ -135,8 +135,8 @@ def get_connection_statistics(multi_graph, species, type_analysis):
 	elif species == 'PSD95' and type_analysis == 'average':
 		num_STG_PSD95    = np.average( [c.count('STG_PSD95')  for c in connections_from_one_molecules ]   )
 		num_GluN2B_PSD95 = np.average( [c.count('GluN2B_PSD95') for c in connections_from_one_molecules ] )
-		dist = {'STG_PSD95 \n {:.2f}'.format(num_STG_PSD95): num_STG_PSD95, \
-				'GluN2B_PSD95 \n {:.2f}'.format(num_GluN2B_PSD95): num_GluN2B_PSD95 }
+		dist = {'STG_PSD95': num_STG_PSD95, \
+				'GluN2B_PSD95': num_GluN2B_PSD95 }
 
 	elif species == 'PSD95' and type_analysis == 'distribution':
 		reference_types_connection = [\
@@ -160,14 +160,16 @@ def get_connection_statistics(multi_graph, species, type_analysis):
 					
 	elif species == 'PSD95' and type_analysis == 'ratio':
 		types_connection = []
+		#print('connections_from_one_molecules')
+		#print(connections_from_one_molecules)
 		for c in connections_from_one_molecules:
-			if (c not in ['STG_PSD95']) and (c not in ['GluN2B_PSD95']):
+			if ('STG_PSD95' not in c) and ('GluN2B_PSD95' not in c):
 				types_connection.append('None')
-			elif (c in ['STG_PSD95']) and (c not in ['GluN2B_PSD95']):
+			elif ('STG_PSD95' in c) and ('GluN2B_PSD95' not in c):
 				types_connection.append('STG only')
-			elif (c not in ['STG_PSD95']) and (c in ['GluN2B_PSD95']):
+			elif ('STG_PSD95' not in c) and ('GluN2B_PSD95' in c):
 				types_connection.append('PSD95 only')
-			elif (c in ['STG_PSD95']) and (c in ['GluN2B_PSD95']):
+			elif ('STG_PSD95' in c) and ('GluN2B_PSD95' in c):
 				types_connection.append('Both')
 		dist = {t: types_connection.count(t) for t in [ 'None', 'STG only', 'PSD95 only', 'Both' ]}
 	
@@ -178,22 +180,22 @@ if __name__ == '__main__':
 	
 	
 	# Valency length
-	'''
+	#'''
 	subdirs    = ['val_{}'.format(i) for i in range(2,14,2)]
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
 	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
 	dir_input        = 'valency_length'
 	dir_edited_data  = 'valency_length'
-	'''
+	#'''
 	
 	# Conc dependnece
-	#'''
+	'''
 	filenames_output = [str(i).zfill(3) for i in range(48) ]
 	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ] #70
 	dir_input        = 'conc_dependence'
 	dir_edited_data  = 'conc_dependence'
-	#'''
+	'''
 	
 	# Shared part of initialization
 	dir_lammpstrj    = os.path.join('..', 'lammpstrj3', dir_input)
@@ -223,8 +225,8 @@ if __name__ == '__main__':
 		d['multi_graph'] = multi_graph
 		
 		for species in ['STG','GluN2B', 'PSD95','CaMKII']:
+			d[species] = {}
 			for type_analysis in ['average', 'distribution']:
-				d[species] = {}
 				d[species][type_analysis] = get_connection_statistics(multi_graph, species, type_analysis)
 		
 		species = 'GluN2B'
