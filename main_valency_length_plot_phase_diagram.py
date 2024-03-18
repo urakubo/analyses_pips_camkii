@@ -72,9 +72,9 @@ class PlotPhaseDiagram(MatrixValencyLength):
 		
 		super().__init__()
 		
-		self.valency = [12, 10, 8, 6, 4, 2, -2] # [4, 6, 8, 10, 12] 
+		self.valency  = [12, 10, 8, 6, 4, 2, -2] # [4, 6, 8, 10, 12] 
 		self.basename = 'phase_diagram_valency_length'
-		
+		self.title    = 'Phase diagram'
 		# 1: PIPS
 		# 2: Partial engulfment
 		# 3: iPIPS
@@ -116,7 +116,7 @@ class PlotPhaseDiagram(MatrixValencyLength):
 		
 		ax = self.prepare_plot()
 		
-		cs, cb = utils.plot_a_panel(ax, phase_diagram, self.length, self.valency, colormap1, levels1)
+		cs, cb = utils.plot_a_panel(ax, phase_diagram, self.length, self.valency, colormap1, levels1, draw_border = True)
 		utils.plot_a_panel_overlay(ax, STG_only, self.length, self.valency, colormap2, levels2)
 		
 
@@ -164,19 +164,20 @@ class PlotPhaseDiagramConnectivity(MatrixValencyLength):
 		
 if __name__ == '__main__':
 	
-	'''
+	#'''
 	p = PlotPhaseDiagram()
 	p.plot()
 	p.save()
-	'''
+	#'''
 	
 	species, type_analysis = 'CaMKII', 'average'
 	#species, type_analysis = 'PSD95' , 'average'
 	#species, type_analysis = 'PSD95' , 'ratio'
 	
+	'''
 	p = PlotPhaseDiagramConnectivity(species, type_analysis)
 	p.run()
 	p.save()
-		
+	'''
 	
 	

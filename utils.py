@@ -873,7 +873,7 @@ def make_grid_using_RegularGridInterpolator(x, y, oZ, mX, mY):
 	return mZ
 	
 	
-def plot_a_panel(ax, oZ, x, y, colormap, levels):
+def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False):
 	
 	# Observed data arrangement
 	oX, oY  = np.meshgrid(x, y)
@@ -897,8 +897,9 @@ def plot_a_panel(ax, oZ, x, y, colormap, levels):
 	# Plot
 	# colormap.set_bad(color='magenta')
 	cs = ax.contourf(mX, mY, mZ, levels=levels, alpha=0.5, \
-				cmap= colormap, extend='both' ) # vmin=0, vmax=np.max(levels), 
-	# ax.contour(cs, colors='k')
+				cmap= colormap, extend='both' ) # vmin=0, vmax=np.max(levels)
+	if draw_border == True:
+		ax.contour(cs, colors='k')
 	vmin = 0
 	vmax = np.max(levels)
 	

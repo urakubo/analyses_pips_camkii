@@ -36,7 +36,7 @@ class MatrixConcDependence():
 		self.GluN2B = np.array( GluN2B ) * 100
 		
 		self.num_rows		= len( GluN2B )
-		self.num_columns		= len( STG )
+		self.num_columns	= len( STG )
 		
 	def prepare_plot( self ):
 		self.fig  = plt.figure(figsize=(5, 5))
@@ -124,9 +124,9 @@ class PlotPhaseDiagram(MatrixConcDependence):
 		GluN2B.reverse()
 		volume = np.prod(p.space_np)
 		GluN2B = [ n / volume for n in GluN2B ]
-		self.GluN2B = np.array( GluN2B ) * 100
-		self.num_columns		= len( STG )
-		
+		self.GluN2B   = np.array( GluN2B ) * 100
+		self.num_rows = len( GluN2B )
+		self.title    = 'Phase diagram'
 		self.basename = 'phase_diagram_conc_dependence'
 		# -1: Unclear
 		# 1: Homogeneous LLPS (STG)
@@ -153,22 +153,23 @@ class PlotPhaseDiagram(MatrixConcDependence):
 		# cmap_gray_cr_pk_gray # c.cmap_white_green_universal, plt.colormaps['jet']# 'winter', etc
 		
 		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.STG, self.GluN2B, colormap, levels)
+		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.STG, self.GluN2B, colormap, levels, draw_border = True)
 		
 	
 if __name__ == '__main__':
 	
-	'''
+	#'''
 	p = PlotPhaseDiagram()
 	p.plot()
 	p.save()
-	'''
+	#'''
 	
 	#species, type_analysis = 'CaMKII', 'average'
 	species, type_analysis = 'PSD95' , 'average'
 	#species, type_analysis = 'PSD95' , 'ratio'
-	
+	'''
 	p = PlotPhaseDiagramConnectivity(species, type_analysis)
 	p.run()
 	p.save()
+	'''
 	
