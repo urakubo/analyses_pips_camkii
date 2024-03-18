@@ -866,24 +866,24 @@ def equal_list(lst1, lst2):
 
 
 # Extrapolation works, but only for grid data.
-def make_grid_using_RegularGridInterpolator(STG, GluN2B, oZ, mX, mY):
+def make_grid_using_RegularGridInterpolator(x, y, oZ, mX, mY):
 	m_points = np.array([mX.ravel(), mY.ravel()]).T
-	f = RegularGridInterpolator((STG, GluN2B), oZ, bounds_error=False, fill_value=None)
+	f = RegularGridInterpolator((x, y), oZ, bounds_error=False, fill_value=None)
 	mZ = f(m_points).reshape(mX.shape)
 	return mZ
 	
 	
-def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels):
+def plot_a_panel(ax, oZ, x, y, colormap, levels):
 	
 	# Observed data arrangement
-	oX, oY  = np.meshgrid(STG, GluN2B)
+	oX, oY  = np.meshgrid(x, y)
 	ox      = np.ravel(oX)
 	oy      = np.ravel(oY)
 	oz  = np.ravel(oZ.T)
 	
 	# Mesh grids for interpolation
-	mx_max = np.max(STG)
-	my_max = np.max(GluN2B)
+	mx_max = np.max(x)
+	my_max = np.max(y)
 	
 	mx = np.linspace(0.0, mx_max*1.1, 55*4)
 	my = np.linspace(0.0, my_max*1.1, 55*4)
@@ -892,7 +892,7 @@ def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels):
 	
 	oZ_panel = copy.deepcopy( oZ )
 	oZ_panel[oZ_panel < 0] = 1
-	mZ = make_grid_using_RegularGridInterpolator(STG, GluN2B, oZ_panel, mX, mY)
+	mZ = make_grid_using_RegularGridInterpolator(x, y, oZ_panel, mX, mY)
 	
 	# Plot
 	# colormap.set_bad(color='magenta')
@@ -908,7 +908,7 @@ def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels):
 	# Overlay exception (not clean).
 	'''
 	oz_except = (oZ < 1)
-	mZ_except = make_grid_using_RegularGridInterpolator(STG, GluN2B, oz_except, mX, mY)
+	mZ_except = make_grid_using_RegularGridInterpolator(x, y, oz_except, mX, mY)
 	mZ_except[mZ_except > 0.5] = 1.0
 	mZ_except[mZ_except <= 0.5] = np.nan
 	print('np.unique(mZ_except) ' , np.unique(mZ_except) )
@@ -930,4 +930,35 @@ def plot_a_panel(ax, oZ, STG, GluN2B, colormap, levels):
 	#cb.ax.set_yticklabels(["{:.2f}".format(i) for i in cb.get_ticks()])
 	
 	return cs, cb
+	
+	
+def plot_a_panel_overlay(ax, oZ, x, y, colormap, levels):
+	
+	# Observed data arrangement
+	oX, oY  = np.meshgrid(x, y)
+	ox      = np.ravel(oX)
+	oy      = np.ravel(oY)
+	oz  = np.ravel(oZ.T)
+	
+	# Mesh grids for interpolation
+	mx_max = np.max(x)
+	my_max = np.max(y)
+	
+	mx = np.linspace(0.0, mx_max*1.1, 55*4)
+	my = np.linspace(0.0, my_max*1.1, 55*4)
+	
+	mX, mY = np.meshgrid(mx,my)
+	print('x ', x)
+	print('y ', y)
+	
+	mZ = make_grid_using_RegularGridInterpolator(x, y, oZ, mX, mY)
+	ax.contour( mX, mY, mZ, levels=levels, colors='k', zorder = 3)
+	mZ[mZ < 0.5] = np.nan
+	ax.contourf(mX, mY, mZ, levels=levels, cmap=colormap, zorder = 2) 
+	
+	ids_target = oz > 0
+	ax.scatter(ox[ids_target], oy[ids_target], c=oz[ids_target], \
+		cmap=colormap, marker='o', edgecolors='k', s=16, \
+		vmin=np.min(levels), vmax=np.max(levels), \
+		zorder = 4)
 	

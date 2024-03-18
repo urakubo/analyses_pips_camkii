@@ -111,7 +111,6 @@ class PlotPhaseDiagramConnectivity(MatrixConcDependence):
 			data      = d[self.species][self.type_analysis]['STG_PSD95']
 		elif self.species == 'PSD95' and self.type_analysis == 'ratio':
 			num_total = sum( d[self.species][self.type_analysis].values() )
-			#print('num_total: ', num_total)
 			data      = d[self.species][self.type_analysis]['Both'] / num_total
 		return data
 		

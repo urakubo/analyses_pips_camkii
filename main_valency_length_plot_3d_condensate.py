@@ -7,7 +7,6 @@ import pyvista
 
 
 
-	
 def save_a_plot(d, dir_img, prefix, suffix):
 	pl = pyvista.Plotter(window_size=[400,1000], shape=(3, 1), border=False)
 	#pl.add_text( '{}_{}'.format(prefix, suffix), position='lower_left', color='k', font='arial', font_size=10)
