@@ -87,8 +87,6 @@ class MatrixConcDependence():
 				id = i + j * len(self.STG)
 				prefix = str(id).zfill(3)
 				
-				print('Target: {}'.format(prefix))
-				
 				title = prefix # prefix, None
 				row    = self.num_rows-j-1
 				column = i+1
@@ -158,25 +156,59 @@ class PlotConc():
 		return val
 		
 		
+class PlotCentrality():
+	def __init__( self, target ):
 		
-class PlotConnectivityMatrixConcDependence(PlotConnectivity, MatrixConcDependence):
-	def __init__( self, species, type_analysis ):
-		PlotConnectivity.__init__(self, species, type_analysis )
-		MatrixConcDependence.__init__(self)
-
+		if target not in [ 'betweenness', 'parcolation']:
+			raise ValueError("Erronous augment 'target': ", target)
+		else:
+			self.suffix = target
+		sigma = 2
+		self.basename = 'centrality_{}'.format( self.suffix )
+		
+	def plot_a_graph( self, row, column, centrality, title ):
+		
+		ax = self.fig.add_subplot( self.num_rows, self.num_columns, row*self.num_columns+column )
+		ax.grid()
+		ax.set_title(title)
+		ax.spines['right'].set_visible(False)
+		ax.spines['top'].set_visible(False)
+		ax.set_ylabel('(Number)')
+		ax.set_ylabel('(Num of molecules)')
+		ax.hist(centrality.values(), range = (0.0001, 0.06), bins= 40, log=True )
+		
+		return True
+		
 class PlotConcMatrixConcDependence(PlotConc, MatrixConcDependence):
 	def __init__( self, target ):
 		PlotConc.__init__(self, target)
 		MatrixConcDependence.__init__(self)
 	
+class PlotConcMatrixValencyLength(PlotConc, MatrixValencyLength):
+	def __init__( self, target ):
+		PlotConc.__init__(self, target )
+		MatrixValencyLength.__init__(self)
+	
+	
+class PlotConnectivityMatrixConcDependence(PlotConnectivity, MatrixConcDependence):
+	def __init__( self, species, type_analysis ):
+		PlotConnectivity.__init__(self, species, type_analysis )
+		MatrixConcDependence.__init__(self)
+		
 class PlotConnectivityMatrixValencyLength(PlotConnectivity, MatrixValencyLength):
 	def __init__( self, species, type_analysis ):
 		PlotConnectivity.__init__(self, species, type_analysis )
 		MatrixValencyLength.__init__(self)
-
-class PlotConcMatrixValencyLength(PlotConc, MatrixValencyLength):
+	
+	
+class PlotCentralityMatrixConcDependence(PlotCentrality, MatrixConcDependence):
 	def __init__( self, target ):
-		PlotConc.__init__(self, target )
+		PlotCentrality.__init__(self, target )
+		MatrixConcDependence.__init__(self)
+		
+class PlotCentralityMatrixValencyLength(PlotCentrality, MatrixValencyLength):
+	def __init__( self, target ):
+		PlotCentrality.__init__(self, target )
 		MatrixValencyLength.__init__(self)
 	
 	
@@ -196,10 +228,16 @@ if __name__ == '__main__':
 	# 'average' and 'distribution' for all,
 	# species: 'GluN2B', type_analysis 'CaMKII' or 'PSD95'
 	# species: 'PSD95' , type_analysis 'ratio'
-	#'''
+	'''
 	connectivity = PlotConnectivityMatrixValencyLength(species, type_analysis)
 	values = connectivity.run()
 	connectivity.save()	
-	#'''
+	'''
 	
+	target = 'betweenness' # 'betweenness', 'parcolation'
+	# Centrality = PlotCentralityMatrixValencyLength(target)
+	Centrality = PlotCentralityMatrixConcDependence(target)
+	values = Centrality.run()
+	Centrality.save()	
+
 
