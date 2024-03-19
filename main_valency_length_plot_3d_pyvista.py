@@ -106,19 +106,6 @@ if __name__ == '__main__':
 	os.makedirs(dir_imgs, exist_ok=True)
 	sigma = 2
 	
-	'''
-	# Plot the snapshots of each result from the three directions.
-	filenames_edited_data = [str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
-	
-	for filename in filenames_edited_data:
-		# Load data
-		prefix = filename
-		suffix = 'sigma_{}'.format(sigma)
-		d      = utils.load(dir_edited_data, prefix, suffix)	
-		print('Target: {}, sigma: {}'.format(filename, sigma))
-		save_a_plot(d, dir_imgs, prefix, suffix)
-	'''
-	
 	
 	# Plot the matrix
 	#'''

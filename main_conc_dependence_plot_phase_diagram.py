@@ -25,18 +25,11 @@ class MatrixConcDependence():
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		
 		
-		STG    = [540, 1620, 2160, 2700, 3240, 4520] 
-		GluN2B = [570, 1080, 4320, 6480, 8640, 10800, 12960, 17280]
+		self.STGs    = np.array( p.STGs ) * 1000
+		self.GluN2Bs = np.array( p.GluN2Bs ) * 100
 		
-		volume = np.prod(p.space_np)
-		STG    = [ s / volume for s in STG    ]
-		GluN2B = [ n / volume for n in GluN2B ]
-		
-		self.STG    = np.array( STG ) * 1000
-		self.GluN2B = np.array( GluN2B ) * 100
-		
-		self.num_rows		= len( GluN2B )
-		self.num_columns	= len( STG )
+		self.num_rows		= len( p.GluN2Bs )
+		self.num_columns	= len( p.STGs )
 		
 	def prepare_plot( self ):
 		self.fig  = plt.figure(figsize=(5, 5))
@@ -52,9 +45,9 @@ class MatrixConcDependence():
 		#
 		data = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
 		#
-		for i, stg in enumerate(self.STG):
-			for j, glun in enumerate(self.GluN2B):
-				id = i + j * len(self.STG)
+		for i, stg in enumerate(self.STGs):
+			for j, glun in enumerate(self.GluN2Bs):
+				id = i + j * len(self.STGs)
 				prefix = str(id).zfill(3)
 				print('Target file: ', prefix)
 				d           = utils.load(self.dir_edited_data, prefix, self.suffix)
@@ -62,7 +55,7 @@ class MatrixConcDependence():
 		
 		print('data ', data)
 		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, data, self.STG, self.GluN2B, self.colormap, self.levels)
+		cs, cb = utils.plot_a_panel(ax, data, self.STGs, self.GluN2Bs, self.colormap, self.levels)
 		
 		
 	def save( self ):
@@ -120,12 +113,12 @@ class PlotPhaseDiagram(MatrixConcDependence):
 		
 		super().__init__()
 		
-		GluN2B = ([-570, 570, 1080, 4320, 6480, 8640, 10800, 12960, 17280])
-		GluN2B.reverse()
+		GluN2Bs = ([-570, 570, 1080, 4320, 6480, 8640, 10800, 12960, 17280])
+		GluN2Bs.reverse()
 		volume = np.prod(p.space_np)
-		GluN2B = [ n / volume for n in GluN2B ]
-		self.GluN2B   = np.array( GluN2B ) * 100
-		self.num_rows = len( GluN2B )
+		GluN2Bs = [ n / volume for n in GluN2Bs ]
+		self.GluN2Bs  = np.array( GluN2Bs ) * 100
+		self.num_rows = len( GluN2Bs )
 		self.title    = 'Phase diagram'
 		self.basename = 'phase_diagram_conc_dependence'
 		# -1: Unclear
@@ -153,23 +146,23 @@ class PlotPhaseDiagram(MatrixConcDependence):
 		# cmap_gray_cr_pk_gray # c.cmap_white_green_universal, plt.colormaps['jet']# 'winter', etc
 		
 		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.STG, self.GluN2B, colormap, levels, draw_border = True)
+		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.STGs, self.GluN2Bs, colormap, levels, draw_border = True)
 		
 	
 if __name__ == '__main__':
 	
-	#'''
+	'''
 	p = PlotPhaseDiagram()
 	p.plot()
 	p.save()
-	#'''
+	'''
 	
 	#species, type_analysis = 'CaMKII', 'average'
 	species, type_analysis = 'PSD95' , 'average'
 	#species, type_analysis = 'PSD95' , 'ratio'
-	'''
+	#'''
 	p = PlotPhaseDiagramConnectivity(species, type_analysis)
 	p.run()
 	p.save()
-	'''
+	#'''
 	

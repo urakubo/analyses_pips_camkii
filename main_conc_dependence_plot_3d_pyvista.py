@@ -101,26 +101,7 @@ def save_plots_matrix(dir_data, dir_imgs, sub = True):
 	
 if __name__ == '__main__':
 
-	# Profiles
-	'''
-	# Files
-	dir_target = 'conc_dependence'
-	dir_edited_data 		= os.path.join('data3', dir_target)
-	filenames_edited_data 	= [str(i).zfill(3) for i in [30, 31, 46] ]
-	dir_imgs = os.path.join('imgs3', dir_target,'3d_condensate')
-	os.makedirs(dir_imgs, exist_ok=True)
-	
-	sigma = 2
-	for filename in filenames_edited_data:
-		# Load data
-		prefix = filename
-		suffix = 'sigma_{}'.format(sigma)
-		d      = utils.load(dir_edited_data, prefix, suffix)	
-		print('Target: {}, sigma: {}'.format(filename, sigma))
-		save_a_plot(d, dir_imgs, prefix, suffix)
-	'''
-	
-	
+
 	# Matrix
 	'''
 	# Input files

@@ -68,3 +68,20 @@ m = [-1, 0, 1]
 neighbors26 = np.stack(np.meshgrid(m, m, m), axis=-1).reshape(-1, 3)
 neighbors26 = np.delete(neighbors26, 13, axis=0)
 
+
+# Conc dependence
+STGs    = [540, 1620, 2160, 2700, 3240, 4520] 
+GluN2Bs = [570, 1080, 4320, 6480, 8640, 10800, 12960, 17280]
+volume  = np.prod(space_np)
+
+STGs    = [ s / volume for s in STGs    ]
+GluN2Bs = [ n / volume for n in GluN2Bs ]
+
+
+# valency-length
+valencies = list(range(2,14,2)) 
+lengths   = [1, 2, 3, 4, 5, 6, 9]
+
+fnames_valency = { v: str(v).zfill(2) for v in valencies }
+fnames_length  = {ll: str(i).zfill(3) for i,ll in enumerate(lengths) }
+

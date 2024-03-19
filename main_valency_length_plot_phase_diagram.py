@@ -23,31 +23,25 @@ class MatrixValencyLength():
 		self.dir_imgs        = os.path.join('imgs3', dir_target,'phase_diagram')
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		
-		self.valency = list(range(2,14,2)) 
-		self.length  = [1, 2, 3, 4, 5, 6, 9]
-		
-		self.fnames_valency       = { v: str(v).zfill(2) for v in self.valency }
-		self.fnames_length = {ll: str(i).zfill(3) for i,ll in enumerate(self.length) }
-		
-		self.num_rows		= len( self.valency )
-		self.num_columns	= len( self.length )
+		self.num_rows		= len( p.valencies )
+		self.num_columns	= len( p.lengths )
 		
 		
 	def run( self ):
 		#
 		data = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
-		for i, v in enumerate(self.valency):
-			for j, ll in enumerate(self.length):
+		for i, v in enumerate(p.valencies):
+			for j, ll in enumerate(p.lengths):
 				
 				# Load data
-				prefix    = self.fnames_valency[v]+'_'+self.fnames_length[ll]
+				prefix    = p.fnames_valency[v]+'_'+p.fnames_length[ll]
 				print('Target file: ', prefix)
 				d         = utils.load(self.dir_edited_data, prefix, self.suffix)
 				data[j,i] = self._modify_data(d)
 		
 		print('data ', data)
 		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, data, self.length, self.valency, self.colormap, self.levels)
+		cs, cb = utils.plot_a_panel(ax, data, p.lengths, p.valencies, self.colormap, self.levels)
 		
 	def save( self ):
 		
@@ -72,7 +66,7 @@ class PlotPhaseDiagram(MatrixValencyLength):
 		
 		super().__init__()
 		
-		self.valency  = [12, 10, 8, 6, 4, 2, -2] # [4, 6, 8, 10, 12] 
+		self.valencies   = [12, 10, 8, 6, 4, 2, -2] # [4, 6, 8, 10, 12] 
 		self.basename = 'phase_diagram_valency_length'
 		self.title    = 'Phase diagram'
 		# 1: PIPS
@@ -116,8 +110,8 @@ class PlotPhaseDiagram(MatrixValencyLength):
 		
 		ax = self.prepare_plot()
 		
-		cs, cb = utils.plot_a_panel(ax, phase_diagram, self.length, self.valency, colormap1, levels1, draw_border = True)
-		utils.plot_a_panel_overlay(ax, STG_only, self.length, self.valency, colormap2, levels2)
+		cs, cb = utils.plot_a_panel(ax, phase_diagram, p.lengths, self.valencies, colormap1, levels1, draw_border = True)
+		utils.plot_a_panel_overlay(ax, STG_only, p.lengths, self.valencies, colormap2, levels2)
 		
 
 
@@ -164,20 +158,20 @@ class PlotPhaseDiagramConnectivity(MatrixValencyLength):
 		
 if __name__ == '__main__':
 	
-	#'''
-	p = PlotPhaseDiagram()
-	p.plot()
-	p.save()
-	#'''
+	'''
+	pl = PlotPhaseDiagram()
+	pl.plot()
+	pl.save()
+	'''
 	
 	species, type_analysis = 'CaMKII', 'average'
 	#species, type_analysis = 'PSD95' , 'average'
 	#species, type_analysis = 'PSD95' , 'ratio'
 	
-	'''
-	p = PlotPhaseDiagramConnectivity(species, type_analysis)
-	p.run()
-	p.save()
-	'''
+	#'''
+	pl = PlotPhaseDiagramConnectivity(species, type_analysis)
+	pl.run()
+	pl.save()
+	#'''
 	
 	

@@ -17,15 +17,8 @@ class MatrixValencyLength():
 		self.dir_imgs        = os.path.join('imgs3', dir_target, 'matrix')
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		
-		self.valency = list(range(2,14,2)) 
-		self.length  = [1, 2, 3, 4, 5, 6, 9]
-		
-		self.fnames_valency= { v: str(v).zfill(2) for v in self.valency }
-		self.fnames_length = {ll: str(i).zfill(3) for i,ll in enumerate(self.length) }
-		
-		self.num_rows		= len( self.valency )
-		self.num_columns	= len( self.length )
-		
+		self.num_rows		= len( p.valencies )
+		self.num_columns	= len( p.lengths   )
 		
 	def run( self ):
 		
@@ -33,15 +26,14 @@ class MatrixValencyLength():
 		self.fig  = plt.figure(figsize=(8, 8), tight_layout=True)
 		#fig.subplots_adjust(wspace=0.4,  hspace=0.6)
 		
-		for i, v in enumerate(self.valency):
-			for j, ll in enumerate(self.length):
+		for i, v in enumerate( p.valencies ):
+			for j, ll in enumerate( p.lengths ):
 				# Load data
-				prefix = self.fnames_valency[v]+'_'+self.fnames_length[ll]
+				prefix = p.fnames_valency[v]+'_'+ p.fnames_length[ll]
 				row    = self.num_rows-i-1
 				column = j+1
 				print('Target file: ', prefix, ', column: ', column, ', row: ', row)
 				d      = utils.load(self.dir_edited_data, prefix, self.suffix)
-				
 				
 				title = prefix # prefix, None
 				vals[row, column-1] = self.plot_a_graph(row, column, d, title)
@@ -67,24 +59,18 @@ class MatrixConcDependence():
 		self.dir_imgs = os.path.join('imgs3', 'conc_dependence','matrix')
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		
-		STG    = [540, 1620, 2160, 2700, 3240, 4520] 
-		GluN2B = [570, 1080, 4320, 6480, 8640, 10800, 12960, 17280]
-		volume = np.prod(p.space_np)
-		self.STG    = [ s / volume for s in STG    ]
-		self.GluN2B = [ n / volume for n in GluN2B ]
-		
-		self.num_rows		= len( GluN2B )
-		self.num_columns	= len( STG )
+		self.num_rows		= len( p.GluN2Bs )
+		self.num_columns	= len( p.STGs )
 		
 		
 	def run( self ):
 		vals = np.zeros([self.num_rows, self.num_columns])
 		self.fig  = plt.figure(figsize=(10, 10), tight_layout=True)
 		#fig.subplots_adjust(wspace=0.4,  hspace=0.6)
-		for i, stg in enumerate(self.STG):
-			for j, glun in enumerate(self.GluN2B):
+		for i, stg in enumerate(p.STGs):
+			for j, glun in enumerate(p.GluN2Bs):
 				# Load data
-				id = i + j * len(self.STG)
+				id = i + j * len(p.STGs)
 				prefix = str(id).zfill(3)
 				
 				title = prefix # prefix, None
