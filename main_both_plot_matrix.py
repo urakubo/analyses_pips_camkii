@@ -129,7 +129,9 @@ class PlotConnectivity():
 class PlotConc():
 	def __init__( self, target ):
 		
-		if target not in ['region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf', 'concs_in_CaMKII', 'concs_in_STG']:
+		if target not in ['region_condensates', \
+			'conc_CaMKII', 'conc_STG', 'conc_GluN2B', 'conc_PSD95', 'rdf', 'rdf_PSD95', 'concs_in_CaMKII', 'concs_in_STG',\
+			'unshared_PSD95', 'shared_PSD95']:
 			raise ValueError("Erronous augment 'target': ", target)
 		else:
 			self.target = target
@@ -201,13 +203,15 @@ class PlotCentralityMatrixValencyLength(PlotCentrality, MatrixValencyLength):
 if __name__ == '__main__':
 	
 	
-	# 'region_condensates', 'conc_CaMKII', 'conc_STG', 'rdf', 'concs_in_CaMKII', 'concs_in_STG'
-	'''
-	target = 'conc_STG'
-	plot_concs = PlotConcMatrixConcDependence(target)
+	# 'region_condensates', 'conc_CaMKII', 'conc_PSD95', 'conc_STG', 'conc_GluN2B', 'rdf',  'rdf_PSD95'
+	# 'concs_in_CaMKII', 'concs_in_STG',
+	# 'shared_PSD95', 'unshared_PSD95'
+	#'''
+	target =  'rdf_PSD95'
+	plot_concs = PlotConcMatrixConcDependence(target) # PlotConcMatrixConcDependence
 	values = plot_concs.run()
 	plot_concs.save()
-	'''
+	#'''
 
 	species       = 'GluN2B' # 'STG','GluN2B', 'PSD95','CaMKII'
 	type_analysis = 'CaMKII'
@@ -220,10 +224,11 @@ if __name__ == '__main__':
 	connectivity.save()	
 	'''
 	
+	'''
 	target = 'betweenness' # 'betweenness', 'parcolation'
 	# Centrality = PlotCentralityMatrixValencyLength(target)
 	Centrality = PlotCentralityMatrixConcDependence(target)
 	values = Centrality.run()
 	Centrality.save()	
-
+	'''
 

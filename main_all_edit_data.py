@@ -18,8 +18,9 @@ import utils
 	
 if __name__ == '__main__':
 	
+	has_multi_graph = False
 	# Valency length
-	'''
+	#'''
 	subdirs    = ['val_{}'.format(i) for i in range(2,14,2)]
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
@@ -27,7 +28,8 @@ if __name__ == '__main__':
 	dir_lammpstrj    = 'valency_length'
 	dir_edited_data  = 'valency_length'
 	has_energy = False
-	'''
+	has_multi_graph = True
+	#'''
 	
 	# Conc dependnece
 	'''
@@ -36,16 +38,17 @@ if __name__ == '__main__':
 	dir_lammpstrj    = 'conc_dependence'
 	dir_edited_data  = 'conc_dependence'
 	has_energy = False
+	has_multi_graph = True
 	'''
 	
 	# Mixtures
-	#'''
-	filenames_output = ['CG','CPG','PG','SP','CGSP'] # ,'SPG'
+	'''
+	filenames_output = ['partial_engulfment', 'CG','CPG','PG','SP','CGSP'] # ,'SPG'['partial_engulfment', 'CG','CPG','PG','SP','CGSP']
 	filenames_input  = ['{}.lammpstrj'.format(n) for n in filenames_output]
 	dir_lammpstrj    = 'mixtures'
 	dir_edited_data  = 'mixtures'
 	has_energy = False
-	#'''
+	'''
 	# Long GluN2B
 	'''
 	filenames_output = [str(i).zfill(3) for i in range(10,15) ]
@@ -85,12 +88,22 @@ if __name__ == '__main__':
 		else:
 			energy = None
 		
+		if has_multi_graph == True:
+			d_graph = utils.load(dir_edited_data, filename_output,  'connectivity_graph')
+			multi_graph = d_graph['multi_graph']
+		else:
+			multi_graph = None
+		
+		
 		# Centering
 		center    = utils.get_center_of_mass(types, positions_grid_coord)
 		positions_real_coord = utils.centering(positions_grid_coord, center)
 		
 		# Get concs and condensates
-		d = utils.get_concs_and_condensates(types, positions_real_coord, ids_molecule, energy=energy, sigma = 2)
+		d = utils.get_concs_and_condensates(types, positions_real_coord, ids_molecule, \
+			energy=energy,\
+			multi_graph = multi_graph,\
+			sigma = 2)
 		
 		# Watershed
 		'''
@@ -106,6 +119,14 @@ if __name__ == '__main__':
 		d['rdf_bins'] = rdf_bins
 		d['rdf_sampling_frames'] = rdf_sampling_frames
 		d['rdf'] = rdf
+		
+		
+		# RDF, PSD95
+		rdf, rdf_bins, rdf_sampling_frames = \
+			utils.get_rdfs( dir_lammpstrj, filename_input, sampling_frame, multi_graph = multi_graph )
+		d['rdf_PSD95_bins'] = rdf_bins
+		d['rdf_PSD95_sampling_frames'] = rdf_sampling_frames
+		d['rdf_PSD95'] = rdf
 		
 		
 		# Time info

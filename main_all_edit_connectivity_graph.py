@@ -180,14 +180,14 @@ if __name__ == '__main__':
 	
 	
 	# Valency length
-	#'''
+	'''
 	subdirs    = ['val_{}'.format(i) for i in range(2,14,2)]
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
 	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
 	dir_input        = 'valency_length'
 	dir_edited_data  = 'valency_length'
-	#'''
+	'''
 	
 	# Conc dependnece
 	'''
@@ -196,6 +196,13 @@ if __name__ == '__main__':
 	dir_input        = 'conc_dependence'
 	dir_edited_data  = 'conc_dependence'
 	'''
+	
+	# Mixtures
+	filenames_output = ['partial_engulfment', 'CG','CPG','PG','SP','CGSP'] # ,'SPG'['partial_engulfment', 'CG','CPG','PG','SP','CGSP']
+	filenames_input  = ['{}.lammpstrj'.format(n) for n in filenames_output]
+	dir_input        = 'mixtures'
+	dir_edited_data  = 'mixtures'
+	
 	
 	# Shared part of initialization
 	dir_lammpstrj    = os.path.join('..', 'lammpstrj3', dir_input)

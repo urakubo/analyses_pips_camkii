@@ -143,12 +143,13 @@ class PlotPhaseDiagramConnectivity(MatrixValencyLength):
 		self.basename = '{}_{}'.format( self.species, self.type_analysis )
 		self.suffix = 'connectivity_graph'
 	
+	
 	def _modify_data(self, d):
 		#print('d ')
 		#print(d[self.species][self.type_analysis])
-		if species == 'CaMKII' and type_analysis == 'average':
+		if self.species == 'CaMKII' and self.type_analysis == 'average':
 			data      = d[self.species][self.type_analysis]['GluN2B']
-		elif species == 'PSD95' and type_analysis == 'average':
+		elif self.species == 'PSD95' and self.type_analysis == 'average':
 			data      = d[self.species][self.type_analysis]['STG_PSD95']
 		elif self.species == 'PSD95' and self.type_analysis == 'ratio':
 			num_total = sum( d[self.species][self.type_analysis].values() )

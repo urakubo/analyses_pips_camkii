@@ -56,6 +56,8 @@ rdf_num_sampling_frames = 5
 rdf_sampling_interval   = 5 # 2
 
 
+rdf_targets_multi_graph = ['Shared PSD95', 'Unshared PSD95']
+
 # Matplotlib
 rc_param = {'pdf.fonttype' : 'truetype',
 	'svg.fonttype' : 'none',

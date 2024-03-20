@@ -3,17 +3,20 @@ import os, glob, pickle, pprint, copy
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
-import mpl_toolkits.axes_grid1
 
-from scipy.interpolate import griddata, RegularGridInterpolator
+# import mpl_toolkits.axes_grid1
+# from scipy.interpolate import griddata, RegularGridInterpolator
+
 import utils
 import colormap as c
 import parameters as p
 
+from skimage.measure import label
+
 plt.rcParams.update( p.rc_param )
 
 
-class MatrixConcDependence():
+class PhaseDiagramConcDependence():
 	def __init__( self ):
 		
 		# Parameters
@@ -67,10 +70,8 @@ class MatrixConcDependence():
 		plt.close(fig=self.fig)
 
 
-class PlotPhaseDiagramConnectivity(MatrixConcDependence):
+class PlotConnectivity():
 	def __init__( self, species, type_analysis ):
-		
-		super().__init__()
 		
 		if species == 'CaMKII' and type_analysis == 'average':
 			self.title    = 'Number of GluN2B bound to one CaMKII'
@@ -98,17 +99,48 @@ class PlotPhaseDiagramConnectivity(MatrixConcDependence):
 	def _modify_data(self, d):
 		#print('d ')
 		#print(d[self.species][self.type_analysis])
-		if species == 'CaMKII' and type_analysis == 'average':
+		if self.species == 'CaMKII' and self.type_analysis == 'average':
 			data      = d[self.species][self.type_analysis]['GluN2B']
-		elif species == 'PSD95' and type_analysis == 'average':
+		elif self.species == 'PSD95' and self.type_analysis == 'average':
 			data      = d[self.species][self.type_analysis]['STG_PSD95']
 		elif self.species == 'PSD95' and self.type_analysis == 'ratio':
 			num_total = sum( d[self.species][self.type_analysis].values() )
 			data      = d[self.species][self.type_analysis]['Both'] / num_total
 		return data
+
+
+
+class PlotCondVolume():
+	def __init__( self, species ):
+		
+		if species == 'CaMKII':
+			self.title    = 'Largest condensate volume of {}'.format(species)
+			self.basename = 'volume_largest_cond_CaMKII'
+			self.colormap =  c.cmap_white_green_universal
+			self.levels   = np.linspace(0,7e4,8)
+		elif species == 'STG':
+			self.title    = 'Largest condensate volume of {}'.format(species)
+			self.basename = 'volume_largest_cond_STG'
+			self.colormap = c.cmap_white_red_universal
+			self.levels   = np.linspace(0,3e4,7)
+		else:
+			raise ValueError("Not implemented, species: ", species)
+		
+		self.species  = species
+		self.basename = 'max_vol_{}'.format( self.species )
+		self.suffix   = 'sigma_2'
+		
+	def _modify_data(self, d):
+		#
+		data = d['region_condensate_in_grid_mesh'][self.species]
+		labels, num_labels = label( data, return_num = True )
+		vols_label = [np.sum( labels == i ) for i in range(1, num_labels+1)]
+		data = np.max( vols_label )
+		print( data )
+		return data
 		
 		
-class PlotPhaseDiagram(MatrixConcDependence):
+class PlotPhaseDiagram( PhaseDiagramConcDependence ):
 	def __init__( self ):
 		
 		super().__init__()
@@ -148,21 +180,34 @@ class PlotPhaseDiagram(MatrixConcDependence):
 		ax = self.prepare_plot()
 		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.STGs, self.GluN2Bs, colormap, levels, draw_border = True)
 		
-	
+class PlotConnectivityPhaseDiagramConcDependence(PlotConnectivity, PhaseDiagramConcDependence):
+	def __init__( self, species, type_analysis ):
+		PlotConnectivity.__init__(self, species, type_analysis )
+		PhaseDiagramConcDependence.__init__(self)
+		
+class PlotCondVolumePhaseDiagramConcDependence(PlotCondVolume, PhaseDiagramConcDependence):
+	def __init__( self, species ):
+		PlotCondVolume.__init__(self, species )
+		PhaseDiagramConcDependence.__init__(self)
+		
 if __name__ == '__main__':
 	
 	'''
-	p = PlotPhaseDiagram()
-	p.plot()
-	p.save()
+	pl = PlotPhaseDiagram()
+	pl.plot()
+	pl.save()
 	'''
 	
 	#species, type_analysis = 'CaMKII', 'average'
 	species, type_analysis = 'PSD95' , 'average'
 	#species, type_analysis = 'PSD95' , 'ratio'
-	#'''
-	p = PlotPhaseDiagramConnectivity(species, type_analysis)
-	p.run()
-	p.save()
-	#'''
+	'''
+	pl = PlotConnectivityPhaseDiagramConcDependence(species, type_analysis)
+	pl.run()
+	pl.save()
+	'''
 	
+	species = 'STG' # 'CaMKII', 'STG'
+	pl = PlotCondVolumePhaseDiagramConcDependence(species)
+	pl.run()
+	pl.save()

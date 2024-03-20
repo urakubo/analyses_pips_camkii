@@ -170,9 +170,8 @@ def get_min_local_mins(local_mins, conc_smooth, mask):
 	return {'location': loc_local_min, 'value':local_min_value}
 	
 	
-	
-def rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord ): 
-	# Rotation
+def get_rotation_matrix_in_CaMKII_PSD95_direction( locs_in_real_coord ): 
+		# Rotation
 	# https://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space
 	
 	targs_molecule  = p.molecules_with_all.keys()
@@ -193,14 +192,28 @@ def rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord ):
 	r1 = np.array([[np.cos(theta_xy), np.sin(theta_xy), 0],[-np.sin(theta_xy), np.cos(theta_xy), 0],[0,0,1]])
 	r2 = np.array([[np.cos(theta_xz), 0, -np.sin(theta_xz)],[0, 1, 0],[np.sin(theta_xz), 0, np.cos(theta_xz)]])
 	rot_matrix = np.dot(r2, r1)
-	
-	targets_locs_in_real_coord = {t: rot_matrix.dot(targets_locs_in_real_coord[t].T).T  for t in targs_molecule}
-	#for t in targs_molecule:
-	#	print(t, 'targets_locs_in_real_coord[t].shape')
-	#	print(targets_locs_in_real_coord[t].shape)
-	return targets_locs_in_real_coord
+	return rot_matrix
 	
 	
+	
+def get_ids_PSD95_shared_by_STG_GluN2B(multi_graph, shared_or_unshared = 'shared'):
+	
+	species = 'PSD95'
+	
+	ids = [ i for i, attr in multi_graph.nodes('species') if attr == species ]
+	
+	edges_from_molecules = [ multi_graph.edges(id, keys=True, data=True) for id in ids ]
+	connections_from_one_molecules = [ [e[3]['type_connection'] for e in es] for es in edges_from_molecules ]
+	
+	if shared_or_unshared == 'unshared':
+		ids_molecule = [id for id, c in zip(ids, connections_from_one_molecules) if ('STG_PSD95' not in c) or ('GluN2B_PSD95' not in c)]
+	else:
+		ids_molecule = [id for id, c in zip(ids, connections_from_one_molecules) if ('STG_PSD95' in c) and ('GluN2B_PSD95' in c)]
+	
+	ids_bead = [multi_graph.nodes[id]['ids_bead'] for id in ids_molecule]
+	ids_bead = np.ravel(ids_bead).tolist()
+	
+	return ids_molecule, ids_bead
 	
 	
 	#
@@ -214,7 +227,7 @@ def rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord ):
 	# (numpy bool in 3D space) (p.space[0], p.space[1], p.space[2])
 	#
 	
-def get_concs_and_condensates(types, positions, ids_molecule, energy = None, sigma=2):
+def get_concs_and_condensates(types, positions, ids_molecule, energy = None, multi_graph = None, sigma=2):
 	
 	# Parameters
 	targs_molecule  = p.molecules_with_all.keys() # ['GluN2B', 'CaMKII', 'STG', 'PSD95', 'All']
@@ -240,7 +253,9 @@ def get_concs_and_condensates(types, positions, ids_molecule, energy = None, sig
 	concs_condensate = {t: get_concs_condensate(t) for t in targs_molecule}
 	
 	# Rotate particles and obtain their concentrations and 
-	rotated_in_real_coord = rotate_particles_in_CaMKII_PSD95_direction( locs_in_real_coord )
+	rot_matrix = get_rotation_matrix_in_CaMKII_PSD95_direction( locs_in_real_coord )
+	rotated_in_real_coord = {t: rot_matrix.dot(locs_in_real_coord[t].T).T  for t in targs_molecule}
+	
 	rotated_in_grid_mesh  = {k: get_hist(rotated_in_real_coord[k]) for k in targs_molecule}
 	rotated_concs_in_grid_mesh = \
 		{t: ndimage.gaussian_filter(rotated_in_grid_mesh[t], sigma = sigma) for t in targs_molecule}
@@ -277,6 +292,21 @@ def get_concs_and_condensates(types, positions, ids_molecule, energy = None, sig
 			
 			d[k] = engy_condensate
 	
+	if multi_graph is not None:
+		_, ids_bead_shared_PSD   = get_ids_PSD95_shared_by_STG_GluN2B(multi_graph, shared_or_unshared = 'shared')
+		_, ids_bead_unshared_PSD = get_ids_PSD95_shared_by_STG_GluN2B(multi_graph, shared_or_unshared = 'unshared')
+		
+		for m, ids_bead in zip( ['Shared PSD95', 'Unshared PSD95'], [ids_bead_shared_PSD, ids_bead_unshared_PSD] ):
+			loc_in_grid_mesh  = get_hist(positions[ids_bead,:])
+			conc_in_grid_mesh = ndimage.gaussian_filter(loc_in_grid_mesh, sigma = sigma)
+			d['locs_in_grid_mesh'][m]  = loc_in_grid_mesh
+			d['concs_in_grid_mesh'][m] = conc_in_grid_mesh
+			
+			rotated_in_real_coord = rot_matrix.dot(positions[ids_bead,:].T).T
+			rotated_in_grid_mesh  = get_hist(rotated_in_real_coord)
+			rotated_conc_in_grid_mesh = ndimage.gaussian_filter(rotated_in_grid_mesh, sigma = sigma)
+			d['rotated_concs_in_grid_mesh'][m] = rotated_conc_in_grid_mesh
+		
 	return d
 	
 	
@@ -378,7 +408,7 @@ def get_lattice_grids():
 	return grids
 
 
-def get_a_rdf(types, positions, rdf_grid_points, center = None):
+def get_a_rdf(types, positions, rdf_grid_points, center = None, multi_graph=None):
 	
 	# Centering
 	if center is None:
@@ -389,6 +419,12 @@ def get_a_rdf(types, positions, rdf_grid_points, center = None):
 	
 	# Decode species
 	types_positions     = decode_species(types, positions)
+	
+	if multi_graph is not None:
+		_, ids_bead_shared_PSD   = get_ids_PSD95_shared_by_STG_GluN2B(multi_graph, shared_or_unshared = 'shared')
+		_, ids_bead_unshared_PSD = get_ids_PSD95_shared_by_STG_GluN2B(multi_graph, shared_or_unshared = 'unshared')
+		types_positions['Shared PSD95']   = positions[ids_bead_shared_PSD,:]
+		types_positions['Unshared PSD95'] = positions[ids_bead_unshared_PSD,:]
 	
 	# Get distances from the center
 	dists = {k: np.linalg.norm(v, axis=1) for k, v in types_positions.items()}
@@ -404,24 +440,30 @@ def get_a_rdf(types, positions, rdf_grid_points, center = None):
 	return rdf
 
 
-def get_rdfs_from_multiple_frames( dir_lammpstrj, filename_input, sampling_time_frames, rdf_grid_points, center = None ):
-
-	if center is None:
-		get_average_center_of_mass( dir_lammpstrj, filename_input, sampling_time_frames )
-		
-	rdfs = { k: np.zeros( ( len(p.rdf_bins)-1, len(sampling_time_frames) ) ) for k in p.molecules_with_all.keys() }
-	for i, id_frame in enumerate( sampling_time_frames ):
-		types, positions, _ = load_data( dir_lammpstrj, filename_input, id_frame )
-		current_rdfs = get_a_rdf(types, positions, rdf_grid_points, center )
-		for k in rdfs.keys():
-			rdfs[k][:,i] = current_rdfs[k]
-	return rdfs
-
-	
-def get_rdfs( dir_input, filename_input, target_frame, center=None ):
+def get_rdfs_from_multiple_frames( dir_lammpstrj, filename_input, sampling_time_frames, center = None, multi_graph=None ):
 	
 	# Parameters
 	rdf_grid_points   = get_lattice_grids()
+	
+	if center is None:
+		get_average_center_of_mass( dir_lammpstrj, filename_input, sampling_time_frames )
+	
+	rdfs = { k: np.zeros( ( len(p.rdf_bins)-1, len(sampling_time_frames) ) ) for k in p.molecules_with_all.keys() }
+	if multi_graph is not None:
+		for targ in p.rdf_targets_multi_graph:
+			rdfs[targ] = np.zeros( ( len(p.rdf_bins)-1, len(sampling_time_frames) ) )
+			
+	for i, id_frame in enumerate( sampling_time_frames ):
+		types, positions, _ = load_data( dir_lammpstrj, filename_input, id_frame )
+		current_rdfs = get_a_rdf(types, positions, rdf_grid_points, center, multi_graph=multi_graph )
+		for k in rdfs.keys():
+			rdfs[k][:,i] = current_rdfs[k]
+		
+		
+	return rdfs
+
+	
+def get_rdfs( dir_input, filename_input, target_frame, center=None, multi_graph=None ):
 	
 	# Target frames
 	rdf_sampling_frames = list(range( target_frame - (p.rdf_num_sampling_frames - 1)*p.rdf_sampling_interval, \
@@ -433,7 +475,7 @@ def get_rdfs( dir_input, filename_input, target_frame, center=None ):
 
 	print('rdf_sampling_frames ', rdf_sampling_frames)
 	rdf = get_rdfs_from_multiple_frames(dir_input, filename_input, \
-			rdf_sampling_frames, rdf_grid_points, center = center)
+			rdf_sampling_frames, center = center, multi_graph=multi_graph)
 	
 	return rdf, p.rdf_bins, rdf_sampling_frames
 
@@ -473,6 +515,36 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.mole
 
 	return
 
+
+def plot_a_rdf_PSD95( ax, d, legend=True , ylim = (-0.006,0.66) ):
+	r = d['rdf_PSD95_bins'][1:-1]
+	target_molecules = ['CaMKII', 'GluN2B', 'STG', 'PSD95', 'Shared PSD95']
+	for k in target_molecules:
+		'''
+		rdf_mean  = np.mean( d['rdf_PSD95'][k][1:], axis = 1 )
+		rdf_std   = np.std(  d['rdf_PSD95'][k][1:], axis = 1 )
+		color     = c.cmap_universal_ratio[k]
+
+		ax.fill_between(r, rdf_mean-rdf_std, rdf_mean+rdf_std,color=c.cmap_universal_ratio_light[k])
+		ax.plot(r, rdf_mean, color=color, label=k)
+		'''
+		color     = c.cmap_universal_ratio[k]
+		#print(d['rdf_PSD95'][k].shape)
+		#print(d['rdf_PSD95'][k][1:,-1])
+		ax.plot(r, d['rdf_PSD95'][k][1:,-1], color=color, label=k)
+
+	if legend==True:
+		ax.legend(frameon=False)
+
+	ax.set_xlabel('Distance from \n center-of-mass (l.u.)')
+	ax.set_ylabel('(beads / voxel)')
+	ax.set_xlim(0,40)
+	ax.set_ylim(*ylim)
+	ax.set_xticks(range(0,50,10))
+	ax.spines['right'].set_visible(False)
+	ax.spines['top'].set_visible(False)
+
+	return
 
 ############### Profiles / Each panel plot
 
@@ -808,8 +880,24 @@ def select_plot(target, fig, num_rows, num_columns, row, column, d, title):
 	
 	if target == 'region_condensates':
 		plot_regions_condenstate_from_a_direction(fig, num_rows, num_columns, row, column, d, title=title, scalebar=scalebar )
+	elif target == 'shared_PSD95':
+		columns = {'Shared PSD95':column}
+		plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
+			title=title, colorbar=False, scalebar=scalebar, pre_rotated=True )
+	elif target == 'unshared_PSD95':
+		columns = {'Unshared PSD95':column}
+		plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
+			title=title, colorbar=False, scalebar=scalebar, pre_rotated=True )
 	elif target == 'conc_CaMKII':
 		columns = {'CaMKII':column}
+		plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
+			title=title, colorbar=False, scalebar=scalebar, pre_rotated=True )
+	elif target == 'conc_PSD95':
+		columns = {'PSD95':column}
+		plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
+			title=title, colorbar=False, scalebar=scalebar, pre_rotated=True )
+	elif target == 'conc_GluN2B':
+		columns = {'GluN2B':column}
 		plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
 			title=title, colorbar=False, scalebar=scalebar, pre_rotated=True )
 	elif target == 'conc_STG':
@@ -823,6 +911,10 @@ def select_plot(target, fig, num_rows, num_columns, row, column, d, title):
 		errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
 		ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 		plot_a_rdf( ax, d, errorbar=errorbar, legend=scalebar )
+	elif target == 'rdf_PSD95':
+		errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
+		ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
+		plot_a_rdf_PSD95( ax, d, legend=scalebar )
 	elif target == 'concs_in_CaMKII':
 		ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 		t = 'CaMKII'

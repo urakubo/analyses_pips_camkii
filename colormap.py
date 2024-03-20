@@ -137,6 +137,36 @@ black_cyan = {
         ],
         }
 
+black_light_cyan = {
+    	"red": [
+        (0.0, 0.0, 0.0),
+        (1.0, 0.5, 0.5),
+        ],
+        "green": [
+        (0.0, 0.0, 0.0),
+        (1.0, 1.0, 1.0),
+        ],
+        "blue": [
+        (0.0, 0.0, 0.0),
+        (1.0, 1.0, 1.0),
+        ],
+        }
+
+black_dark_cyan = {
+    	"red": [
+        (0.0, 0.0, 0.0),
+        (1.0, 0.0, 0.0),
+        ],
+        "green": [
+        (0.0, 0.0, 0.0),
+        (1.0, 0.7, 0.7),
+        ],
+        "blue": [
+        (0.0, 0.0, 0.0),
+        (1.0, 1.0, 1.0),
+        ],
+        }
+
 white_cyan = {
     	"red": [
         (0.0, 1.0, 1.0),
@@ -321,6 +351,8 @@ cmap_black_magenta = LinearSegmentedColormap("black_magenta", black_magenta, N=2
 cmap_white_magenta = LinearSegmentedColormap("white_magenta", white_magenta, N=256)
 cmap_black_cyan    = LinearSegmentedColormap("black_cyan", black_cyan, N=256)
 cmap_white_cyan    = LinearSegmentedColormap("white_cyan", white_cyan, N=256)
+cmap_black_light_cyan    = LinearSegmentedColormap("black_light_cyan", black_light_cyan, N=256)
+cmap_black_dark_cyan    = LinearSegmentedColormap("black_dark_cyan", black_dark_cyan, N=256)
 
 cmap_white_green_universal = LinearSegmentedColormap("white_green_universal", white_green_universal, N=256)
 cmap_white_red_universal = LinearSegmentedColormap("white_red_universal", white_red_universal, N=256)
@@ -334,13 +366,17 @@ cmap_white_red_binary_universal = LinearSegmentedColormap("white_red_binary_univ
 cmap = {'CaMKII': cmap_black_green,
 		'STG'   : cmap_black_red,
 		'GluN2B': cmap_black_magenta,
-		'PSD95' : cmap_black_cyan}
+		'PSD95' : cmap_black_cyan,
+		'Shared PSD95' : cmap_black_dark_cyan,
+		'Unshared PSD95' : cmap_black_cyan}
 
 cmap_universal_ratio = {
 		'CaMKII': (3/255,175/255,122/255),\
 		'STG'   : (255/255,75/255,0),\
 		'GluN2B': (153/255,0,153/255),\
 		'PSD95' : (77/255,196/255,255/255),\
+		'Shared PSD95' : (0/255,90/255,255/255),
+		'Unshared PSD95' : (191/255,228/255,255/255),\
 		'All'	: (0.7,0.7,0.7)}
 
 cmap_universal_ratio_light = \
@@ -351,6 +387,8 @@ cmap_universal_uint = {
 		'STG'   : (255,75,0),\
 		'GluN2B': (153,0,153),\
 		'PSD95' : (77,196,255),\
+		'Shared PSD95' : (0,90,255),
+		'Unshared PSD95' : (191,228,255),\
 		'All'	: (177,177,177)}
 
 light_green_universal_uint = (119, 217, 168)
