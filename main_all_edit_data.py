@@ -20,7 +20,7 @@ if __name__ == '__main__':
 	
 	has_multi_graph = False
 	# Valency length
-	#'''
+	'''
 	subdirs    = ['val_{}'.format(i) for i in range(2,14,2)]
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
@@ -29,8 +29,19 @@ if __name__ == '__main__':
 	dir_edited_data  = 'valency_length'
 	has_energy = False
 	has_multi_graph = True
+	'''
+	# Network
 	#'''
-	
+	subdirs    = ['length9', 'length12','linear']
+	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(5)]
+	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
+	filenames_output = [ subdir+'_'+str(id_f).zfill(3) for subdir in subdirs for id_f in range(7) ]
+	dir_lammpstrj    = 'network'
+	dir_edited_data  = 'network'
+	has_energy = False
+	has_multi_graph = False
+	#'''
+		
 	# Conc dependnece
 	'''
 	filenames_output = [str(i).zfill(3) for i in range(48) ]

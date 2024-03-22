@@ -206,23 +206,23 @@ if __name__ == '__main__':
 	# 'region_condensates', 'conc_CaMKII', 'conc_PSD95', 'conc_STG', 'conc_GluN2B', 'rdf',  'rdf_PSD95'
 	# 'concs_in_CaMKII', 'concs_in_STG',
 	# 'shared_PSD95', 'unshared_PSD95'
-	#'''
+	'''
 	target =  'rdf_PSD95'
 	plot_concs = PlotConcMatrixConcDependence(target) # PlotConcMatrixConcDependence
 	values = plot_concs.run()
 	plot_concs.save()
-	#'''
+	'''
 
-	species       = 'GluN2B' # 'STG','GluN2B', 'PSD95','CaMKII'
-	type_analysis = 'CaMKII'
+	species       = 'CaMKII' # 'STG','GluN2B', 'PSD95','CaMKII'
+	type_analysis = 'distribution'
 	# 'average' and 'distribution' for all,
 	# species: 'GluN2B', type_analysis 'CaMKII' or 'PSD95'
 	# species: 'PSD95' , type_analysis 'ratio'
-	'''
+	#'''
 	connectivity = PlotConnectivityMatrixValencyLength(species, type_analysis)
 	values = connectivity.run()
 	connectivity.save()	
-	'''
+	#'''
 	
 	'''
 	target = 'betweenness' # 'betweenness', 'parcolation'

@@ -134,6 +134,11 @@ if __name__ == '__main__':
 	dir_target  = 'valency_length'
 	'''
 	
+	# Network
+	subdirs    = ['length9', 'length12','linear']
+	filenames_edited_data = [ subdir+'_'+str(id_f).zfill(3) for subdir in subdirs for id_f in range(7) ]
+	dir_target  = 'network'	
+	
 	# Linear
 	'''
 	dir_target  = 'linear'
@@ -148,10 +153,10 @@ if __name__ == '__main__':
 	'''	
 	
 	# Mixtures
-	#'''
+	'''
 	filenames_edited_data 	= ['CGSP'] #  ['CG','CPG','PG','SP'] # ,'SPG'
 	dir_target  = 'mixtures'
-	#'''
+	'''
 	
 	# Long GluN2B length 4
 	'''

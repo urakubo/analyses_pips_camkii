@@ -18,9 +18,9 @@ import colormap as c
 def get_graphs(ids_molecule, types, bp):
 	
 	unique_ids_molecule = np.unique( ids_molecule )
-	graph = nx.Graph()
 	multi_graph = nx.MultiGraph()
-	CaMKII_or_GluN2B = np.zeros( len(ids_molecule), dtype = 'int')
+	simple_graph_CaMKII_GluN2B = nx.Graph()
+	# CaMKII_or_GluN2B = np.zeros( len(ids_molecule), dtype = 'int')
 	
 	# Create nodes
 	for id in unique_ids_molecule:
@@ -30,13 +30,6 @@ def get_graphs(ids_molecule, types, bp):
 		ids_partner_bead = bp[flags]
 		species = [k for k, i in p.molecules_without_all.items() if types_bead[0] in i['id']][0]
 		
-		graph.add_node(id, \
-			species    = species, \
-			ids_bead   = ids_bead, \
-			types_bead = types_bead, \
-			num_beads  = np.sum(flags), \
-			ids_partner_bead =ids_partner_bead)
-		
 		multi_graph.add_node(id,\
 			species    = species, \
 			ids_bead   = ids_bead, \
@@ -44,8 +37,16 @@ def get_graphs(ids_molecule, types, bp):
 			num_beads  = np.sum(flags), \
 			ids_partner_bead =ids_partner_bead)
 		
+		if species in ['CaMKII','GluN2B']:
+			simple_graph_CaMKII_GluN2B.add_node(id, \
+				species    = species, \
+				ids_bead   = ids_bead, \
+				types_bead = types_bead, \
+				num_beads  = np.sum(flags), \
+				ids_partner_bead =ids_partner_bead)
+		
 	# Make connection
-	list_ids = list(graph.nodes.keys())
+	list_ids = list(multi_graph.nodes.keys())
 	ids_bead_already_connected = np.zeros_like( bp, dtype='int' )
 	for i in range(ids_molecule.shape[0]):
 		if 	(bp[i] >= 0) and \
@@ -58,8 +59,8 @@ def get_graphs(ids_molecule, types, bp):
 			id_molecule = ids_molecule[i]
 			id_molecule_partner = ids_molecule[bp[i]]
 			
-			species = graph.nodes[id_molecule]['species']
-			species_partner    = graph.nodes[id_molecule_partner]['species']
+			species = multi_graph.nodes[id_molecule]['species']
+			species_partner = multi_graph.nodes[id_molecule_partner]['species']
 			connecting_species = [species, species_partner]
 			if ('GluN2B' in connecting_species) and ('CaMKII' in connecting_species):
 				type_connection = 'GluN2B_CaMKII'
@@ -69,11 +70,12 @@ def get_graphs(ids_molecule, types, bp):
 				type_connection = 'STG_PSD95'
 			else:
 				raise ValueError("Erronous connection: {}", connecting_species)
-			
-			graph.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection)
 			multi_graph.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection)
+			
+			if type_connection == 'GluN2B_CaMKII':
+				simple_graph_CaMKII_GluN2B.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection)
 	
-	return graph, multi_graph
+	return multi_graph, simple_graph_CaMKII_GluN2B
 	
 	
 def get_connection_statistics(multi_graph, species, type_analysis):
@@ -190,19 +192,20 @@ if __name__ == '__main__':
 	'''
 	
 	# Conc dependnece
-	'''
+	#'''
 	filenames_output = [str(i).zfill(3) for i in range(48) ]
 	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ] #70
 	dir_input        = 'conc_dependence'
 	dir_edited_data  = 'conc_dependence'
-	'''
+	#'''
 	
 	# Mixtures
+	'''
 	filenames_output = ['partial_engulfment', 'CG','CPG','PG','SP','CGSP'] # ,'SPG'['partial_engulfment', 'CG','CPG','PG','SP','CGSP']
 	filenames_input  = ['{}.lammpstrj'.format(n) for n in filenames_output]
 	dir_input        = 'mixtures'
 	dir_edited_data  = 'mixtures'
-	
+	'''
 	
 	# Shared part of initialization
 	dir_lammpstrj    = os.path.join('..', 'lammpstrj3', dir_input)
@@ -226,10 +229,10 @@ if __name__ == '__main__':
 		
 		
 		# Generate graph
-		graph, multi_graph = get_graphs(ids_molecule, types, bp)
+		multi_graph, simple_graph_CaMKII_GluN2B = get_graphs(ids_molecule, types, bp)
 		d = {}
-		d['graph'] = graph
 		d['multi_graph'] = multi_graph
+		d['simple_graph_CaMKII_GluN2B'] = simple_graph_CaMKII_GluN2B
 		
 		for species in ['STG','GluN2B', 'PSD95','CaMKII']:
 			d[species] = {}
