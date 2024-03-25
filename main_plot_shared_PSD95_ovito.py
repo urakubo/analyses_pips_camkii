@@ -2,13 +2,13 @@
 ##
 ##
 
-import os, glob
+import os, glob, sys
 os.environ['OVITO_GUI_MODE'] = '1' # Request a session with OpenGL support
 
 import numpy as np
 import matplotlib.pyplot as plt
 from ovito.io import import_file
-from ovito.modifiers import SliceModifier, SelectTypeModifier, ColorByTypeModifier, AssignColorModifier, CoordinationPolyhedraModifier, ComputePropertyModifier, GenerateTrajectoryLinesModifier
+from ovito.modifiers import SliceModifier, SelectTypeModifier, ColorByTypeModifier, AssignColorModifier, CoordinationPolyhedraModifier, ComputePropertyModifier, GenerateTrajectoryLinesModifier, DeleteSelectedModifier
 import math
 from ovito.vis import *
 import ovito.data
@@ -20,12 +20,16 @@ import utils
 import colormap as c
 import parameters as p
 
+id_shared_PSD95 = 20
 
-
-def plot_snapshots(data_all, time_frame, dir_imgs, filename_output, ids_bead):
+def plot_snapshots(data_all, time_frame, dir_imgs, filename_output, ids_beads_shared_PSD95):
 	
 	data   = data_all.compute()
-
+	
+	# Label shared PSD95
+	for id in ids_bead_both:
+		data.particles_.particle_types_[id] = id_shared_PSD95
+	
 	# Bounding box
 	# https://ovito.org/manual/python/introduction/examples/modifiers/shrink_wrap_box.html
 	#   (x_max-x_min  0            0            x_min)
@@ -38,18 +42,33 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output, ids_bead):
 	# Assign the cell matrix - or create whole new SimulationCell object in
 	# the DataCollection if there isn't one already.
 	data.create_cell(matrix, (False, False, False))
+	
+	
+	def insert_shared_PSD95(frame, data):
+	    for i in ids_beads_shared_PSD95:
+	    	data.particles_.particle_types_[i] = id_shared_PSD95
+	    
+	data_all.modifiers.append(insert_shared_PSD95) 
+	
+	molecule_ids = {k: v['id'] for k, v in p.molecules_without_all.items()}
+	molecule_ids['Shared PSD95'] = [id_shared_PSD95]
+	for k, v in molecule_ids.items():
+		data_all.modifiers.append(SelectTypeModifier(types=set(v)))
+		if k not in ['PSD95', 'Shared PSD95']:
+			data_all.modifiers.append(DeleteSelectedModifier())
+		elif k == 'PSD95':
+			data_all.modifiers.append(AssignColorModifier(color=(191/255,228/255,255/255) ))
+		elif k == 'Shared PSD95':
+			data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio[k] ))
+	
+	
+	#data_all.modifiers.append(SelectTypeModifier(types=[id_shared_PSD95]))
+	# data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio['Shared PSD95']) )
+	#data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio['STG']) )
 
+	#data_all.modifiers.append(SelectTypeModifier(types=[1]))
+	#data_all.modifiers.append(DeleteSelectedModifier())
 
-	def compute_particle_transparency(frame, data):
-	    transparency = np.ones((data.particles.count))*1.0
-	    for i in ids_bead:
-	    	transparency[i] = 0.7
-	    data.particles_.create_property('Transparency', data=transparency)
-
-	data_all.modifiers.append(compute_particle_transparency) ##### 
-	for k, v in p.molecules_without_all.items():
-		data_all.modifiers.append(SelectTypeModifier(types=set(v['id'])))
-		data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio[k] ))
 
 	# Slice data
 	modifier = SliceModifier()
@@ -63,23 +82,6 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output, ids_bead):
 	#cell_vis.render_cell = False
 	cell_vis.line_width = 0.5
 	##cell_vis.rendering_color = (1.0, 1.0, 1.0)
-
-	'''
-	line_vis = data_all.source.data.line.vis
-	line_vis.color = (0.0, 0.0, 0.0)
-	line_vis.width = 0.5
-	positions = np.array([[0,0,60],[0,120,60],[120,120,60],[120,0,60],[0,0,60] ])
-	lines_data = ovito.data.Lines
-	lines_data.create_line = positions
-	lines_data.color = (0.0, 0.0, 0.0)
-	lines_data.width = 0.5
-
-	line = GenerateTrajectoryLinesModifier(only_selected=False)
-	# line.generate()
-	line.vis.color = (0.0, 0.0, 0.0)
-	line.vis.width = 0.5
-	data_all.modifiers.append(line)
-	'''
 	
 	
 	vp = Viewport()
@@ -161,14 +163,8 @@ if __name__ == '__main__':
 	# Load lammpstrj data
 	print("\n"+filename_lammpstrj)
 	sampling_frame = utils.get_num_frames(dir_lammpstrj, filename_lammpstrj)
-	
-	'''
-	types, positions_grid_coord,ids_molecule, mc_step = \
-		utils.load_lammpstrj( dir_lammpstrj, filename_lammpstrj, sampling_frame )
-	'''
-	
 	data_all   = import_file(os.path.join(dir_lammpstrj, filename_lammpstrj), input_format= "lammps/dump" )
-	plot_snapshots(data_all, sampling_frame, dir_imgs, filename_output, ids_bead_all)
-	#'''
 	
+	#sys.exit(0)
+	plot_snapshots(data_all, sampling_frame, dir_imgs, filename_output, ids_bead_both)
 	

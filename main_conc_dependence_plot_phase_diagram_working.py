@@ -17,8 +17,8 @@ plt.rcParams.update( p.rc_param )
 
 
 def prepare_plot():
-	fig  = plt.figure(figsize=(5, 5))
-	fig.subplots_adjust(wspace=0.4,  hspace=0.6)
+	fig  = plt.figure(figsize=(5, 4))
+	fig.subplots_adjust(left = 0.20, bottom=0.2)
 	ax = fig.add_subplot( 1, 1, 1 )
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
@@ -117,12 +117,12 @@ class GetCondVolume():
 	def __init__( self, species ):
 		
 		if species == 'CaMKII':
-			self.title    = 'Largest condensate volume of {}'.format(species)
+			self.title    = 'Volume of {} condensate'.format(species)
 			self.basename = 'volume_largest_cond_CaMKII'
 			self.colormap =  c.cmap_white_green_universal
 			self.levels   = np.linspace(0,7e4,8)
 		elif species == 'STG':
-			self.title    = 'Largest condensate volume of {}'.format(species)
+			self.title    = 'Volume of {} condensate'.format(species)
 			self.basename = 'volume_largest_cond_STG'
 			self.colormap = c.cmap_white_red_universal
 			self.levels   = np.linspace(0,3e4,7)
@@ -180,12 +180,12 @@ if __name__ == '__main__':
 	conn = GetConnectivityConcDependence(species, type_analysis)
 	vol  = GetCondVolumeConcDependence(species_vol)
 	
-	#'''
+	'''
 	numbers_connection = conn.run()
 	volumes = vol.run()
 	d = {'numbers_connection':numbers_connection, 'volumes':volumes}
 	utils.save(dir_edited_data, prefix, suffix, d)
-	#'''
+	'''
 	
 	
 	d   = utils.load(dir_edited_data, prefix, suffix)
@@ -196,12 +196,13 @@ if __name__ == '__main__':
 	volumes = np.ravel(volumes) / p.volume
 	
 	fig, ax = prepare_plot()
-	ax.plot(numbers_connection, volumes,'o', \
+	ax.plot(numbers_connection, volumes * 100,'o', \
+		markersize = 4, \
 		color = c.cmap_universal_ratio[species_vol], \
 		markerfacecolor = c.cmap_universal_ratio[species_vol] )
 	#ax.set_title( 'Connectivity-Volume' )
 	ax.set_xlabel(conn.title)	
-	ax.set_ylabel(vol.title+' (/ total voxels)')
+	ax.set_ylabel('(% of total volume)')
 	
 	plot_and_save( fig, dir_imgs, basename )
 	

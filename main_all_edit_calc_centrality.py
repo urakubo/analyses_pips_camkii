@@ -43,6 +43,10 @@ if __name__ == '__main__':
 	#'''	
 	
 
+	dir_edited_data  =  'small_colony'
+	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(10) ]
+	filenames = ['00_002']
+
 	#'''
 	type_centrality = 'betweenness' # 'parcolation', 'betweenness'
 
