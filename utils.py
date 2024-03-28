@@ -216,6 +216,21 @@ def get_ids_PSD95_shared_by_STG_GluN2B(multi_graph, shared_or_unshared = 'shared
 	return ids_molecule, ids_bead
 	
 	
+def get_ids_PSD95_shared_only_by_GluN2B(multi_graph):
+	
+	species = 'PSD95'
+	
+	ids = [ i for i, attr in multi_graph.nodes('species') if attr == species ]
+	
+	edges_from_molecules = [ multi_graph.edges(id, keys=True, data=True) for id in ids ]
+	connections_from_one_molecules = [ [e[3]['type_connection'] for e in es] for es in edges_from_molecules ]
+	
+	ids_molecule = [id for id, c in zip(ids, connections_from_one_molecules) if ('STG_PSD95' not in c) and ('GluN2B_PSD95' in c)]
+	
+	ids_bead = [multi_graph.nodes[id]['ids_bead'] for id in ids_molecule]
+	ids_bead = np.ravel(ids_bead).tolist()
+	
+	return ids_molecule, ids_bead	
 	#
 	# grid_coord: Molecular coordinate in the grid space (0, 1,..., 119) 
 	# (numpy uint) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
@@ -295,8 +310,10 @@ def get_concs_and_condensates(types, positions, ids_molecule, energy = None, mul
 	if multi_graph is not None:
 		_, ids_bead_shared_PSD   = get_ids_PSD95_shared_by_STG_GluN2B(multi_graph, shared_or_unshared = 'shared')
 		_, ids_bead_unshared_PSD = get_ids_PSD95_shared_by_STG_GluN2B(multi_graph, shared_or_unshared = 'unshared')
+		_, ids_bead_PSD_shared_by_GluN2B = get_ids_PSD95_shared_only_by_GluN2B(multi_graph)
 		
-		for m, ids_bead in zip( ['Shared PSD95', 'Unshared PSD95'], [ids_bead_shared_PSD, ids_bead_unshared_PSD] ):
+		for m, ids_bead in zip( ['Shared PSD95', 'Unshared PSD95', 'PSD95 shared only by GluN2B'], \
+								[ids_bead_shared_PSD, ids_bead_unshared_PSD, ids_bead_PSD_shared_by_GluN2B] ):
 			loc_in_grid_mesh  = get_hist(positions[ids_bead,:])
 			conc_in_grid_mesh = ndimage.gaussian_filter(loc_in_grid_mesh, sigma = sigma)
 			d['locs_in_grid_mesh'][m]  = loc_in_grid_mesh
@@ -518,7 +535,7 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.mole
 
 def plot_a_rdf_PSD95( ax, d, legend=True , ylim = (-0.006,0.66) ):
 	r = d['rdf_PSD95_bins'][1:-1]
-	target_molecules = ['CaMKII', 'GluN2B', 'STG', 'PSD95', 'Shared PSD95']
+	target_molecules = ['CaMKII', 'GluN2B', 'STG', 'Shared PSD95','Unshared PSD95']
 	for k in target_molecules:
 		'''
 		rdf_mean  = np.mean( d['rdf_PSD95'][k][1:], axis = 1 )

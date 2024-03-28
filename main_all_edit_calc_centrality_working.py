@@ -46,7 +46,8 @@ if __name__ == '__main__':
 	dir_edited_data  =  'small_colony'
 	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(10) ]
 	
-	filenames = ['01_003'] # 00: len-3, 01: len-9, 02: linear
+	#filenames = ['01_003'] # 00: len-3, 01: len-9, 02: linear
+	filenames = ['00_004'] # 00: len-3, 01: len-9, 02: linear
 
 	#'''
 	type_centrality = 'betweenness' # 'parcolation', 'betweenness'
@@ -81,30 +82,41 @@ if __name__ == '__main__':
 		print('Num of GluN2B ', len(ids_GluN2B))
 		print('Num of CaMKII ', len(ids_CaMKII))
 		
+		multi_graph = nx.MultiGraph()
+		multi_graph.add_nodes_from(ids_CaMKII, species = 'CaMKII')
+		for id in ids_GluN2B:
+			neighbors = [n for n in g_largest_cluster.neighbors(id)]
+			if len(neighbors) == 2:
+				multi_graph.add_edge(neighbors[0], neighbors[1], id = id)
+			else:
+				raise ValueError('Something wrong with neighbors', neighbors)
 		
 		
+		nx.draw_networkx(	multi_graph, \
+							with_labels=False, \
+							node_size=20, \
+							edge_color ='.4', pos = nx.kamada_kawai_layout(g_largest_cluster)) # pos = nx.kamada_kawai_layout(multi_graph)
+		plt.suptitle(prefix)
+		plt.show()
+		
+		'''
 		if type_centrality == 'betweenness':
 		        centrality = nx.betweenness_centrality(g_largest_cluster)
 		elif type_centrality == 'parcolation':
 		        centrality = nx.percolation_centrality(g_largest_cluster)
 
-		
-		utils.save(dir_edited_data, prefix, type_centrality, centrality )
-		
-		
-		
-		
- 		'''
+
 		color_map = [c.cmap_universal_ratio[ v['species']] for n, v in g_largest_cluster.nodes.items()]
-		
+
+		color_map = [c.cmap_universal_ratio[ v['species']] for n, v in g_largest_cluster.nodes.items()]
 		#labels = {k: '{:.3f}'.format(v) for k, v in centrality.items() if v > 0.04}
 		labels = {k: '{:.3f}'.format(v) for k, v in centrality.items() if g_largest_cluster.degree[k] > 2}
-		
+
 		degree = [g_largest_cluster.degree[k] for k, v in centrality.items() if v > 0.04]
 		print('Numbers of partners of hub CaMKII ', degree)
 		degree = [g_largest_cluster.degree[k] for k, v in centrality.items()]
 		print('Numbers of partners of all CaMKII ', degree)
-		
+
 		nx.draw_networkx(	g_largest_cluster, \
 							node_color=color_map, \
 							with_labels=True, \
@@ -115,6 +127,10 @@ if __name__ == '__main__':
 							# nx.kamada_kawai_layout, nx.spring_layout(g_largest_cluster)
 		plt.show()
 		
+		'''
+		
+		
+		centrality = nx.betweenness_centrality(multi_graph)
 		
 		
 		fig  = plt.figure(figsize=(4, 4), tight_layout=True)
@@ -130,6 +146,16 @@ if __name__ == '__main__':
 		plt.show()
 		
 		
+		shortest_path = nx.average_shortest_path_length(multi_graph)
+		print('Average shortest path of {} : {}'.format(prefix, shortest_path))
+		
+		#communities = nx.community.greedy_modularity_communities(multi_graph)
+		print('nx.average_clustering(G) ', nx.average_clustering(g_largest_cluster) )
+		
 		sys.exit(0)
-		'''
+		
+		utils.save(dir_edited_data, prefix, type_centrality, centrality )
+		
+ 		
+		
                

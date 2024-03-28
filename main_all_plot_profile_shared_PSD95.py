@@ -53,7 +53,7 @@ def make_a_figure( d ):
 	# Plot profiles
 	yloc = []
 	for row,(title, transp) in enumerate(zip(titles, transps)):
-		columns = {'CaMKII':1, 'GluN2B':2,'STG':3,'PSD95':4, 'Shared PSD95':5, 'Unshared PSD95':6}
+		columns = {'CaMKII':1, 'GluN2B':2,'STG':3,'PSD95':4, 'Shared PSD95':5, 'Unshared PSD95':6, 'PSD95 shared only by GluN2B':7}
 		axes1 = utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp, pre_rotated=False )
 		axes = axes1
 		loc0  = axes[0].get_position()
@@ -69,7 +69,7 @@ def make_a_figure( d ):
 	
 	#'''
 	# Plot RDF
-	column = 8
+	column = 9
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*2 )
 	utils.plot_a_rdf_PSD95( ax, d, legend=True ) # , ylim = (-0.006,0.46)
 	arrange_graph_bar(ax, panel_dx, yloc[2], panel_size/2, panel_size)

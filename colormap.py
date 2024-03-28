@@ -368,7 +368,8 @@ cmap = {'CaMKII': cmap_black_green,
 		'GluN2B': cmap_black_magenta,
 		'PSD95' : cmap_black_cyan,
 		'Shared PSD95' : cmap_black_dark_cyan,
-		'Unshared PSD95' : cmap_black_cyan}
+		'Unshared PSD95' : cmap_black_light_cyan,
+		'PSD95 shared only by GluN2B' : cmap_black_dark_cyan}
 
 cmap_universal_ratio = {
 		'CaMKII': (3/255,175/255,122/255),\
@@ -377,7 +378,8 @@ cmap_universal_ratio = {
 		'PSD95' : (77/255,196/255,255/255),\
 		'Shared PSD95' : (0/255,90/255,255/255),
 		'Unshared PSD95' : (191/255,228/255,255/255),\
-		'All'	: (0.7,0.7,0.7)}
+		'All'	: (0.7,0.7,0.7),\
+		'PIPS': (60/255,60/255,60/255)}
 
 cmap_universal_ratio_light = \
 		{k: ((v[0]+2)/3, (v[1]+2)/3, (v[2]+2)/3) for k, v in cmap_universal_ratio.items()}

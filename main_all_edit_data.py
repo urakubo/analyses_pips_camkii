@@ -31,7 +31,7 @@ if __name__ == '__main__':
 	has_multi_graph = True
 	'''
 	# Network
-	#'''
+	'''
 	subdirs    = ['length9', 'length12','linear']
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(5)]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
@@ -40,17 +40,17 @@ if __name__ == '__main__':
 	dir_edited_data  = 'network'
 	has_energy = False
 	has_multi_graph = False
-	#'''
+	'''
 		
 	# Conc dependnece
-	'''
+	#'''
 	filenames_output = [str(i).zfill(3) for i in range(48) ]
 	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ] #70
 	dir_lammpstrj    = 'conc_dependence'
 	dir_edited_data  = 'conc_dependence'
 	has_energy = False
 	has_multi_graph = True
-	'''
+	#'''
 	
 	# Mixtures
 	'''
