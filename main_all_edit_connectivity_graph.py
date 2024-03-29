@@ -15,7 +15,7 @@ import parameters as p
 import colormap as c
 	
 	
-def get_graphs(ids_molecule, types, bp):
+def get_graphs(ids_molecule, types, bp, positions_grid_coord):
 	
 	unique_ids_molecule = np.unique( ids_molecule )
 	multi_graph = nx.MultiGraph()
@@ -27,14 +27,18 @@ def get_graphs(ids_molecule, types, bp):
 		flags = (id == ids_molecule)
 		ids_bead         = np.nonzero(flags)
 		types_bead       = types[flags]
+		positions_bead   = positions_grid_coord[flags,:]
+		
 		ids_partner_bead = bp[flags]
 		species = [k for k, i in p.molecules_without_all.items() if types_bead[0] in i['id']][0]
+		
 		
 		multi_graph.add_node(id,\
 			species    = species, \
 			ids_bead   = ids_bead, \
 			types_bead = types_bead, \
 			num_beads  = np.sum(flags), \
+			positions_grid_coord = positions_bead, \
 			ids_partner_bead =ids_partner_bead)
 		
 		if species in ['CaMKII','GluN2B']:
@@ -43,6 +47,7 @@ def get_graphs(ids_molecule, types, bp):
 				ids_bead   = ids_bead, \
 				types_bead = types_bead, \
 				num_beads  = np.sum(flags), \
+				positions_grid_coord = positions_bead, \
 				ids_partner_bead =ids_partner_bead)
 		
 	# Make connection
@@ -241,13 +246,15 @@ if __name__ == '__main__':
 		
 		
 		# Load data
-		types, positions_grid_coord,ids_molecule, mc_step = \
+		types, positions_,ids_molecule, mc_step = \
 			utils.load_lammpstrj( dir_lammpstrj, filename_input, sampling_frame )
 		bp = utils.load_lammpstrj_binding_partners( dir_lammpstrj, filename_input, sampling_frame )
 		
 		
 		# Generate graph
-		multi_graph, simple_graph_CaMKII_GluN2B = get_graphs(ids_molecule, types, bp)
+		center_of_mass = utils.get_center_of_mass(types, positions_, reference_molecule_for_centering = 'CaMKII')
+		positions = utils.centering(positions_, center_of_mass)
+		multi_graph, simple_graph_CaMKII_GluN2B = get_graphs(ids_molecule, types, bp, positions)
 		d = {}
 		d['multi_graph'] = multi_graph
 		d['simple_graph_CaMKII_GluN2B'] = simple_graph_CaMKII_GluN2B
