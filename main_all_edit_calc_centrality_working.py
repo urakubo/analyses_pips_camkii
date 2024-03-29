@@ -136,9 +136,9 @@ def draw_network_of_multi_graph(multi_graph):
 def plot_histogram_centrality(multi_graph, type_centrality):
 		
 		if type_centrality == 'betweenness':
-		        centrality = nx.betweenness_centrality(g_largest_cluster)
+		        centrality = nx.betweenness_centrality(multi_graph)
 		elif type_centrality == 'parcolation':
-		        centrality = nx.percolation_centrality(g_largest_cluster)
+		        centrality = nx.percolation_centrality(multi_graph)
 		
 		
 		fig  = plt.figure(figsize=(4, 4), tight_layout=True)
@@ -160,21 +160,26 @@ if __name__ == '__main__':
 	'''
 	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
 	dir_edited_data  = 'valency_length'
+	filenames = ['12_004'] # '12_002', '12_004', '12_005', '12_006'
 	'''
         
 	# Conc dependence
-	#'''
+	'''
 	dir_edited_data  =  'conc_dependence'
 	filenames 	 = [str(i).zfill(3) for i in range(48) ] # 70
 	filenames 	 = [str(9).zfill(3) ] # 70
-	#'''	
+	filenames 	 = [str(11).zfill(3) ] # 70
+	'''	
 	
 
+	#'''
 	dir_edited_data  =  'small_colony'
 	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(10) ]
 	
-	filenames = ['01_003'] # 00: len-3, 01: len-9, 02: linear
+	#filenames = ['01_004'] # 00: len-3, 01: len-9, 02: linear
 	#filenames = ['00_004'] # 00: len-3, 01: len-9, 02: linear
+	filenames = ['02_004'] # 00: len-3, 01: len-9, 02: linear
+	#'''
 
 	#'''
 	type_centrality = 'betweenness' # 'parcolation', 'betweenness'
@@ -189,15 +194,21 @@ if __name__ == '__main__':
 		d = utils.load(dir_edited_data, prefix, 'connectivity_graph')
 		
 		g = d['simple_graph_CaMKII_GluN2B']
-		# g = d['multi_graph']
+		g = d['multi_graph']
 		
-		clusters = list(nx.connected_components(g))
+		clusters = sorted(nx.connected_components(g), key=len, reverse=True)
 		lengths_clusters = [len(c) for c in clusters]
-		print('max(lengths_clusters) ', max(lengths_clusters))
-		id_max = lengths_clusters.index(max(lengths_clusters))
+		print('lengths_clusters ', lengths_clusters[0:10])
+		id_max = lengths_clusters.index(lengths_clusters[2])
+		print('Picked-up cluster ', lengths_clusters[id_max] )
+		
+		
 		max_cluster = clusters[id_max]
 		g_largest_cluster = g.subgraph(max_cluster)
 		g_largest_cluster = nx.Graph(g_largest_cluster)
+
+		plot_histogram_centrality(g_largest_cluster, type_centrality)
+
 
 		ids_GluN2B = [n for n, v in g_largest_cluster.nodes.items() if v['species'] == 'GluN2B' ]
 		single_con_GluN2B = [id for id in ids_GluN2B if g_largest_cluster.degree[id] == 1 ]
@@ -244,26 +255,37 @@ if __name__ == '__main__':
 		
 		
 		### Plot 3d matplotlib
-		edge_xyz = np.array([(multi_graph.nodes[u]['loc_hub'], multi_graph.nodes[v]['loc_hub']) for u, v in multi_graph.edges()])
 		
+		'''# Modularity
 		parts = list( nx.community.greedy_modularity_communities(multi_graph) )
 		values = {n: i for i, ns in enumerate(parts) for n in ns}
 		n_color = np.asarray([values[n] for n in multi_graph.nodes()])
+		'''
+		n_color = np.asarray([v for k,v in multi_graph.degree]) # multi_graph.degree[id] for id in ids
 		
 		
+		edge_xyz = np.array([(multi_graph.nodes[u]['loc_hub'], multi_graph.nodes[v]['loc_hub']) for u, v in multi_graph.edges()])
 		fig = plt.figure()
 		ax = fig.add_subplot(111, projection="3d")
 		ax.scatter(*locs_hub.T, s=100, ec="w", c = n_color)
-		for vizedge in edge_xyz:
-		    ax.plot(*vizedge.T, color="tab:gray")
+		for loc, num in zip( locs_hub, n_color ):
+			ax.text(loc[0], loc[1], loc[2], str(num)) 
+		
+		#for vizedge in edge_xyz:
+		#    ax.plot(*vizedge.T, color="tab:gray")
 		fig.tight_layout()
+		plt.show()
+		
+		
+		fig = plt.figure()
+		ax = fig.add_subplot(111)
+		ax.set_title(prefix)
+		ax.hist( n_color , bins=np.arange(0,13))
 		plt.show()
 		
 		###
 		
-		draw_network_of_multi_graph(multi_graph)
-		
-		plot_histogram_centrality(multi_graph, type_centrality)
+		#draw_network_of_multi_graph(multi_graph)
 		
 		shortest_path = nx.average_shortest_path_length(multi_graph)
 		print('Average shortest path of {} : {}'.format(prefix, shortest_path))
