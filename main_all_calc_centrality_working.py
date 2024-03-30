@@ -17,18 +17,6 @@ import parameters as p
 import colormap as c
 	
 	
-	#
-	# grid_coord: Molecular coordinate in the grid space (0, 1,..., 119) 
-	# (numpy uint) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
-	#
-	# real_coord: Molecular coordinate in the real space [-60, 60) 
-	# (numpy float) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]
-	#
-	# grid_mesh : molecular existance in the 3D space
-	# (numpy bool in 3D space) (p.space[0], p.space[1], p.space[2])
-	#
-	
-
 def draw_adjacency_matrix(G, node_order=None, partitions=[], colors=[]):
 	"""
 	- G is a netorkx graph
@@ -176,9 +164,9 @@ if __name__ == '__main__':
 	dir_edited_data  =  'small_colony'
 	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(10) ]
 	
-	#filenames = ['01_004'] # 00: len-3, 01: len-9, 02: linear
-	#filenames = ['00_004'] # 00: len-3, 01: len-9, 02: linear
-	filenames = ['02_004'] # 00: len-3, 01: len-9, 02: linear
+	filenames = ['01_004'] # 00: len-3, 01: len-9, 02: linear
+	filenames = ['00_004'] # 00: len-3, 01: len-9, 02: linear
+	#filenames = ['02_000'] # 00: len-3, 01: len-9, 02: linear
 	#'''
 
 	#'''
@@ -199,7 +187,7 @@ if __name__ == '__main__':
 		clusters = sorted(nx.connected_components(g), key=len, reverse=True)
 		lengths_clusters = [len(c) for c in clusters]
 		print('lengths_clusters ', lengths_clusters[0:10])
-		id_max = lengths_clusters.index(lengths_clusters[2])
+		id_max = lengths_clusters.index(lengths_clusters[0])
 		print('Picked-up cluster ', lengths_clusters[id_max] )
 		
 		
@@ -218,6 +206,7 @@ if __name__ == '__main__':
 		ids_GluN2B = [n for n, v in g_largest_cluster.nodes.items() if v['species'] == 'GluN2B' ]
 		ids_CaMKII = [n for n, v in g_largest_cluster.nodes.items() if v['species'] == 'CaMKII' ]
 		multi_graph = nx.MultiGraph()
+		
 		
 		locs_hub = []
 		for id, v in g_largest_cluster.nodes.items():

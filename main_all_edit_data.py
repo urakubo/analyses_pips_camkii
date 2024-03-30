@@ -77,6 +77,19 @@ if __name__ == '__main__':
 	has_energy = False
 	'''
 	
+	# Small colony 2
+	#'''
+	subdirs    = ['CG_con', 'CG_len9', 'CG_lin']
+	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(10)]
+	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
+	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(10)]
+	dir_lammpstrj    = 'small_colony'
+	dir_edited_data  = 'small_colony'
+	has_energy = False
+	#'''
+	
+	
+	
 	# Shared part of initialization
 	dir_lammpstrj    = os.path.join('..', 'lammpstrj3', dir_lammpstrj)
 	dir_edited_data  = os.path.join('data3',dir_edited_data)
@@ -125,20 +138,22 @@ if __name__ == '__main__':
 		
 		
 		# RDF
+		#'''
 		rdf, rdf_bins, rdf_sampling_frames = \
 			utils.get_rdfs( dir_lammpstrj, filename_input, sampling_frame )
 		d['rdf_bins'] = rdf_bins
 		d['rdf_sampling_frames'] = rdf_sampling_frames
 		d['rdf'] = rdf
-		
+		#'''
 		
 		# RDF, PSD95
+		#'''
 		rdf, rdf_bins, rdf_sampling_frames = \
 			utils.get_rdfs( dir_lammpstrj, filename_input, sampling_frame, multi_graph = multi_graph )
 		d['rdf_PSD95_bins'] = rdf_bins
 		d['rdf_PSD95_sampling_frames'] = rdf_sampling_frames
 		d['rdf_PSD95'] = rdf
-		
+		#'''
 		
 		# Time info
 		d['time_frame'] = sampling_frame
