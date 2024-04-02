@@ -230,7 +230,9 @@ def get_ids_PSD95_shared_only_by_GluN2B(multi_graph):
 	ids_bead = [multi_graph.nodes[id]['ids_bead'] for id in ids_molecule]
 	ids_bead = np.ravel(ids_bead).tolist()
 	
-	return ids_molecule, ids_bead	
+	return ids_molecule, ids_bead
+	
+	
 	#
 	# grid_coord: Molecular coordinate in the grid space (0, 1,..., 119) 
 	# (numpy uint) [(x0,y0,z0), (x1,y1,z1), ..., (xn,yn,zn)]

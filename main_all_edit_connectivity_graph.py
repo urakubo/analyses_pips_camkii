@@ -3,16 +3,59 @@ import os, sys, glob, pickle, pprint
 import numpy as np
 import math
 
+
+import skimage
+from scipy import ndimage
+
 import matplotlib
 import matplotlib.pyplot as plt
 
 import networkx as nx
 
-sys.path.append('../')
 
 import utils
 import parameters as p
 import colormap as c
+
+
+	
+def get_surface_condensate_CaMKII(types, positions, ids_molecule, sigma=2):
+	
+	# Parameters
+	
+	positions_in_grid_coord = np.floor(positions + p.center_np).astype('int')
+	locs_in_grid_mesh = \
+		{v['id']:  np.ones([len(p.edge0),len(p.edge1),len(p.edge2)], dtype='int')*(-1) for v in p.subunits.values()}
+	
+	for i, (t, pos) in enumerate( zip(types, positions_in_grid_coord) ):
+		locs_in_grid_mesh[t][pos[0],pos[1],pos[2]] = i
+	
+	
+	# Get the CaMKII condenate regions.
+	conc_CaMKII_in_grid_mesh = [ locs_in_grid_mesh[id] >= 0 for id in p.molecules_without_all['CaMKII']['id'] ]
+
+	conc_CaMKII_in_grid_mesh = sum(conc_CaMKII_in_grid_mesh).astype('float')
+	conc_CaMKII_in_grid_mesh = ndimage.gaussian_filter(conc_CaMKII_in_grid_mesh, sigma = sigma)
+	condensate_CaMKII_in_grid_mesh = utils.get_high(conc_CaMKII_in_grid_mesh)
+	
+	# Get the interface region
+	footprint = skimage.morphology.ball(1) #### "2": r = 3, "1": r = 2
+	dil = skimage.morphology.binary_dilation( condensate_CaMKII_in_grid_mesh, footprint=footprint )
+	ero = skimage.morphology.binary_erosion( condensate_CaMKII_in_grid_mesh, footprint=footprint )
+	region_interface = np.logical_xor(dil, ero)
+	
+	interface_beads = {v['id']: locs_in_grid_mesh[v['id']][region_interface] for v in p.subunits.values() } 
+	interface_beads = {k: v[v != -1] for k, v in interface_beads.items() } 
+	
+	# Summary
+	d = {
+			'locs_in_grid_mesh'				: locs_in_grid_mesh,
+			'conc_CaMKII_in_grid_mesh'		: conc_CaMKII_in_grid_mesh,
+			'condensate_CaMKII_in_grid_mesh': condensate_CaMKII_in_grid_mesh,
+			'region_interface'				: region_interface,
+			'interface_beads'				: interface_beads,
+		}
+	return d
 	
 	
 def get_graphs(ids_molecule, types, bp, positions_grid_coord):
@@ -75,10 +118,10 @@ def get_graphs(ids_molecule, types, bp, positions_grid_coord):
 				type_connection = 'STG_PSD95'
 			else:
 				raise ValueError("Erronous connection: {}", connecting_species)
-			multi_graph.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection)
+			multi_graph.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection, id_bead1 = i ,id_bead2 = bp[i])
 			
 			if type_connection == 'GluN2B_CaMKII':
-				simple_graph_CaMKII_GluN2B.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection)
+				simple_graph_CaMKII_GluN2B.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection, id_bead1 = i ,id_bead2 = bp[i])
 	
 	return multi_graph, simple_graph_CaMKII_GluN2B
 	
@@ -272,6 +315,8 @@ if __name__ == '__main__':
 		type_analysis = 'ratio'
 		d[species][type_analysis] = get_connection_statistics(multi_graph, species, type_analysis)
 		
+		
+		d['condensate_CaMKII'] = get_surface_condensate_CaMKII(types, positions, ids_molecule)
 		
 		# Save the edited data
 		prefix = filename_output

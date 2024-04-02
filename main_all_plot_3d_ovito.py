@@ -113,6 +113,26 @@ if __name__ == '__main__':
 	filenames_lammpstrj = ['{}.lammpstrj'.format(f) for f in filenames_output]
 	dir_lammpstrj    = 'mixtures'
 	dir_output = 'mixtures'
+
+	i = 8
+	# 19: 'CG_len9\\R2_009.lammpstrj'
+	# 18: 'CG_len9\\R2_008.lammpstrj'
+	# 9: 'CG_con\\R2_009.lammpstrj'
+	# 8: 'CG_con\\R2_008.lammpstrj'
+	
+	## CaMKII-GluN2B colony
+	
+	
+	
+	subdirs    = ['CG_con', 'CG_len9', 'CG_lin']
+	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(10)]
+	filenames_lammpstrj  = [ os.path.join(d, f) for d in subdirs for f in filenames]
+	dir_lammpstrj    = 'small_colony'
+	
+	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(10)]
+	dir_output =  'small_colony'
+	#'''
+
 	
 	##
 	dir_lammpstrj   = os.path.join('..'   , 'lammpstrj3',dir_lammpstrj)
