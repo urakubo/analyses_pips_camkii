@@ -106,10 +106,10 @@ if __name__ == '__main__':
 	data = {filenames_edited_data[i]: [] for i in ids}
 	
 	
-	data['00_008'] = {'binding': {'All': 0.185833, 'Surface':0.21052631578} , 'clustering': 0.111083 , 'average_shortest_path': 3.59527568}
-	data['00_009'] = {'binding': {'All': 0.178   , 'Surface':0.210922787}   , 'clustering': 0.1019189, 'average_shortest_path': 3.8130020}
-	data['01_008'] = {'binding': {'All': 0.21708 , 'Surface':0.1504975}     , 'clustering': 0.0215207, 'average_shortest_path': 2.9301503}
-	data['01_009'] = {'binding': {'All': 0.208   , 'Surface':0.169989}      , 'clustering': 0.0147354, 'average_shortest_path': 3.0247695}
+	data['00_008'] = {'binding': {'All': 0.185833, 'Surface':0.23968565815324164} , 'clustering': 0.111083 , 'average_shortest_path': 3.59527568}
+	data['00_009'] = {'binding': {'All': 0.178   , 'Surface':0.2310405643738977}   , 'clustering': 0.1019189, 'average_shortest_path': 3.8130020}
+	data['01_008'] = {'binding': {'All': 0.21708 , 'Surface':0.18005390835579516}     , 'clustering': 0.0215207, 'average_shortest_path': 2.9301503}
+	data['01_009'] = {'binding': {'All': 0.208   , 'Surface':0.17779868297271872}      , 'clustering': 0.0147354, 'average_shortest_path': 3.0247695}
 	
 	
 	

@@ -20,6 +20,18 @@ import trimesh
 import itertools
 from networkx.algorithms.community.centrality import girvan_newman
 
+def angle(x, y):
+
+	dot_xy = np.dot(x, y)
+	norm_x = np.linalg.norm(x)
+	norm_y = np.linalg.norm(y)
+	cos = dot_xy / (norm_x*norm_y)
+	rad = np.arccos(cos)
+	theta = rad * 180 / np.pi
+
+	#return theta
+	return rad
+
 def flatten(sequence):
     result = []
 
@@ -202,13 +214,12 @@ def make_new_graphs_CaMKII_connectivity(d, nth_largest = 0):
 	# Pickup the largest cluster
 	clusters = sorted(nx.connected_components(g), key=len, reverse=True)
 	lengths_clusters = [len(c) for c in clusters]
+	#'''
 	print('lengths_clusters ', lengths_clusters[0:10])
-	id_max = lengths_clusters.index(lengths_clusters[nth_largest])
-	print('Picked-up cluster ', lengths_clusters[id_max] )
+	print('Picked-up cluster ', lengths_clusters[nth_largest] )
+	#'''
 	
-	
-	max_cluster = clusters[id_max]
-	g_largest_cluster = nx.MultiGraph( g.subgraph(clusters[id_max]) )
+	g_largest_cluster = nx.MultiGraph( g.subgraph(clusters[nth_largest]) )
 	#g_largest_simple = nx.Graph( g_largest )
 	#g_largest_multi  = nx.MultiGraph( g_largest )
 	
@@ -244,11 +255,20 @@ def make_new_graphs_CaMKII_connectivity(d, nth_largest = 0):
 			id_CaMKII_binding = np.nonzero(v['types_bead'] == p.subunits['CaMKII binding site']['id'])
 			position_CaMKII_binding = v['positions_grid_coord'][id_CaMKII_binding, :][0]
 			ids_bead       = v['ids_bead'][0][id_CaMKII_binding]
+			
 			#print('position_CaMKII_binding: ', position_CaMKII_binding, ', ids_bead: ',ids_bead)
 			for id_bead_, loc in zip(ids_bead, position_CaMKII_binding):
+				vector_to_hub = position_CaMKII_hub - loc
+				
 				CaMKII_binding_site[id_bead_] = {}
 				CaMKII_binding_site[id_bead_]['loc'] = loc
 				CaMKII_binding_site[id_bead_]['connect'] = 0
+				CaMKII_binding_site[id_bead_]['id_molecule'] = id
+				CaMKII_binding_site[id_bead_]['vector_to_hub'] = vector_to_hub
+				CaMKII_binding_site[id_bead_]['distance_to_hub'] = np.linalg.norm( vector_to_hub )
+				
+				CaMKII_binding_site[id_bead_]['angle'] = angle(vector_to_hub, -loc)
+				
 				#print('id2: ', id2, ' loc: ', loc)
 	
 	# Centering of the hub locations.
@@ -291,10 +311,10 @@ def make_new_graphs_CaMKII_connectivity(d, nth_largest = 0):
 				# CaMKII_binding_site[neighbors[0]]['connect'] +=1
 				# CaMKII_binding_site[neighbors[1]]['connect'] +=1
 	
-	
+	#'''
 	print('Num of GluN2B (edges): ', len(ids_GluN2B))
 	print('Num of CaMKII (nodes): ', len(ids_CaMKII))
-	
+	#'''
 	return multi_graph_CaMKII, simple_graph_CaMKII, locs_hub, CaMKII_binding_site
 
 
@@ -305,7 +325,8 @@ def plot_3D_pvista_CaMKII_interface_region(d):
 	pl.subplot(0, 0)
 	cond = d['condensate_CaMKII']['condensate_CaMKII_in_grid_mesh']
 	plot_condensates_pyvista(pl, cond, color='green')
-	cond = d['condensate_CaMKII']['region_interface']
+	cond = d['condensate_CaMKII']['region_interface_CaMKII']
+	#cond = d['condensate_CaMKII']['region_interface_all']
 	plot_condensates_pyvista(pl, cond, color='red')
 	pl.add_mesh(utils.square_yz(), color='black', style='wireframe')
 	pl.view_yz()
@@ -371,14 +392,30 @@ def plot_hist_num_connections(prefix, multi_graph_CaMKII, num_partners_interface
 	plt.show()
 	
 	
+def plot_polar_scatter(angle_interface, distance_to_hub_interface, angle_all, distance_to_hub_all):
+	fig = plt.figure(figsize=(8,8))
+	ax = fig.add_subplot(111, projection='polar')
+	ax.scatter(angle_all, distance_to_hub_all, color='k', label='All')
+	ax.scatter(angle_interface, distance_to_hub_interface, color='r', label='Interface')
+	ax.set_title('Polar coordinates',fontsize=18)
+	ax.legend(frameon=False)
+	plt.show()
+	
+	
+def plot_polar_histogram(angle_interface, distance_to_hub_interface):
+	rbins = np.linspace(0, max(distance_to_hub_interface), 30)
+	abins = np.linspace(0,2*np.pi, 60)
+	hist, _, _ = np.histogram2d(angle_interface, distance_to_hub_interface, bins=(abins, rbins))
+	A, R = np.meshgrid(abins, rbins)
+	fig, ax = plt.subplots(subplot_kw=dict(projection="polar"))
+	pc = ax.pcolormesh(A, R, hist.T, cmap="magma_r")
+	ax.set_title('{}'.format(prefix) )
+	fig.colorbar(pc)
+	plt.show()
+	
+	
 if __name__ == '__main__':
 	
-	# Dataset 2:  Valency length
-	'''
-	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
-	dir_edited_data  = 'valency_length'
-	filenames = ['12_004'] # '12_002', '12_004', '12_005', '12_006'
-	'''
         
 	# Conc dependence
 	'''
@@ -393,10 +430,23 @@ if __name__ == '__main__':
 	dir_edited_data  =  'small_colony'
 	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(10) ]
 	
-	filenames = ['01_004'] # 00: len-3, 01: len-9, 02: linear
-	filenames = ['00_004'] # 00: len-3, 01: len-9, 02: linear
+	filenames = ['00_008','00_009','01_008','01_009'] # 00: len-3, 01: len-9, 02: linear
+	filenames = ['00_009'] # 00: len-3, 01: len-9, 02: linear
+	#filenames = ['00_009'] # 00: len-3, 01: len-9, 02: linear
 	#filenames = ['02_000'] # 00: len-3, 01: len-9, 02: linear
 	#'''
+	
+	# filenames = ['00_002','00_003','00_004','00_008','00_009','01_002','01_003','01_004','01_008','01_009'] # 00: len-3, 01: len-9, 02: linear
+
+	
+	# Dataset 2:  Valency length
+	'''
+	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
+	dir_edited_data  = 'valency_length'
+	#filenames = ['12_{}'.format(str(id_f).zfill(3)) for id_f in range(7)] # '12_002', '12_004', '12_005', '12_006'
+	#filenames = ['08_002'] # '12_002', '12_004', '12_005', '12_006'
+	'''
+	
 	
 	type_centrality = 'betweenness' # 'parcolation', 'betweenness'
 	
@@ -404,11 +454,15 @@ if __name__ == '__main__':
 	dir_edited_data  = os.path.join('data3', dir_edited_data)
 	os.makedirs(dir_edited_data, exist_ok=True)
 	
+	angles_interface     = np.zeros( len(filenames), dtype='float' )
+	angles_all           = np.zeros( len(filenames), dtype='float' )
+	cluster_coefficients = np.zeros( len(filenames), dtype='float' )
 	#
-	for prefix in filenames:
-		print(prefix)		
-		d = utils.load(dir_edited_data, prefix, 'connectivity_graph')
+	for ii, prefix in enumerate( filenames ):
+		print()
+		print(prefix)
 		
+		d = utils.load(dir_edited_data, prefix, 'connectivity_graph')
 		#plot_3D_pvista_CaMKII_interface_region(d)
 		
 		# Make new graphs of CaMKII
@@ -418,27 +472,86 @@ if __name__ == '__main__':
 		
 		# plot_histogram_centrality(g_largest_cluster, type_centrality)
 		
-		### Plot adjacency matrix
+		
 		#draw_adjacency_matrix(multi_graph_CaMKII)
 		
 		
+		edges_removed = []
+		def recorded_most_valuable_edge(g):
+			betweenness = nx.edge_betweenness_centrality(g) 
+			max_edge = max(betweenness, key=betweenness.get)
+			edges_removed.append(max_edge)
+			return max_edge
+
+		comp = nx.community.girvan_newman(simple_graph_CaMKII, most_valuable_edge=recorded_most_valuable_edge)
+		segmented_nodes = [c for c in next(comp)]
+		#print(segmented_nodes)
+		#print(edges_removed)
+		print('len(edges_removed) ', len(edges_removed))
+		sys.exit(0)
+		
 		### Count the number of unbinding beads at the interface region.
-		ids_CaMKII_binding_bead_interface = d['condensate_CaMKII']['interface_beads'][p.subunits['CaMKII binding site']['id']].tolist()
+		ids_CaMKII_binding_bead_interface = d['condensate_CaMKII']['beads_interface_CaMKII'][p.subunits['CaMKII binding site']['id']].tolist()
+		#ids_CaMKII_binding_bead_interface = d['condensate_CaMKII']['beads_interface_all'][p.subunits['CaMKII binding site']['id']].tolist()
 		num_free = [ (id in ids_CaMKII_binding_bead_interface) and v['connect'] == 0 for id, v in CaMKII_binding_site.items()]
-		num_free = sum( num_free )
+		num_free_interface = sum( num_free )
 		
-		num_CaMKII_binding_interface = len(set(ids_CaMKII_binding_bead_interface) & set(CaMKII_binding_site.keys()))
+		distance_to_hub_interface = [v['distance_to_hub'] for id, v in CaMKII_binding_site.items() if id in ids_CaMKII_binding_bead_interface]
+		angle_interface = [v['angle'] for id, v in CaMKII_binding_site.items() if id in ids_CaMKII_binding_bead_interface]
+		
+		num_CaMKII_binding_beads_all = len(CaMKII_binding_site)
+		num_free_all = sum( [v['connect'] == 0 for v in CaMKII_binding_site.values() ] )
+		
+		distance_to_hub_all = [v['distance_to_hub'] for v in CaMKII_binding_site.values() ]
+		angle_all = [v['angle'] for v in CaMKII_binding_site.values() ]
+		
+		
+		#plot_polar_scatter(angle_interface, distance_to_hub_interface, angle_all, distance_to_hub_all)
+		#plot_polar_histogram(angle_interface, distance_to_hub_interface)
+		
+		
+		distance_to_hub_interface = np.average( distance_to_hub_interface )
+		angle_interface = np.average( angle_interface )
+		distance_to_hub_all = np.average( distance_to_hub_all )
+		angle_all = np.average( angle_all )
+		
+		## For save
+		angles_interface[ii] = angle_interface
+		angles_all[ii] = angle_all
+		
+		
+		'''
+		ids_molecule_ids_CaMKII_beads_interfaces = [ v['id_molecule'] for id, v in CaMKII_binding_site.items() if id in ids_CaMKII_binding_bead_interface ]
+		nums = [ids_molecule_ids_CaMKII_beads_interfaces.count(id) for id in list(set(ids_molecule_ids_CaMKII_beads_interfaces)) ]
+		nums.sort()
+		
+		fig = plt.figure()
+		ax = fig.add_subplot(111)
+		ax.set_title('Num beads participating surface region per holoenzyme, {}'.format(prefix) )
+		ax.hist( nums, bins=np.arange(0,13), color = 'b')
+		plt.show()
+		print('num_CaMKII_molecules_participating_multiple (at interface) ', nums )
+		'''
+		
+		'''
 		print(prefix)
-		print('num_CaMKII_binding_beads (at interface) ', num_CaMKII_binding_interface)
-		print('unconnected num_CaMKII_binding_beads (at interface)', num_free)
-		print('Ratio of Free : ', num_free / num_CaMKII_binding_interface)
+		print('num_CaMKII_binding_beads (at interface) ', len(ids_CaMKII_binding_bead_interface) )
+		print('unconnected num_CaMKII_binding_beads (at interface)', num_free_interface)
 		
-		num_CaMKII_binding_beads_total = len(CaMKII_binding_site)
-		num_free = sum( [v['connect'] == 0 for v in CaMKII_binding_site.values() ] )
-		print('num_CaMKII_binding_beads in the total of cluster ', num_CaMKII_binding_beads_total )
-		print('unconnected num_CaMKII_binding_beads  in the total of cluster ', num_free)
-		print('Ratio of Free : ', num_free / num_CaMKII_binding_beads_total )
+		print('num_CaMKII_binding_beads in the total of cluster ', num_CaMKII_binding_beads_all )
+		print('unconnected num_CaMKII_binding_beads  in the all of cluster ', num_free_all)
+		'''
 		
+		
+		#print('Ratio of Free   (surface): ', num_free_interface / len(ids_CaMKII_binding_bead_interface))
+		#print('Ratio of Free       (all): ', num_free_all / num_CaMKII_binding_beads_all )
+		
+		
+		print('Distance_to_hub (surface): ', distance_to_hub_interface )
+		print('Distance_to_hub     (all): ', distance_to_hub_all)
+		
+		print('Angle (surface): ', angle_interface)
+		print('Angle     (all): ', angle_all)
 		
 		### Plot 3d binding beads in matplotlib
 		
@@ -450,7 +563,7 @@ if __name__ == '__main__':
 		#plot_3d_hubs_matplotlib(d, prefix, multi_graph_CaMKII, locs_hub)
 		
 		
-		plot_hist_num_connections(prefix, multi_graph_CaMKII, num_partners_interface_CaMKII_hub = None)
+		# plot_hist_num_connections(prefix, multi_graph_CaMKII, num_partners_interface_CaMKII_hub = None)
 		
 		
 		# draw_network_of_multi_graph(multi_graph)
@@ -459,22 +572,42 @@ if __name__ == '__main__':
 		#print('Average shortest path of {} : {}'.format(prefix, shortest_path))
 		
 		#communities = nx.community.greedy_modularity_communities(multi_graph)
-		'''
-		print('average_clustering ', nx.average_clustering(simple_graph_CaMKII) )
-		print('average_clustering ', nx.average_clustering(multi_graph_CaMKII) )
+		#'''
+		cluster_coefficient = nx.average_clustering(simple_graph_CaMKII)
+		print('average_clustering      : ', cluster_coefficient )
 		
-		'''
+		cluster_coefficients[ii] = cluster_coefficient
+		
+		#'''
 		
 		
 		
-		# utils.save(dir_edited_data, prefix, type_centrality, centrality )
-		
- 		
- 		# Obsolete
-		#print('transitivity       ', nx.transitivity(simple_graph) )
-		#print('average_shortest_path_length ', nx.average_shortest_path_length(simple_graph) )
-		
-		## Modularity
-		#parts = list( nx.community.greedy_modularity_communities(multi_graph) )
-		#values = {n: i for i, ns in enumerate(parts) for n in ns}
-		#n_color = np.asarray([values[n] for n in multi_graph.nodes()])
+	dd = {	'cluster_coefficients': cluster_coefficients,\
+			'angles_interface': angles_interface, \
+			'angles_all': angles_all}
+	# Save the edited data
+	
+	prefix = 'tension'
+	suffix = 'cluster'
+	utils.save(dir_edited_data, prefix, suffix, dd)
+
+
+
+
+
+	
+	
+		# Obsolete
+	#print('transitivity       ', nx.transitivity(simple_graph) )
+	#print('average_shortest_path_length ', nx.average_shortest_path_length(simple_graph) )
+	
+	## Modularity
+	#parts = list( nx.community.greedy_modularity_communities(multi_graph) )
+	#values = {n: i for i, ns in enumerate(parts) for n in ns}
+	#n_color = np.asarray([values[n] for n in multi_graph.nodes()])
+
+
+
+
+
+

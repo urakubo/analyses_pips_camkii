@@ -30,30 +30,53 @@ def get_surface_condensate_CaMKII(types, positions, ids_molecule, sigma=2):
 	for i, (t, pos) in enumerate( zip(types, positions_in_grid_coord) ):
 		locs_in_grid_mesh[t][pos[0],pos[1],pos[2]] = i
 	
+	# Define the region periphery.
+	region_periphery = utils.get_periphery_in_grid_mesh()
 	
 	# Get the CaMKII condenate regions.
 	conc_CaMKII_in_grid_mesh = [ locs_in_grid_mesh[id] >= 0 for id in p.molecules_without_all['CaMKII']['id'] ]
-
 	conc_CaMKII_in_grid_mesh = sum(conc_CaMKII_in_grid_mesh).astype('float')
 	conc_CaMKII_in_grid_mesh = ndimage.gaussian_filter(conc_CaMKII_in_grid_mesh, sigma = sigma)
 	condensate_CaMKII_in_grid_mesh = utils.get_high(conc_CaMKII_in_grid_mesh)
+
+
+	# Get the condensate of all.
+	conc_all_in_grid_mesh = [ v >= 0 for v in locs_in_grid_mesh.values()]
+	conc_all_in_grid_mesh = sum( conc_all_in_grid_mesh ).astype('float')
 	
+	# print('conc_all_in_grid_mesh.shape : ', conc_all_in_grid_mesh.shape ) 
+	conc_all_in_grid_mesh = ndimage.gaussian_filter(conc_all_in_grid_mesh, sigma = sigma)
+	conc_all_periphery    = np.sum(conc_all_in_grid_mesh * region_periphery ) / np.sum( region_periphery )
+	condensate_all_in_grid_mesh = utils.get_high(conc_all_in_grid_mesh-conc_all_periphery)
+
+
 	# Get the interface region
-	footprint = skimage.morphology.ball(1) #### "2": r = 3, "1": r = 2
-	dil = skimage.morphology.binary_dilation( condensate_CaMKII_in_grid_mesh, footprint=footprint )
-	ero = skimage.morphology.binary_erosion( condensate_CaMKII_in_grid_mesh, footprint=footprint )
-	region_interface = np.logical_xor(dil, ero)
+	footprint_inside  = skimage.morphology.ball(1) #### "2": r = 3, "1": r = 2
+	footprint_outside = skimage.morphology.ball(15) #### "2": r = 3, "1": r = 2
+	dil1 = skimage.morphology.binary_dilation( condensate_CaMKII_in_grid_mesh, footprint=footprint_outside )
+	ero1 = skimage.morphology.binary_erosion( condensate_CaMKII_in_grid_mesh, footprint=footprint_inside )
+	region_interface_CaMKII = np.logical_xor(dil1, ero1)
 	
-	interface_beads = {v['id']: locs_in_grid_mesh[v['id']][region_interface] for v in p.subunits.values() } 
-	interface_beads = {k: v[v != -1] for k, v in interface_beads.items() } 
+	dil2 = skimage.morphology.binary_dilation( condensate_all_in_grid_mesh, footprint=footprint_outside  )
+	ero2 = skimage.morphology.binary_erosion( condensate_all_in_grid_mesh , footprint=footprint_inside )
+	region_interface_all = np.logical_xor(dil2, ero2)
+	
+	beads_interface_CaMKII = {v['id']: locs_in_grid_mesh[v['id']][region_interface_CaMKII] for v in p.subunits.values() } 
+	beads_interface_CaMKII = {k: v[v != -1] for k, v in beads_interface_CaMKII.items() } 
+	beads_interface_all    = {v['id']: locs_in_grid_mesh[v['id']][region_interface_all] for v in p.subunits.values() } 
+	beads_interface_all    = {k: v[v != -1] for k, v in beads_interface_all.items() } 
 	
 	# Summary
 	d = {
 			'locs_in_grid_mesh'				: locs_in_grid_mesh,
 			'conc_CaMKII_in_grid_mesh'		: conc_CaMKII_in_grid_mesh,
 			'condensate_CaMKII_in_grid_mesh': condensate_CaMKII_in_grid_mesh,
-			'region_interface'				: region_interface,
-			'interface_beads'				: interface_beads,
+			'conc_all_in_grid_mesh'			: conc_all_in_grid_mesh,
+			'condensate_all_in_grid_mesh'	: condensate_all_in_grid_mesh,
+			'region_interface_CaMKII'		: region_interface_CaMKII,
+			'region_interface_all'			: region_interface_all,
+			'beads_interface_CaMKII'		: beads_interface_CaMKII,
+			'beads_interface_all'			: beads_interface_all,
 		}
 	return d
 	
@@ -228,17 +251,7 @@ def get_connection_statistics(multi_graph, species, type_analysis):
 	
 if __name__ == '__main__':
 	
-	
-	# Valency length
-	'''
-	subdirs    = ['val_{}'.format(i) for i in range(2,14,2)]
-	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
-	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
-	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
-	dir_input        = 'valency_length'
-	dir_edited_data  = 'valency_length'
-	'''
-	
+
 	# Conc dependnece
 	'''
 	filenames_output = [str(i).zfill(3) for i in range(48) ]
@@ -264,15 +277,25 @@ if __name__ == '__main__':
 	'''
 	
 	# Small colony 2
-	#'''
+	'''
 	subdirs    = ['CG_con', 'CG_len9', 'CG_lin']
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(10)]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
 	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(10)]
 	dir_input        = 'small_colony'
 	dir_edited_data  = 'small_colony'
-	#'''
+	'''
 	
+	# Valency length
+	#'''
+	subdirs    = ['val_{}'.format(i) for i in range(2,14,2)]
+	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
+	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
+	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
+	dir_input        = 'valency_length'
+	dir_edited_data  = 'valency_length'
+	#'''
+		
 	# Shared part of initialization
 	dir_lammpstrj    = os.path.join('..', 'lammpstrj3', dir_input)
 	dir_edited_data  = os.path.join('data3',dir_edited_data)
