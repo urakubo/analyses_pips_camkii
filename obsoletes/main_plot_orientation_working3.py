@@ -5,6 +5,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
+import networkx as nx
 from scipy.spatial import distance
 
 import utils
@@ -86,16 +87,14 @@ if __name__ == '__main__':
 	d = utils.load(dir_edited_data, filename_edited, suffix)
 	multi_graph = d['multi_graph']
 	
-	# Centering
-	center    = utils.get_center_of_mass(types, positions_grid_coord)
-	print('center ', center)
-	positions_real_coord = utils.centering(positions_grid_coord, center)
+	# Pickup the largest cluster
+	clusters = sorted(nx.connected_components(multi_graph), key=len, reverse=True)
+	lengths_clusters = [len(c) for c in clusters]
+	nodes_cluster = clusters[lengths_clusters.index(lengths_clusters[0])] # 0: max
+	g_largest_cluster = nx.MultiGraph( multi_graph.subgraph(nodes_cluster) )
+	
+	# ids_GluN2B = [n for n, v in g_largest_cluster.nodes.items() if v['species'] == 'GluN2B' ]
 	#
-	unique_ids_molecule = np.unique( ids_molecule )
-	ids_CaMKII = [id for id in unique_ids_molecule if p.subunits['CaMKII binding site']['id'] in types[ids_molecule == id] ]
-	ids_GluN2B = [id for id in unique_ids_molecule if p.subunits['GluN2B binding site']['id']    in types[ids_molecule == id] ]
-	ids = {	'CaMKII':ids_CaMKII, \
-			'GluN2B':ids_GluN2B}
 	
 	
 	targs = ['CaMKII'] # ['CaMKII','GluN2B','PSD95','Shared PSD95']
@@ -112,58 +111,58 @@ if __name__ == '__main__':
 		ax = fig.add_subplot(1, len(targs), i+1, projection='3d')
 		ax.set_title('{} from {}'.format(t, filename_edited))
 		#cmap =  matplotlib.colormaps.get_cmap('hsv', 255)
-		for id in ids[t]:
-			pos = positions_real_coord[ids_molecule == id]
-			dist = np.max( np.linalg.norm(pos, axis=1) )
-			if dist < m:
-				if rng.random() > 0.95:
-					if t == 'CaMKII' and linear == False:
+		ids = [n for n, v in g_largest_cluster.nodes.items() if v['species'] == t ]
+		
+		for id, v in g_largest_cluster.nodes.items():
+			if (v['species'] == 'CaMKII') and (rng.random() > 0.95):
+				pos = v['positions_grid_coord']
+				if t == 'CaMKII' and linear == False:
 
-						ax.plot(pos[0,0], pos[0,1],pos[0,2],'o', \
+					ax.plot(pos[0,0], pos[0,1],pos[0,2],'o', \
+						markersize= 2.0, \
+						markerfacecolor = 'k',\
+						color = 'k')
+
+					for i in range(pos.shape[0]-1):
+						#'''
+						ax.plot([pos[0,0],pos[i+1,0]], [pos[0,1], pos[i+1,1]], [pos[0,2],pos[i+1,2]],\
+							'-' ,\
+							color = c.cmap_universal_ratio[t], \
+							linewidth = 0.5)
+						#'''
+						ax.plot(pos[i+1,0], pos[i+1,1],pos[i+1,2],'o', \
 							markersize= 2.0, \
-							markerfacecolor = 'k',\
-							color = 'k')
+							markerfacecolor = 'w',\
+							markeredgecolor = c.cmap_universal_ratio[t],\
+							color = c.cmap_universal_ratio[t] ) # cmap(id % 256)
 
-						for i in range(pos.shape[0]-1):
-							#'''
-							ax.plot([pos[0,0],pos[i+1,0]], [pos[0,1], pos[i+1,1]], [pos[0,2],pos[i+1,2]],\
+				elif t == 'CaMKII' and linear == True:
+					for i in range(pos.shape[0]):
+						'''
+						ax.plot(pos[i,0], pos[i,1],pos[i,2],'o', \
+							markersize= 2.0, \
+							markerfacecolor = 'w',\
+							markeredgecolor = c.cmap_universal_ratio[t],\
+							color = c.cmap_universal_ratio[t] ) # cmap(id % 256)
+						'''
+						if i < pos.shape[0] - 1:
+							ax.plot([pos[i,0],pos[i+1,0]], [pos[i,1], pos[i+1,1]], [pos[i,2],pos[i+1,2]],\
 								'-' ,\
 								color = c.cmap_universal_ratio[t], \
 								linewidth = 0.5)
-							#'''
-							ax.plot(pos[i+1,0], pos[i+1,1],pos[i+1,2],'o', \
-								markersize= 2.0, \
-								markerfacecolor = 'w',\
-								markeredgecolor = c.cmap_universal_ratio[t],\
-								color = c.cmap_universal_ratio[t] ) # cmap(id % 256)
-
-					elif t == 'CaMKII' and linear == True:
-						for i in range(pos.shape[0]):
-							'''
-							ax.plot(pos[i,0], pos[i,1],pos[i,2],'o', \
-								markersize= 2.0, \
-								markerfacecolor = 'w',\
-								markeredgecolor = c.cmap_universal_ratio[t],\
-								color = c.cmap_universal_ratio[t] ) # cmap(id % 256)
-							'''
-							if i < pos.shape[0] - 1:
-								ax.plot([pos[i,0],pos[i+1,0]], [pos[i,1], pos[i+1,1]], [pos[i,2],pos[i+1,2]],\
-									'-' ,\
-									color = c.cmap_universal_ratio[t], \
-									linewidth = 0.5)
 
 
-					elif t in ['PSD95','GluN2B']:
-						
-						ax.plot(pos[:,0], pos[:,1], pos[:,2], 'o-' ,\
-							color = c.cmap_universal_ratio[t], \
-							linewidth = 0.5, markersize= 2.0)
-					elif t in ['Unshared PSD95', 'Shared PSD95']:
-						
-						ax.plot(pos[:,0], pos[:,1], pos[:,2], 'o-' ,\
-							color = c.cmap_universal_ratio['PSD95'], \
-							linewidth = 0.5, markersize= 2.0)
-						
+				elif t in ['PSD95','GluN2B']:
+					
+					ax.plot(pos[:,0], pos[:,1], pos[:,2], 'o-' ,\
+						color = c.cmap_universal_ratio[t], \
+						linewidth = 0.5, markersize= 2.0)
+				elif t in ['Unshared PSD95', 'Shared PSD95']:
+					
+					ax.plot(pos[:,0], pos[:,1], pos[:,2], 'o-' ,\
+						color = c.cmap_universal_ratio['PSD95'], \
+						linewidth = 0.5, markersize= 2.0)
+					
 						
 	
 

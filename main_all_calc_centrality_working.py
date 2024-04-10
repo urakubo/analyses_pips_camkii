@@ -80,8 +80,9 @@ def draw_adjacency_matrix(G, node_order=None, partitions=[], colors=[]):
 	# for communities in itertools.islice(comp, k):
 	
 	
-	#rcm = list(nx.utils.reverse_cuthill_mckee_ordering(G))
+	rcm = list(nx.utils.reverse_cuthill_mckee_ordering(G))
 	
+	'''
 	def iterative_division(nodes, k):
 		if k == 0 or len(nodes) < 3:
 			return nodes
@@ -91,11 +92,11 @@ def draw_adjacency_matrix(G, node_order=None, partitions=[], colors=[]):
 			segmented_nodes = sorted(segmented_nodes, key=len)
 			return segmented_nodes
 	nodes = list( G.nodes )
-	rcm = iterative_division(nodes, k = 40)
+	rcm = iterative_division(nodes, k = 1)
 	rcm = flatten(rcm)
-	#print(rcm)
+	'''
 	
-	adjacency_matrix = nx.to_numpy_array(G, dtype=np.bool, nodelist=rcm)
+	adjacency_matrix = nx.to_numpy_array(G, dtype='bool', nodelist=rcm)
 
 	#Plot adjacency matrix in toned-down black and white
 	fig = pyplot.figure(figsize=(5, 5)) # in inches
@@ -325,8 +326,8 @@ def plot_3D_pvista_CaMKII_interface_region(d):
 	pl.subplot(0, 0)
 	cond = d['condensate_CaMKII']['condensate_CaMKII_in_grid_mesh']
 	plot_condensates_pyvista(pl, cond, color='green')
-	cond = d['condensate_CaMKII']['region_interface_CaMKII']
-	#cond = d['condensate_CaMKII']['region_interface_all']
+	#cond = d['condensate_CaMKII']['region_interface_CaMKII']
+	cond = d['condensate_CaMKII']['region_interface_all']
 	plot_condensates_pyvista(pl, cond, color='red')
 	pl.add_mesh(utils.square_yz(), color='black', style='wireframe')
 	pl.view_yz()
@@ -431,7 +432,7 @@ if __name__ == '__main__':
 	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(10) ]
 	
 	filenames = ['00_008','00_009','01_008','01_009'] # 00: len-3, 01: len-9, 02: linear
-	filenames = ['00_009'] # 00: len-3, 01: len-9, 02: linear
+	filenames = ['01_004'] # 00: len-3, 01: len-9, 02: linear
 	#filenames = ['00_009'] # 00: len-3, 01: len-9, 02: linear
 	#filenames = ['02_000'] # 00: len-3, 01: len-9, 02: linear
 	#'''
@@ -440,12 +441,12 @@ if __name__ == '__main__':
 
 	
 	# Dataset 2:  Valency length
-	'''
+	#'''
 	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
 	dir_edited_data  = 'valency_length'
 	#filenames = ['12_{}'.format(str(id_f).zfill(3)) for id_f in range(7)] # '12_002', '12_004', '12_005', '12_006'
-	#filenames = ['08_002'] # '12_002', '12_004', '12_005', '12_006'
-	'''
+	filenames = ['08_005'] # '12_002', '12_004', '12_005', '12_006'
+	#'''
 	
 	
 	type_centrality = 'betweenness' # 'parcolation', 'betweenness'
@@ -463,31 +464,42 @@ if __name__ == '__main__':
 		print(prefix)
 		
 		d = utils.load(dir_edited_data, prefix, 'connectivity_graph')
-		#plot_3D_pvista_CaMKII_interface_region(d)
+		plot_3D_pvista_CaMKII_interface_region(d)
 		
 		# Make new graphs of CaMKII
 		multi_graph_CaMKII, simple_graph_CaMKII, locs_hub, CaMKII_binding_site = \
-			make_new_graphs_CaMKII_connectivity(d, nth_largest = 0)
+			make_new_graphs_CaMKII_connectivity(d, nth_largest = 1)
 		
 		
 		# plot_histogram_centrality(g_largest_cluster, type_centrality)
 		
 		
-		#draw_adjacency_matrix(multi_graph_CaMKII)
 		
-		
+		#'''
 		edges_removed = []
 		def recorded_most_valuable_edge(g):
-			betweenness = nx.edge_betweenness_centrality(g) 
-			max_edge = max(betweenness, key=betweenness.get)
+			centrality = nx.edge_betweenness_centrality(g) 
+			max_edge = max(centrality, key=centrality.get)
+			print('max_edge ', max_edge)
 			edges_removed.append(max_edge)
 			return max_edge
 
-		comp = nx.community.girvan_newman(simple_graph_CaMKII, most_valuable_edge=recorded_most_valuable_edge)
-		segmented_nodes = [c for c in next(comp)]
-		#print(segmented_nodes)
-		#print(edges_removed)
+		comp = nx.community.girvan_newman(multi_graph_CaMKII, most_valuable_edge=recorded_most_valuable_edge)
+		segmented_nodes = [len(c) for c in next(comp)]
+		
+		print('segmented_nodes ', segmented_nodes)
+		#print('edges_removed   ', edges_removed)
 		print('len(edges_removed) ', len(edges_removed))
+		#'''
+		
+		multi_graph_CaMKII.remove_edges_from(edges_removed)
+		
+		clusters = sorted(nx.connected_components(multi_graph_CaMKII), key=len, reverse=True)
+		lengths_clusters = [len(c) for c in clusters]
+		print('Split by girvan_newman ', lengths_clusters)
+		
+		draw_adjacency_matrix(multi_graph_CaMKII)
+		
 		sys.exit(0)
 		
 		### Count the number of unbinding beads at the interface region.

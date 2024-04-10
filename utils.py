@@ -171,7 +171,7 @@ def get_min_local_mins(local_mins, conc_smooth, mask):
 	
 	
 def get_rotation_matrix_in_CaMKII_PSD95_direction( locs_in_real_coord ): 
-		# Rotation
+	# Rotation
 	# https://stackoverflow.com/questions/14607640/rotating-a-vector-in-3d-space
 	
 	targs_molecule  = p.molecules_with_all.keys()
