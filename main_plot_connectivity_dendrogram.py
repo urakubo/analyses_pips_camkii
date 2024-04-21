@@ -274,7 +274,7 @@ def draw_network_simple(G, prefix, pos):
 						node_color = 'k', \
 						edge_color =c.cmap_universal_ratio['CaMKII'], pos = pos)
 
-	plt.title(prefix)
+	plt.suptitle(prefix)
 	plt.show()
 
 
@@ -288,7 +288,14 @@ def get_clusters_from_dendrogram(R):
 	ref = {col: i+1 for i, col in enumerate(leaves_colors)}
 	ref['k'] = 0
 	partition     = {n: ref[c] for n, c in zip(node_order, leaves_color_list)}
-	#print('partition ', partition)
+	
+	maxid_color = max(partition.values()) + 1
+	for k, v in partition.items():
+		if v == 0:
+			partition[k] = maxid_color
+			maxid_color += 1
+	print('leaves_color_list ', leaves_color_list)
+	print('partition         ', partition)
 
 
 	# Blocks for matrix
@@ -311,7 +318,7 @@ def get_clusters_from_dendrogram(R):
 			pass
 	if leaves_color_list[-1] != 'k':
 		blocks.append([ref_i, len(leaves_color_list)])
-	print('blocks ', blocks)
+	#print('blocks ', blocks)
 
 	return node_order, blocks, partition
 
@@ -322,8 +329,12 @@ if __name__ == '__main__':
 	## Init
 	dir_edited_data  =  'small_colony'
 	prefix = '01_008'
-	prefix = '00_004'
 	#prefix = '01_004'
+
+	prefix = '00_004'
+	nth_largest = 0
+
+	prefix = '01_004'
 	nth_largest = 1
 
 	# dir_edited_data  = 'valency_length'
@@ -356,17 +367,17 @@ if __name__ == '__main__':
 	node_order, blocks, partition = get_clusters_from_dendrogram(R)
 	ax2 = fig.add_axes([0.3,0.1,0.6,0.6]) # fig.add_axes([0.3,0.1,0.6,0.6])	
 	draw_adjacency_matrix(ax2, G_,  node_order = node_order, partitions= blocks, color= 'r')
-	'''
+	#'''
 	fig.savefig( os.path.join(dir_imgs, '{}_connect_dendrogram.svg'.format( prefix ) ) )
 	fig.savefig( os.path.join(dir_imgs, '{}_connect_dendrogram.png'.format( prefix ) ) , dpi=150)
 	plt.show()
-	'''
+	#'''
 	plt.close(fig=fig)
 	
 	
 	### graph visulization
 	pos = community_layout(G_, partition)
-	draw_network_simple(G_, prefix, pos = pos)
+	draw_network_simple(G_, fig_title, pos = pos)
     
 	
 	
