@@ -14,6 +14,39 @@ from scipy import ndimage
 plt.rcParams.update(p.rc_param)
 	
 	
+def peak(x, c):
+    return np.exp(-np.power(x - c, 2) / 16.0)
+	
+def lin_interp(x, y, i, half):
+    return x[i] + (x[i+1] - x[i]) * ((half - y[i]) / (y[i+1] - y[i]))
+	
+	
+def half_max_x(x, y):
+    half = max(y)/2.0
+    signs = np.sign(np.add(y, -half))
+    zero_crossings = (signs[0:-2] != signs[1:-1])
+    zero_crossings_i = np.where(zero_crossings)[0]
+    return lin_interp(x, y, zero_crossings_i[0], half)
+	
+	
+def plot_a_rdf( ax, r, y, legend=True,  ylim = (-0.006,0.66) ):
+
+	color = c.cmap_universal_ratio['CaMKII']
+	ax.step( r, y, color=color, label='CaMKII bead')
+	if legend==True:
+		ax.legend(frameon=False)
+	
+	ax.set_xlabel('Distance from \n center-of-mass (l.u.)')
+	ax.set_ylabel('(beads / voxel)')
+	ax.set_xlim(0,40)
+	ax.set_ylim(*ylim)
+	ax.set_xticks(range(0,50,10))
+	ax.spines['right'].set_visible(False)
+	ax.spines['top'].set_visible(False)
+	
+	return
+	
+	
 def arrange_graph_bar(ax, panel_dx, y0, panel_size_x, panel_size_y):
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
@@ -32,9 +65,6 @@ def plot_bar(ax, data, color, ylim, ylegend, width=0.5):
 	
 def make_a_figure( d, data ):
 	
-	# Parameters
-	vmax       = 0.7
-
 	# Figure specification
 	transps = [(0,1,2),(1,2,0),(2,0,1)]
 	titles  = [ 'yz', 'xy', 'zx']
@@ -91,6 +121,22 @@ def make_a_figure( d, data ):
 	ax.set_xlim(-0.5,0.5)
 	ax.set_title('Clustering \n coefficient')
 	arrange_graph_bar(ax, panel_dx, yloc[1], panel_size/4, panel_size)
+	
+	
+	
+	# Plot RDF
+	
+	r = d['rdf_bins'][2:-1]
+	y = d['rdf']['CaMKII_bead'][2:]
+	
+	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*2 )
+	plot_a_rdf( ax, r, y, legend=True ) # , ylim = (-0.006,0.46)
+	arrange_graph_bar(ax, panel_dx, yloc[2], panel_size/2, panel_size)
+	
+	
+	hmx = half_max_x(r, y)
+	print('hmx ', hmx)
+	
 	
 	return fig
 	

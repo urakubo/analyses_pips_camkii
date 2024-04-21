@@ -51,7 +51,7 @@ def plot_3D_pvista_CaMKII_interface_region(d):
 	#pl.screenshot(filename)
 
 
-def plot_3D_pvista_cond_CaMKII(cond_CaMKII, locs_binding_beads_CaMKII, locs_hub_bead_CaMKII, vertices, lines, rot):
+def plot_3D_pvista_cond_CaMKII(r, locs_binding_beads_CaMKII, locs_hub_bead_CaMKII, vertices, lines, rot):
 	
 	
 	# Prepare the figure
@@ -62,7 +62,8 @@ def plot_3D_pvista_cond_CaMKII(cond_CaMKII, locs_binding_beads_CaMKII, locs_hub_
 	
 	#'''
 	lines = pv.PolyData(vertices, lines=lines)
-	pl.add_mesh(lines, lighting=False, color="black")
+	# pl.add_mesh(lines, lighting=False, color="black")
+	pl.add_mesh(lines, lighting=False, color=c.green_universal_uint)
 	#'''
 	
 	# Add the spheres of hubs and binding beads.
@@ -73,15 +74,19 @@ def plot_3D_pvista_cond_CaMKII(cond_CaMKII, locs_binding_beads_CaMKII, locs_hub_
 	glyph_hub_beads     = hub_beads.glyph(geom=sphere)
 	
 	lighting = True # True, False
-	pl.add_mesh(glyph_binding_beads, lighting=lighting, color=c.light_green_universal_uint)
+	pl.add_mesh(glyph_binding_beads, lighting=lighting, color=c.green_universal_uint) # c.light_green_universal_uint
 	pl.add_mesh(glyph_hub_beads    , lighting=lighting, color="black")
 	
 	
 	# plot the contour of condensate	
+	'''
 	mesh = utils.generate_mesh(cond_CaMKII, flipz = False)
 	mesh.vertices = rot.apply( mesh.vertices ) 
 	pl.add_mesh(mesh, color='green', show_edges=False,  opacity=0.1)
-
+	'''
+	
+	condensate = pv.Sphere(radius=r, phi_resolution=30, theta_resolution=30)
+	pl.add_mesh(condensate, lighting=lighting, color=c.light_green_universal_uint, show_edges=False,  opacity=0.05)
 	
 	# Plot the bounding box
 	pl.add_mesh( square_yz(magnification=2.5), color='black', style='wireframe')
@@ -95,24 +100,33 @@ def plot_3D_pvista_cond_CaMKII(cond_CaMKII, locs_binding_beads_CaMKII, locs_hub_
 	return pl
 	
 	
-
 if __name__ == '__main__':
-
+	
 	# Target file
 	
-	
-	dir_edited_data  = 'valency_length'
-	prefix = '12_002'
-	
+
 	dir_edited_data  =  'small_colony'
 	prefix = '01_008'
-	#prefix = '00_008'
+	random_seed = 2
+	prefix = '00_008'
+	random_seed = 5
+	num_samples = 20
 	
+	num_samples = 20
+	prefix = '00_009'
+	#prefix = '01_009'
+	
+	radius = {'00_008': 14.484, '00_009': 15.806, '01_008': 15.045, '01_009':15.606 }
+	
+	#dir_edited_data  = 'valency_length'
+	#prefix = '12_004'
 	
 	
 	nth_largest = 0
 	linear_CaMKII = False
-	dir_imgs  = os.path.join('imgs3', dir_edited_data,'prof3d')
+	dir_imgs  = os.path.join('imgs3', dir_edited_data,'surface_tension_prof')
+	os.makedirs(dir_imgs, exist_ok=True)
+	
 	
 	# Load graph
 	print(prefix)
@@ -123,6 +137,10 @@ if __name__ == '__main__':
 	cond_CaMKII = d['condensate_CaMKII']['condensate_CaMKII_in_grid_mesh']
 	
 	
+	# Radius
+	#r = np.cbrt( 3 * np.sum(cond_CaMKII) / 4 /np.pi )
+	#print('r: ', r)
+	
 	# Pickup the largest cluster
 	clusters = sorted(nx.connected_components(multi_graph), key=len, reverse=True)
 	lengths_clusters = [len(c) for c in clusters]
@@ -132,7 +150,7 @@ if __name__ == '__main__':
 	
 	targ = 'CaMKII'
 	ids_CaMKII = [n for n, v in g_largest_cluster.nodes.items() if v['species'] == targ ]
-	random.seed(1)
+	random.seed(random_seed)
 	random.shuffle(ids_CaMKII)
 	
 	# Rotation
@@ -146,7 +164,6 @@ if __name__ == '__main__':
 	vertices = []
 	lines    = []
 	i = 0
-	num_samples = 20
 	current_num = 0
 	while (current_num < num_samples):
 		pos = g_largest_cluster.nodes[ids_CaMKII[i]]['positions_grid_coord']
@@ -181,7 +198,8 @@ if __name__ == '__main__':
 	print('lines.shape ', lines.shape )
 	#'''
 	
-	pl = plot_3D_pvista_cond_CaMKII(cond_CaMKII, locs_binding_beads, locs_hub_bead, vertices, lines, rot )
+	# pl = plot_3D_pvista_cond_CaMKII(cond_CaMKII, locs_binding_beads, locs_hub_bead, vertices, lines, rot )
+	pl = plot_3D_pvista_cond_CaMKII(radius[prefix], locs_binding_beads, locs_hub_bead, vertices, lines, rot )
 	
 	filename = os.path.join(dir_imgs, '{}_.png'.format(prefix))
 	pl.show(interactive=False, auto_close=True) # 

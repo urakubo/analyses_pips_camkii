@@ -431,7 +431,7 @@ def get_a_rdf(types, positions, rdf_grid_points, center = None, multi_graph=None
 	
 	# Centering
 	if center is None:
-		center              = get_center_of_mass(types, positions)
+		center = get_center_of_mass(types, positions)
 	
 	positions           = centering(positions, center)
 	positions_grid_centered = centering(rdf_grid_points, center)
@@ -458,14 +458,43 @@ def get_a_rdf(types, positions, rdf_grid_points, center = None, multi_graph=None
 	
 	return rdf
 
+def get_rdf_CaMKII_bead( dir_lammpstrj, filename_input, sampling_frame ):
 
+	# Load data
+	types, positions, _ = load_data( dir_lammpstrj, filename_input, sampling_frame )
+	
+	# Intial setting
+	rdf_grid_points         = get_lattice_grids()
+	center = get_center_of_mass(types, positions, reference_molecule_for_centering = 'CaMKII')
+	positions               = centering(positions, center)
+	positions_grid_centered = centering(rdf_grid_points, center)
+	
+	type_CaMKII_bead = [True if t == p.subunits['CaMKII binding site']['id'] else False for t in types]
+	position_CaMKII_bead = positions[type_CaMKII_bead,:]
+	
+	
+	# Get distances from the center
+	dists_CaMKII_bead = np.linalg.norm(position_CaMKII_bead, axis=1)
+	dists_grid        = np.linalg.norm(positions_grid_centered, axis=1)
+	
+	
+	# Get radial distribution function (rdf)
+	num_grid_around_center, _      = np.histogram(dists_grid , bins=p.rdf_bins)
+	num_molecule_around_center, _  = np.histogram(dists_CaMKII_bead , bins=p.rdf_bins)
+	rdf = {}
+	rdf['CaMKII_bead'] = num_molecule_around_center / num_grid_around_center
+	
+	return rdf, p.rdf_bins
+	
+	
+	
 def get_rdfs_from_multiple_frames( dir_lammpstrj, filename_input, sampling_time_frames, center = None, multi_graph=None ):
 	
 	# Parameters
 	rdf_grid_points   = get_lattice_grids()
 	
 	if center is None:
-		get_average_center_of_mass( dir_lammpstrj, filename_input, sampling_time_frames )
+		center = get_average_center_of_mass( dir_lammpstrj, filename_input, sampling_time_frames )
 	
 	rdfs = { k: np.zeros( ( len(p.rdf_bins)-1, len(sampling_time_frames) ) ) for k in p.molecules_with_all.keys() }
 	if multi_graph is not None:
@@ -479,8 +508,8 @@ def get_rdfs_from_multiple_frames( dir_lammpstrj, filename_input, sampling_time_
 			rdfs[k][:,i] = current_rdfs[k]
 		
 		
-	return rdfs
-
+	return rdf, p.rdf_bins
+	
 	
 def get_rdfs( dir_input, filename_input, target_frame, center=None, multi_graph=None ):
 	

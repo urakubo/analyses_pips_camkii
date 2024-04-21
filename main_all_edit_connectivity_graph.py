@@ -317,9 +317,12 @@ if __name__ == '__main__':
 		bp = utils.load_lammpstrj_binding_partners( dir_lammpstrj, filename_input, sampling_frame )
 		
 		
-		# Generate graph
+		# Centering
 		center_of_mass = utils.get_center_of_mass(types, positions_) # reference_molecule_for_centering = 'CaMKII'
 		positions = utils.centering(positions_, center_of_mass)
+		
+		
+		# Generate graph
 		multi_graph, simple_graph_CaMKII_GluN2B = get_graphs(ids_molecule, types, bp, positions)
 		d = {}
 		d['multi_graph'] = multi_graph

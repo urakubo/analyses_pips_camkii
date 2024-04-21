@@ -86,6 +86,7 @@ if __name__ == '__main__':
 	dir_lammpstrj    = 'small_colony'
 	dir_edited_data  = 'small_colony'
 	has_energy = False
+	has_multi_graph = False
 	#'''
 	
 	
@@ -138,22 +139,29 @@ if __name__ == '__main__':
 		
 		
 		# RDF
-		#'''
+		'''
 		rdf, rdf_bins, rdf_sampling_frames = \
 			utils.get_rdfs( dir_lammpstrj, filename_input, sampling_frame )
 		d['rdf_bins'] = rdf_bins
 		d['rdf_sampling_frames'] = rdf_sampling_frames
 		d['rdf'] = rdf
-		#'''
+		'''
+
+		# RDF, CaMKII binding beads
+		rdf, rdf_bins = \
+			utils.get_rdf_CaMKII_bead( dir_lammpstrj, filename_input, sampling_frame )
+		d['rdf_bins'] = rdf_bins
+		d['rdf'] = rdf
+
 		
 		# RDF, PSD95
-		#'''
+		'''
 		rdf, rdf_bins, rdf_sampling_frames = \
 			utils.get_rdfs( dir_lammpstrj, filename_input, sampling_frame, multi_graph = multi_graph )
 		d['rdf_PSD95_bins'] = rdf_bins
 		d['rdf_PSD95_sampling_frames'] = rdf_sampling_frames
 		d['rdf_PSD95'] = rdf
-		#'''
+		'''
 		
 		# Time info
 		d['time_frame'] = sampling_frame

@@ -150,11 +150,11 @@ def draw_network_sentrality(multi_graph, type_centrality):
 	plt.show()
 	
 		
-def draw_network_simple(multi_graph):
+def draw_network_simple(multi_graph, prefix):
 	nx.draw_networkx(	multi_graph, \
 						with_labels=False, \
 						node_size=20, \
-						edge_color ='.4', pos = nx.kamada_kawai_layout(g_largest_cluster)) # pos = nx.kamada_kawai_layout(multi_graph)
+						edge_color ='.4', pos = nx.kamada_kawai_layout(multi_graph)) # pos = nx.kamada_kawai_layout(multi_graph)
 	plt.suptitle(prefix)
 	plt.show()
 		

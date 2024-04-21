@@ -396,5 +396,7 @@ cmap_universal_uint = {
 light_green_universal_uint = (119, 217, 168)
 yellow_universal_uint      = (255, 241, 0)
 
+green_universal_uint = (3,175,122)
+
 # https://pystyle.info/matplotlib-master-of-colormap/
 

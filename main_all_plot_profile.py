@@ -27,7 +27,7 @@ def arrange_graph_bar(ax, panel_dx, y0, panel_size_x, panel_size_y):
 def make_a_figure( d ):
 	
 	# Parameters
-	vmax       = 0.7
+	#vmax       = 0.7
 
 	# Figure specification
 	transps = [(0,1,2),(1,2,0),(2,0,1)]

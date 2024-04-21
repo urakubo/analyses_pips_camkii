@@ -29,21 +29,28 @@ angles_all = angles_all.reshape(6,7)
 cluster_coefficients = cluster_coefficients.reshape(6,7)
 
 
+'''
 fig = plt.figure()
 ax  = fig.add_subplot(111, projection='3d')
 surf = ax.plot_surface(X1, X2, angles_interface, cmap='bwr', linewidth=0)
 plt.show()
 
-
 fig = plt.figure()
 ax  = fig.add_subplot(111, projection='3d')
 surf = ax.plot_surface(X1, X2, cluster_coefficients, cmap='bwr', linewidth=0)
 plt.show()
+'''
 
+'''
 fig = plt.figure()
 ax  = fig.add_subplot(111, projection='3d')
 surf = ax.plot_surface(X1, X2, angles_all, cmap='bwr', linewidth=0)
 plt.show()
+'''
 
+fig = plt.figure()
+ax  = fig.add_subplot(111)
+surf = ax.pcolormesh(X1, X2, angles_all, cmap='bwr', linewidth=0)
+plt.show()
 
 
