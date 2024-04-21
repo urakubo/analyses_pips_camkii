@@ -8,10 +8,105 @@ import matplotlib.pyplot as plt
 from matplotlib import patches
 
 from scipy.cluster.hierarchy import dendrogram
-import os
+import os, sys
 import utils
 import colormap as c
 import main_all_calc_centrality_working as calc_central
+
+
+
+# https://stackoverflow.com/questions/43541376/how-to-draw-communities-with-networkx
+def community_layout(g, partition):
+	"""
+	Compute the layout for a modular graph.
+
+
+	Arguments:
+	----------
+	g -- networkx.Graph or networkx.DiGraph instance
+	    graph to plot
+
+	partition -- dict mapping int node -> int community
+	    graph partitions
+
+
+	Returns:
+	--------
+	pos -- dict mapping int node -> (float x, float y)
+	    node positions
+
+	"""
+	pos_communities = _position_communities(g, partition, scale=3.)
+	pos_nodes = _position_nodes(g, partition, scale=1.)
+
+	# combine positions
+	pos = dict()
+	for node in g.nodes():
+	    pos[node] = pos_communities[node] + pos_nodes[node]
+	
+	return pos
+	
+
+def _position_communities(g, partition, **kwargs):
+
+    # create a weighted graph, in which each node corresponds to a community,
+    # and each edge weight to the number of edges between communities
+    between_community_edges = _find_between_community_edges(g, partition)
+
+    communities = set(partition.values())
+    hypergraph = nx.DiGraph()
+    hypergraph.add_nodes_from(communities)
+    for (ci, cj), edges in between_community_edges.items():
+        hypergraph.add_edge(ci, cj, weight=len(edges))
+
+    # find layout for communities
+    pos_communities = nx.spring_layout(hypergraph, **kwargs)
+
+    # set node positions to position of community
+    pos = dict()
+    for node, community in partition.items():
+        pos[node] = pos_communities[community]
+
+    return pos
+
+def _find_between_community_edges(g, partition):
+
+    edges = dict()
+
+    for (ni, nj) in g.edges():
+        ci = partition[ni]
+        cj = partition[nj]
+
+        if ci != cj:
+            try:
+                edges[(ci, cj)] += [(ni, nj)]
+            except KeyError:
+                edges[(ci, cj)] = [(ni, nj)]
+
+    return edges
+
+def _position_nodes(g, partition, **kwargs):
+    """
+    Positions nodes within communities.
+    """
+
+    communities = dict()
+    for node, community in partition.items():
+        try:
+            communities[community] += [node]
+        except KeyError:
+            communities[community] = [node]
+
+    pos = dict()
+    for ci, nodes in communities.items():
+        subgraph = g.subgraph(nodes)
+        pos_subgraph = nx.spring_layout(subgraph, **kwargs)
+        pos.update(pos_subgraph)
+
+    return pos
+
+
+
 
 
 def calc_dendrogram(G_):
@@ -142,49 +237,6 @@ def draw_adjacency_matrix(ax, G, node_order=None, partitions=None, color=None):
 			                              linewidth=1))
 
 
-def draw_network_simple(multi_graph, prefix):
-	# https://qiita.com/yuru/items/4208e13a399773c2b9f8
-	plt.figure(figsize=(5,5))
-	nx.draw_networkx(	multi_graph, \
-						with_labels=False, \
-						node_size=25, \
-						node_color = 'k', \
-						edge_color =c.cmap_universal_ratio['CaMKII'], pos = nx.kamada_kawai_layout(multi_graph)) # pos = nx.kamada_kawai_layout(multi_graph)
-	plt.suptitle(prefix)
-	plt.show()
-
-if __name__ == '__main__':
-
-
-	dir_edited_data  =  'small_colony'
-	prefix = '01_008'
-	prefix = '00_004'
-	#prefix = '01_004'
-	nth_largest = 0
-
-#	dir_edited_data  = 'valency_length'
-#	prefix = '04_002'
-	fig_title = '{} th in {}'.format(nth_largest, prefix)
-	print(fig_title)
-	dir_edited_data  = os.path.join('data3', dir_edited_data)
-	d = utils.load(dir_edited_data, prefix, 'connectivity_graph')
-	#plot_3D_pvista_CaMKII_interface_region(d)
-
-	# Make new graphs of CaMKII
-	multi_graph_CaMKII, simple_graph_CaMKII, locs_hub, CaMKII_binding_site = \
-		calc_central.make_new_graphs_CaMKII_connectivity(d, nth_largest =  nth_largest)
-
-	G_ = multi_graph_CaMKII
-	#org_nodes = list(G_.nodes)
-	#mapping = {o: str(o)+'_' for o in org_nodes}
-	#G__ = nx.relabel_nodes(G_, mapping)
-
-
-	draw_network_simple(G_, fig_title)
-
-
-	Z, labels = calc_dendrogram(G_)
-
 
 	#  [list(v)[0] for k, v, in init_node2community_dict.items() if len(v) == 1] # 元のnodesの並び順？
 	#  [k for k, v, in init_node2community_dict.items() if len(v) == 1] 
@@ -197,23 +249,49 @@ if __name__ == '__main__':
 	# Save するべきは、node_id_to_children, subtree, node_labels, leaves, init_node2community_dict, G など？
 	# もっと small scale で試してからの方が良い？
 
-	# dendrogram
-	#plt.figure()
-	fig = plt.figure(figsize=(6,6))
+
+def draw_network_simple(G, prefix, pos):
+
+	# pos = nx.kamada_kawai_layout(G)
 	
-	ax1 = fig.add_axes([0.3,0.71,0.6,0.2])
-	#ax1 = fig.add_axes([0.09,0.1,0.2,0.6])
+	# https://stackoverflow.com/questions/43541376/how-to-draw-communities-with-networkx
+	# https://qiita.com/yuru/items/4208e13a399773c2b9f8
+	plt.figure(figsize=(5,5))
 	
-	# link_color_func=lambda x: 'black'
-	R=dendrogram(Z, labels=labels, color_threshold = 40, above_threshold_color='k')
-	plt.title(fig_title)
+	#draw(G, pos=None, ax=None, **kwds)
 	
-	ax2 = fig.add_axes([0.3,0.1,0.6,0.6]) # fig.add_axes([0.3,0.1,0.6,0.6])
+	'''
+	nx.draw_networkx(	G, \
+						with_labels=False, \
+						node_size=25, \
+						node_color = 'k', \
+						edge_color =c.cmap_universal_ratio['CaMKII'], pos = pos)
+	'''
 	
-	#node_order=[node_labels[node_id] for node_id in leaves]
-	#print('node oredr: ',  R['ivl'])
-	
+	nx.draw(	G, \
+						with_labels=False, \
+						node_size=25, \
+						node_color = 'k', \
+						edge_color =c.cmap_universal_ratio['CaMKII'], pos = pos)
+
+	plt.title(prefix)
+	plt.show()
+
+
+def get_clusters_from_dendrogram(R):
+
+	node_order =  R['ivl']
 	leaves_color_list = R['leaves_color_list']
+
+	# Clustering for graph
+	leaves_colors = list(set(leaves_color_list))
+	ref = {col: i+1 for i, col in enumerate(leaves_colors)}
+	ref['k'] = 0
+	partition     = {n: ref[c] for n, c in zip(node_order, leaves_color_list)}
+	#print('partition ', partition)
+
+
+	# Blocks for matrix
 	blocks = []
 	ref_col = ''
 	ref_i   = 0
@@ -233,14 +311,63 @@ if __name__ == '__main__':
 			pass
 	if leaves_color_list[-1] != 'k':
 		blocks.append([ref_i, len(leaves_color_list)])
+	print('blocks ', blocks)
+
+	return node_order, blocks, partition
+
+
+
+if __name__ == '__main__':
+
+	## Init
+	dir_edited_data  =  'small_colony'
+	prefix = '01_008'
+	prefix = '00_004'
+	#prefix = '01_004'
+	nth_largest = 1
+
+	# dir_edited_data  = 'valency_length'
+	# prefix = '04_002'
+
+	fig_title = '{} th in {}'.format(nth_largest, prefix)
+	print(fig_title)
+	dir_edited_data  = os.path.join('data3', dir_edited_data)
+	dir_imgs         = os.path.join('imgs3', dir_edited_data, 'connectivity_matrix_dendrogram')
+	os.makedirs(dir_imgs, exist_ok=True)
+
+	# Load graph.
+	d = utils.load(dir_edited_data, prefix, 'connectivity_graph')
+
+	# Make new graphs of CaMKII
+	multi_graph_CaMKII, simple_graph_CaMKII, locs_hub, CaMKII_binding_site = \
+		calc_central.make_new_graphs_CaMKII_connectivity(d, nth_largest =  nth_largest)
+	G_ = multi_graph_CaMKII
+	
+	# Calc dendrogram
+	Z, labels = calc_dendrogram(G_)
+	
+	
+	# Plot and save figure
+	fig = plt.figure(figsize=(6,6))
+	ax1 = fig.add_axes([0.3,0.71,0.6,0.2])
+	R=dendrogram(Z, labels=labels, color_threshold = 40, above_threshold_color='k') # link_color_func=lambda x: 'black'
+	ax1.set_title(fig_title)
+	
+	node_order, blocks, partition = get_clusters_from_dendrogram(R)
+	ax2 = fig.add_axes([0.3,0.1,0.6,0.6]) # fig.add_axes([0.3,0.1,0.6,0.6])	
+	draw_adjacency_matrix(ax2, G_,  node_order = node_order, partitions= blocks, color= 'r')
+	'''
+	fig.savefig( os.path.join(dir_imgs, '{}_connect_dendrogram.svg'.format( prefix ) ) )
+	fig.savefig( os.path.join(dir_imgs, '{}_connect_dendrogram.png'.format( prefix ) ) , dpi=150)
+	plt.show()
+	'''
+	plt.close(fig=fig)
+	
+	
+	### graph visulization
+	pos = community_layout(G_, partition)
+	draw_network_simple(G_, prefix, pos = pos)
+    
 	
 	
 	# blocks = [l.index(i) for i in sorted(list(set(l)))]+[len(l)]
-	
-	print('blocks ', blocks)
-	
-	draw_adjacency_matrix(ax2, G_,  node_order =  R['ivl'], partitions= blocks, color= 'r')
-	
-	plt.savefig('dendrogram.png')
-	plt.show()
-
