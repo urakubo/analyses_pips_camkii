@@ -398,5 +398,21 @@ yellow_universal_uint      = (255, 241, 0)
 
 green_universal_uint = (3,175,122)
 
+red_uint     = (255,75,0)
+yellow_uint  = (255,241,0)
+green_uint   = (3,175,122)
+blue_uint    = (0,90,255)
+skyblue_uint = (77,196,255)
+pink_uint    = (255,128,130)
+orange_uint  = (246,170,0)
+purple_uint  = (153,0,153)
+blown_uint   = (128,64,0)
+
+cols_list_uint  = [red_uint, green_uint, blue_uint, pink_uint, \
+	orange_uint, purple_uint, blown_uint]
+	
+cols_list_ratio = [[cols[0]/255, cols[1]/255, cols[2]/255] for cols in cols_list_uint]
+
 # https://pystyle.info/matplotlib-master-of-colormap/
+
 
