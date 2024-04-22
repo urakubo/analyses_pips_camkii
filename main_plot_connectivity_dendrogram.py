@@ -345,13 +345,13 @@ if __name__ == '__main__':
 	prefix = '01_008'
 	#prefix = '01_004'
 
-	# lengths_clusters  [845, 838, 793, 443, 372, 368, 1, 1, 1, 1]
-	prefix = '00_004'
-	nth_largest = 0 #0
-
 	# lengths_clusters  [1503, 881, 699, 447, 274, 1, 1, 1, 1, 1]
 	prefix = '01_004'
 	nth_largest = 1
+
+	# lengths_clusters  [845, 838, 793, 443, 372, 368, 1, 1, 1, 1]
+	prefix = '00_004'
+	nth_largest = 0 #0
 
 
 	# dir_edited_data  = 'valency_length'
@@ -379,13 +379,14 @@ if __name__ == '__main__':
 	plt.rcParams["axes.prop_cycle"] = cycler( color=c.cols_list_ratio )
 	
 	# Plot and save figure
-	fig = plt.figure(figsize=(6,6))
+	fig = plt.figure(figsize=(4,4))
 	ax1 = fig.add_axes([0.3,0.71,0.6,0.2])
 	R=dendrogram(Z, \
 		labels=labels, \
 		color_threshold = 40, \
 		above_threshold_color='k' \
 		) # link_color_func=lambda x: 'black' link_color_func=lambda k: c.cols[k]
+	plt.setp(ax1.collections,linewidth=1.0)
 	ax1.set_title(fig_title)
 	
 	x_labels = ax1.get_xmajorticklabels()
@@ -403,9 +404,8 @@ if __name__ == '__main__':
 	
 	### graph visulization
 	
+	'''
 	#pos = community_layout(G_, partition)
-	# [ i for i, attr in multi_graph.nodes('species') if attr == species ]
-	
 	cols = [leaves_color_list[i] for i in np.argsort(node_order)]
 	
 	num_rows    = 1
@@ -429,6 +429,5 @@ if __name__ == '__main__':
 	plt.savefig( os.path.join(dir_imgs, '{}_connectivity.svg'.format( fig_title ) ) )
 	plt.savefig( os.path.join(dir_imgs, '{}_connectivity.png'.format( fig_title ) ) , dpi=150)
 	plt.show()
+	'''
 	
-	
-	# blocks = [l.index(i) for i in sorted(list(set(l)))]+[len(l)]
