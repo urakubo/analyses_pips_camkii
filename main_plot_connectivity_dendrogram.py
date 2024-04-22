@@ -322,7 +322,17 @@ def draw_network_simple(ax, G, pos, cols):
 				ax = ax, \
 				edge_color =c.cmap_universal_ratio['CaMKII'],\
 				width = 0.5)
-				
+	
+	ax.set_aspect('equal')
+	
+	xy=np.array([v.tolist() for v in pos.values()] )
+	x_min_max = [np.min(xy[:,0]), np.max(xy[:,0])/10 + np.min(xy[:,0])* 9/10 ]
+	ymax = np.max(xy[:,1])
+	
+	ax.plot(x_min_max, [ymax, ymax], 'k-')
+	ax.plot(x_min_max, [ymax, ymax], 'k-')
+	
+	ax.set_title('{:.3g}'.format( ( np.max(xy[:,0])-np.min(xy[:,0]))/10 ) )
 	plt.box(False)
 	#plt.suptitle(prefix)
 	return
@@ -335,11 +345,9 @@ if __name__ == '__main__':
 	prefix = '01_008'
 	#prefix = '01_004'
 
-
-	# lengths_clusters  [1503, 881, 699, 447, 274, 1, 1, 1, 1, 1]
+	# lengths_clusters  [845, 838, 793, 443, 372, 368, 1, 1, 1, 1]
 	prefix = '00_004'
-	nth_largest = 0
-
+	nth_largest = 0 #0
 
 	# lengths_clusters  [1503, 881, 699, 447, 274, 1, 1, 1, 1, 1]
 	prefix = '01_004'
@@ -403,10 +411,18 @@ if __name__ == '__main__':
 	num_rows    = 1
 	num_columns = 3
 	fig = plt.figure(figsize=(12,4))
+	
+	# Rotation
+	from scipy.spatial.transform import Rotation as Rot
+	r1 = Rot.from_euler('x', 70, degrees=True)
+	r2 = Rot.from_euler('z', 20, degrees=True)
+	rot = r2 * r1
+	pos  = {i: rot.apply(v['loc_hub'])  for i,v in G_.nodes.items()}
+	# print('pos ', pos)
 	for i, d in enumerate( [[0,1],[1,2],[2,0]] ):
 		ax = fig.add_subplot( num_rows, num_columns, i+1 )
-		pos  = {i: np.array( [v['loc_hub'][d[0]], v['loc_hub'][d[1]]] ) for i,v in G_.nodes.items()}
-		draw_network_simple(ax, G_, pos = pos, cols = cols)
+		pos_  = {i: np.array( [ v[d[0]], v[d[1]] ] ) for i,v in pos.items() }
+		draw_network_simple(ax, G_, pos = pos_, cols = cols)
     
 	
 	plt.suptitle(fig_title)
