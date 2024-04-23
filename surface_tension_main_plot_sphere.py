@@ -98,10 +98,10 @@ def plot_polar_scatter(angle_interface, distance_to_hub_interface, prefix):
 	
 	
 	
-def plot_polar_histogram(angle_interface, distance_to_hub_interface, prefix):
+def plot_polar_histogram(angle_interface, distance_to_hub_interface, prefix, length):
 	
-	rbins = np.arange(0, max(distance_to_hub_interface), 1)
-	abins = np.linspace(0,2*np.pi, 60)
+	rbins = np.arange(0, length+1, 1)
+	abins = np.linspace(0,2*np.pi, 30)
 	abins_s = np.hstack( [abins[1:], abins[0]] )
 	# https://en.wikipedia.org/wiki/Spherical_segment
 	normal_abins = 2 * np.pi * np.abs( np.cos(abins[1:]) - np.cos(abins[:-1]) )
@@ -115,6 +115,7 @@ def plot_polar_histogram(angle_interface, distance_to_hub_interface, prefix):
 	A, R = np.meshgrid(abins, rbins)
 	fig, ax = plt.subplots(figsize=(2, 2), subplot_kw=dict(projection="polar"))
 	pc = ax.pcolormesh(A, R, hist.T, cmap="Greys", vmin=0)  # 0.025 0.0015
+	ax.set_rlim(0, length)
 	ax.set_title('{}'.format(prefix) )
 	#fig.colorbar(pc)
 	ax.set_theta_offset(np.pi / 2.0 * 3)
@@ -155,28 +156,37 @@ def get_properties_beads_CaMKII(g_largest_cluster):
 	
 if __name__ == '__main__':
 	
-	
-	# Dataset 2:  Valency length
+
 	'''
-	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
-	dir_target  = 'valency_length'
-	#filenames = ['12_{}'.format(str(id_f).zfill(3)) for id_f in range(7)] # '12_002', '12_004', '12_005', '12_006'
-	filenames = ['12_000', '12_001', '12_002', '12_003', '12_004', '12_005', '12_006']
-	filenames = ['04_000', '04_001', '04_002', '04_003', '04_004', '04_005', '04_006']
-	filenames = ['06_000', '06_001', '06_002', '06_003', '06_004', '06_005', '06_006']
-	length    = {	'04_000':1, '04_001':2, '04_002':3, '04_003':4, '04_004':5, '04_005':6 , '04_006':9, \
-					'06_000':1, '06_001':2, '06_002':3, '06_003':4, '06_004':5, '06_005':6 , '06_006':9, \
-					'12_000':1, '12_001':2, '12_002':3, '12_003':4, '12_004':5, '12_005':6 , '12_006':9  }
-	'''
-	
-	
-	
-	#'''
 	dir_target  =  'small_colony'
 	filenames = ['00_009', '01_009'] # 00: len-3, 01: len-9, 02: linear
 	#filenames = ['00_008', '01_008'] # 00: len-3, 01: len-9, 02: linear
 	length = {'00_008':3, '00_009':3, '01_008':9, '01_009':9 }
+	'''
+		
+	# Dataset 2:  Valency length
 	#'''
+	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
+	dir_target  = 'CG_valency_length'
+	#filenames = ['12_{}'.format(str(id_f).zfill(3)) for id_f in range(7)] # '12_002', '12_004', '12_005', '12_006'
+	filenames = ['12_000', '12_001', '12_002', '12_003', '12_004', '12_005', '12_006']
+	filenames = ['04_000', '04_001', '04_002', '04_003', '04_004', '04_005', '04_006']
+	filenames = ['06_000', '06_001', '06_002', '06_003', '06_004', '06_005', '06_006']
+	
+	filenames = ['04_001', '04_002', '04_003', '04_004', '04_005', '04_006']
+	filenames = ['06_001', '06_002', '06_003', '06_004', '06_005', '06_006']
+	filenames = ['12_000', '12_001', '12_002', '12_003', '12_004', '12_005', '12_006']
+
+	length = {'_'+str(id_f).zfill(3): l for id_f, l in zip( range(7), [1,2,3,4,5,6,9]) }
+	length = {str(id_d).zfill(2)+k: v for id_d in range(2,14,2) for k, v in length.items() }
+	
+	radius = utils.load(os.path.join('data3', dir_target), 'Radiuses', 'CaMKII_bead')
+	# print('radius: ' )
+	# pprint.pprint(radius)
+	#'''
+	
+	
+	
 	
 	
 	type_condensate = 'condensate_all_in_grid_mesh' # 'condensate_all_in_grid_mesh', 'condensate_CaMKII_in_grid_mesh'
@@ -257,14 +267,14 @@ if __name__ == '__main__':
 		
 		
 		# Plot the polar histogram and save the figure
-		'''
-		fig, ax = plot_polar_histogram(angles, distance_to_hub, prefix)
+		#'''
+		fig, ax = plot_polar_histogram(angles, distance_to_hub, prefix, length[prefix])
 		fig.savefig( os.path.join(dir_imgs, '{}_polar_hist.svg'.format( prefix ) ) )
 		fig.savefig( os.path.join(dir_imgs, '{}_polar_hist.png'.format( prefix ) ) , dpi=150)
 		plt.show()
 		#plt.clf()
 		#plt.close(fig=fig)
-		'''
+		#'''
 		
 		l = str( length[prefix] )
 		ave_cos[l]    = np.sum( np.cos(angles) ) / distance_to_hub.shape[0]

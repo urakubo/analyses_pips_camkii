@@ -89,7 +89,8 @@ def plot_3D_pvista_cond_CaMKII(r, locs_binding_beads_CaMKII, locs_hub_bead_CaMKI
 	pl.add_mesh(condensate, lighting=lighting, color=c.light_green_universal_uint, show_edges=False,  opacity=0.05)
 	
 	# Plot the bounding box
-	pl.add_mesh( square_yz(magnification=2.5), color='black', style='wireframe')
+	pl.add_mesh( square_yz(magnification=2.0), color='black', style='wireframe')
+	pl.add_title('Radius: {:.3f}'.format(r))
 	
 	# Show the image
 	pl.set_background('white')
@@ -104,7 +105,8 @@ if __name__ == '__main__':
 	
 	# Target file
 	
-
+	
+	'''
 	dir_edited_data  =  'small_colony'
 	prefix = '01_008'
 	random_seed = 2
@@ -115,31 +117,34 @@ if __name__ == '__main__':
 	num_samples = 20
 	prefix = '00_009'
 	#prefix = '01_009'
-	
 	radius = {'00_008': 14.484, '00_009': 15.806, '01_008': 15.045, '01_009':15.606 }
+	'''
 	
-	#dir_edited_data  = 'valency_length'
-	#prefix = '12_004'
+	num_samples = 30
+	dir_target      = 'CG_valency_length'
+	dir_edited_data = os.path.join('data3', dir_target)
+
+	prefix, random_seed = '12_002', 1
+	prefix, random_seed = '12_006', 0
+	#prefix, random_seed = '12_005', 2
 	
+	radius = utils.load(dir_edited_data, 'Radiuses', 'CaMKII_bead')
+	print('radius: ' )
+	pprint.pprint(radius)
 	
-	nth_largest = 0
-	linear_CaMKII = False
-	dir_imgs  = os.path.join('imgs3', dir_edited_data,'surface_tension_prof')
+	# Output
+	dir_imgs  = os.path.join('imgs3', dir_target,'surface_tension_prof')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	
 	# Load graph
 	print(prefix)
 	suffix = 'connectivity_graph'
-	dir_edited_data  = os.path.join('data3', dir_edited_data)
 	d = utils.load(dir_edited_data, prefix, suffix)
 	multi_graph = d['multi_graph']
 	cond_CaMKII = d['condensate_CaMKII']['condensate_CaMKII_in_grid_mesh']
 	
 	
-	# Radius
-	#r = np.cbrt( 3 * np.sum(cond_CaMKII) / 4 /np.pi )
-	#print('r: ', r)
 	
 	# Pickup the largest cluster
 	clusters = sorted(nx.connected_components(multi_graph), key=len, reverse=True)
@@ -191,12 +196,12 @@ if __name__ == '__main__':
 	lines    = np.ravel(np.array( lines ) )
 	
 	
-	#'''
+	'''
 	print('locs_hub_bead.shape     ', locs_hub_bead.shape )
 	print('locs_binding_beads.shape ', locs_binding_beads.shape )
 	print('vertices.shape     ', vertices.shape )
 	print('lines.shape ', lines.shape )
-	#'''
+	'''
 	
 	# pl = plot_3D_pvista_cond_CaMKII(cond_CaMKII, locs_binding_beads, locs_hub_bead, vertices, lines, rot )
 	pl = plot_3D_pvista_cond_CaMKII(radius[prefix], locs_binding_beads, locs_hub_bead, vertices, lines, rot )

@@ -130,29 +130,24 @@ if __name__ == '__main__':
 			multi_graph = multi_graph,\
 			sigma = 2)
 		
-		# Watershed
-		'''
-		labels_watershed_in_grid_mesh, ratio_volumes_watershed = utils.watershed_segmentation( d )
-		d['labels_watershed_in_grid_mesh'] = labels_watershed_in_grid_mesh
-		d['ratio_volumes_watershed']       = ratio_volumes_watershed
-		'''
 		
 		
 		# RDF
-		'''
+		#'''
 		rdf, rdf_bins, rdf_sampling_frames = \
 			utils.get_rdfs( dir_lammpstrj, filename_input, sampling_frame )
 		d['rdf_bins'] = rdf_bins
 		d['rdf_sampling_frames'] = rdf_sampling_frames
 		d['rdf'] = rdf
-		'''
+		#'''
 
 		# RDF, CaMKII binding beads
+		'''
 		rdf, rdf_bins = \
 			utils.get_rdf_CaMKII_bead( dir_lammpstrj, filename_input, sampling_frame )
 		d['rdf_bins'] = rdf_bins
 		d['rdf'] = rdf
-
+		'''
 		
 		# RDF, PSD95
 		'''
