@@ -101,7 +101,6 @@ class PlotPhaseDiagram(MatrixValencyLength):
 		levels1		= np.array([0.5, 1.5, 2.5, 3.5, 4.5])
 		colormap1	= c.cmap_phase_diagram2
 		
-		
 		STG_only	= np.array(self.STG_only).T
 		levels2		= [-0.5, 0.5, 1.5]
 		colormap2	= c.cmap_phase_diagram3
@@ -113,8 +112,7 @@ class PlotPhaseDiagram(MatrixValencyLength):
 		cs, cb = utils.plot_a_panel(ax, phase_diagram, p.lengths, self.valencies, colormap1, levels1, draw_border = True)
 		utils.plot_a_panel_overlay(ax, STG_only, p.lengths, self.valencies, colormap2, levels2)
 		
-
-
+		
 class PlotPhaseDiagramConnectivity(MatrixValencyLength):
 	def __init__( self, species, type_analysis ):
 		

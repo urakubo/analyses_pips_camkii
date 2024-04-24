@@ -466,6 +466,8 @@ def get_rdf_CaMKII_bead( dir_lammpstrj, filename_input, sampling_frame ):
 	# Intial setting
 	rdf_grid_points         = get_lattice_grids()
 	center = get_center_of_mass(types, positions, reference_molecule_for_centering = 'CaMKII')
+	print('get_rdf_CaMKII_bead center: ', center)
+	
 	positions               = centering(positions, center)
 	positions_grid_centered = centering(rdf_grid_points, center)
 	

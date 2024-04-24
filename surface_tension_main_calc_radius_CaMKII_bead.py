@@ -31,7 +31,7 @@ def half_max_x(x, y):
     signs = np.sign(np.add(y, -half))
     zero_crossings = (signs[0:-2] != signs[1:-1])
     zero_crossings_i = np.where(zero_crossings)[0]
-    return lin_interp(x, y, zero_crossings_i[0], half)
+    return lin_interp(x, y, zero_crossings_i[-1], half)
 	
 	
 def plot_a_rdf( ax, r, y, legend=True,  ylim = (-0.006,0.66) ):
@@ -133,6 +133,8 @@ if __name__ == '__main__':
 		types, positions_grid_coord,ids_molecule, mc_step = \
 			utils.load_lammpstrj( dir_lammpstrj, filename_input, sampling_frame )
 		
+		center = np.array([30,30,30])
+		positions_grid_coord = utils.centering(positions_grid_coord, center)
 		
 		d = {}
 		# RDF, CaMKII binding beads

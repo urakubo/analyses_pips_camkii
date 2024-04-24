@@ -31,7 +31,7 @@ def arrange_graph_bar(ax, panel_size_x, panel_size_y):
 	ax.set_position([loc.x0, loc.y0, panel_size_x, panel_size_y])
 	ax.set_xlabel('Linker length')
 	
-def plot_graphs(ave_cos, pull_force):
+def plot_graphs(ave_cos, pull_force, pull_force_per_area):
 	
 	# Figure specification
 	num_columns = 10
@@ -48,7 +48,7 @@ def plot_graphs(ave_cos, pull_force):
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*1 )
 	ax.set_title('Cosine similarity')
 	ax.bar(*zip(*ave_cos.items()), width=0.6 , color='gray' ) # , color=colormap_conc_bargraph
-	ax.set_ylim([0,1.0])
+	ax.set_ylim([0,1.2*max(ave_cos.values())])
 	ax.set_ylabel('E[cos(theta)]')
 	arrange_graph_bar(ax, panel_size/4, panel_size)
 	
@@ -56,6 +56,12 @@ def plot_graphs(ave_cos, pull_force):
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*1 )
 	ax.set_title('Contraction force')
 	ax.bar(*zip(*pull_force.items()), width=0.6, color='gray' ) # , color=colormap_conc_bargraph
+	arrange_graph_bar(ax, panel_size/4, panel_size)
+	
+	column = 7
+	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*1 )
+	ax.set_title('Contraction force per area')
+	ax.bar(*zip(*pull_force_per_area.items()), width=0.6, color='gray' ) # , color=colormap_conc_bargraph
 	arrange_graph_bar(ax, panel_size/4, panel_size)
 	
 	return fig
@@ -83,7 +89,7 @@ def flatten(sequence):
     return result
 	
 	
-def plot_polar_scatter(angle_interface, distance_to_hub_interface, prefix):
+def plot_polar_scatter(angle_interface, distance_to_hub_interface, prefix, dir_imgs):
 	
 	fig = plt.figure(figsize=(2, 2))
 	ax = fig.add_subplot(111, projection='polar')
@@ -93,12 +99,16 @@ def plot_polar_scatter(angle_interface, distance_to_hub_interface, prefix):
 	ax.set_title('{}'.format(prefix) )
 	ax.set_theta_offset(np.pi / 2.0 * 3)
 	ax.set_rlabel_position(180-20)
+
+	fig, ax = plot_polar_scatter( angles, distance_to_hub, prefix )
+	fig.savefig( os.path.join(dir_imgs, '{}_polar_scatter.svg'.format( prefix ) ) )
+	fig.savefig( os.path.join(dir_imgs, '{}_polar_scatter.png'.format( prefix ) ) , dpi=150)
+	plt.show()
+
+	return
 	
-	return fig, ax
 	
-	
-	
-def plot_polar_histogram(angle_interface, distance_to_hub_interface, prefix, length):
+def plot_polar_histogram(angle_interface, distance_to_hub_interface, prefix, length, ):
 	
 	rbins = np.arange(0, length+1, 1)
 	abins = np.linspace(0,2*np.pi, 30)
@@ -120,6 +130,14 @@ def plot_polar_histogram(angle_interface, distance_to_hub_interface, prefix, len
 	#fig.colorbar(pc)
 	ax.set_theta_offset(np.pi / 2.0 * 3)
 	ax.set_rlabel_position(180-20)
+	
+	
+	fig.savefig( os.path.join(dir_imgs, '{}_polar_hist.svg'.format( prefix ) ) )
+	fig.savefig( os.path.join(dir_imgs, '{}_polar_hist.png'.format( prefix ) ) , dpi=150)
+	plt.show()
+	#plt.clf()
+	#plt.close(fig=fig)
+	
 	return fig, ax
 	
 	
@@ -154,6 +172,9 @@ def get_properties_beads_CaMKII(g_largest_cluster):
 	return CaMKII_binding_site
 	
 	
+	
+	
+	
 if __name__ == '__main__':
 	
 
@@ -173,10 +194,10 @@ if __name__ == '__main__':
 	filenames = ['04_000', '04_001', '04_002', '04_003', '04_004', '04_005', '04_006']
 	filenames = ['06_000', '06_001', '06_002', '06_003', '06_004', '06_005', '06_006']
 	
-	filenames = ['04_001', '04_002', '04_003', '04_004', '04_005', '04_006']
-	filenames = ['06_001', '06_002', '06_003', '06_004', '06_005', '06_006']
-	filenames = ['12_000', '12_001', '12_002', '12_003', '12_004', '12_005', '12_006']
+	filenames = ['06_000', '06_001', '06_002', '06_003', '06_004', '06_005', '06_006']
+	filenames = ['04_000', '04_001', '04_002', '04_003', '04_004', '04_005', '04_006']
 
+	filenames = [ '12_002', '12_006']
 	length = {'_'+str(id_f).zfill(3): l for id_f, l in zip( range(7), [1,2,3,4,5,6,9]) }
 	length = {str(id_d).zfill(2)+k: v for id_d in range(2,14,2) for k, v in length.items() }
 	
@@ -204,6 +225,7 @@ if __name__ == '__main__':
 	
 	ave_cos = {}
 	pull_force = {}
+	pull_force_per_area = {}
 	for ii, prefix in enumerate( filenames ):
 		print()
 		print(prefix)
@@ -242,13 +264,8 @@ if __name__ == '__main__':
 		
 		
 		# Plot the polar scatter and save the figure
-		'''
-		fig, ax = plot_polar_scatter( angles, distance_to_hub, prefix )
-		fig.savefig( os.path.join(dir_imgs, '{}_polar_scatter.svg'.format( prefix ) ) )
-		fig.savefig( os.path.join(dir_imgs, '{}_polar_scatter.png'.format( prefix ) ) , dpi=150)
-		plt.show()
-		#plt.clf()
-		#plt.close(fig=fig)
+		plot_polar_scatter( angles, distance_to_hub, prefix, dir_imgs )
+
 		'''
 		streched_linkers1 = distance_to_hub >= length[prefix] - 1 # - 1 -1/np.sqrt(3)##############
 		streched_linkers2 = distance_to_hub >= length[prefix] - 1 # - 1 -1/np.sqrt(3)##############
@@ -256,34 +273,27 @@ if __name__ == '__main__':
 		stretched_linkers_cos = np.sum( streched_linkers1 * np.cos(angles) + streched_linkers2 * np.cos(angles) ) / 2
 		ave_stretched_linkers_cos = stretched_linkers_cos * 2 / np.sum( streched_linkers1 + streched_linkers2 )
 		
-		print('Total number of beads       : ', distance_to_hub.shape[0] )
-		print('Sigma total * cos(theta)    : ', np.sum( np.cos(angles) ) )
-		print('Average: ', np.sum( np.cos(angles) ) / distance_to_hub.shape[0] )
-		
-		print('Number of stretched_linkers   : ', np.sum( streched_linkers1 ) )
-		print('Sigma stretched_linkers * cos(theta): ', stretched_linkers_cos )
-		print('Average: ',  ave_stretched_linkers_cos )
-		
-		
 		
 		# Plot the polar histogram and save the figure
-		#'''
+		'''
 		fig, ax = plot_polar_histogram(angles, distance_to_hub, prefix, length[prefix])
 		fig.savefig( os.path.join(dir_imgs, '{}_polar_hist.svg'.format( prefix ) ) )
 		fig.savefig( os.path.join(dir_imgs, '{}_polar_hist.png'.format( prefix ) ) , dpi=150)
 		plt.show()
 		#plt.clf()
 		#plt.close(fig=fig)
-		#'''
+		'''
 		
 		l = str( length[prefix] )
 		ave_cos[l]    = np.sum( np.cos(angles) ) / distance_to_hub.shape[0]
 		pull_force[l] = stretched_linkers_cos
 		
 		
+		pull_force_per_area[l] = stretched_linkers_cos / (4*np.pi*radius[prefix]*radius[prefix])
+		
 		
 	# Plot the edited data
-	fig = plot_graphs(ave_cos, pull_force)
+	fig = plot_graphs(ave_cos, pull_force, pull_force_per_area)
 	
 	# Save figure
 	fig.savefig( os.path.join(dir_imgs, 'Surface_tension.svg' ) )
