@@ -122,7 +122,7 @@ def draw_adjacency_matrix(G, node_order=None, partitions=[], colors=[]):
 	
 
 
-def draw_network_sentrality(multi_graph, type_centrality):
+def draw_network_centrality(multi_graph, type_centrality):
 	
 	if type_centrality == 'betweenness':
 	        centrality = nx.betweenness_centrality(g_largest_cluster)
@@ -248,8 +248,8 @@ def make_new_graphs_CaMKII_connectivity(d, nth_largest = 0):
 			position_CaMKII_hub = np.ravel( v['positions_grid_coord'][id_CaMKII_hub, :] )
 			id_bead       = v['ids_bead'][0][id_CaMKII_hub[0][0]]
 			# print('id_CaMKII_hub[0][0] ', id_CaMKII_hub[0][0], ', id_bead ', id_bead)
-			multi_graph_CaMKII.add_node(id, id_bead = id_bead, loc_hub = position_CaMKII_hub)
-			simple_graph_CaMKII.add_node(id, id_bead = id_bead, loc_hub = position_CaMKII_hub)
+			multi_graph_CaMKII.add_node(id, id_bead = id_bead, id_bead_all=v['ids_bead'][0], loc_hub = position_CaMKII_hub)
+			simple_graph_CaMKII.add_node(id, id_bead = id_bead, id_bead_all=v['ids_bead'][0], loc_hub = position_CaMKII_hub)
 			locs_hub.append( position_CaMKII_hub )
 			
 			# Make CaMKII interaction beads

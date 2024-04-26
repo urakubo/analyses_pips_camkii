@@ -1104,4 +1104,20 @@ def plot_a_panel_overlay(ax, oZ, x, y, colormap, levels):
 		cmap=colormap, marker='o', edgecolors='k', s=16, \
 		vmin=np.min(levels), vmax=np.max(levels), \
 		zorder = 4)
+
+
+
+
+
+def flatten(sequence):
+    result = []
+
+    for item in sequence:
+        if isinstance(item, (list, tuple, range, dict, set, frozenset)):
+            result.extend(flatten(item))
+        else:
+            result.append(item)
+
+    return result
 	
+		

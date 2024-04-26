@@ -18,7 +18,7 @@ import colormap as c
 
 plt.rcParams.update(p.rc_param)
 
-import main_all_calc_centrality_working as calc_central
+import centrality_main_calc_working as calc_central
 
 # https://stackoverflow.com/questions/43541376/how-to-draw-communities-with-networkx
 def community_layout(g, partition):
@@ -354,6 +354,10 @@ if __name__ == '__main__':
 	nth_largest = 0 #0
 
 
+	#dir_target  =  'CG_valency_length'
+	#prefix = '12_000'
+
+
 	# dir_edited_data  = 'valency_length'
 	# prefix = '04_002'
 
@@ -401,6 +405,17 @@ if __name__ == '__main__':
 	#'''
 	plt.close(fig=fig)
 	
+	data = {}
+	data['multi_graph_CaMKII'] = multi_graph_CaMKII
+	data['Z']          = Z
+	data['labels']     = labels
+	data['node_order'] = node_order
+	data['blocks']     = blocks
+	data['partition']  = partition
+	data['leaves_color_list'] = leaves_color_list
+	
+	
+	utils.save(dir_edited_data, prefix, 'cluster_dendrogram', data)
 	
 	### graph visulization
 	
