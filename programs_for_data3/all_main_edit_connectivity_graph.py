@@ -268,8 +268,24 @@ if __name__ == '__main__':
 	dir_edited_data  = 'mixtures'
 	'''
 	
+	# Small colony 1
+	'''
+	filenames_output = ['Len3','Len9','Linear3'] # ,'SPG'['partial_engulfment', 'CG','CPG','PG','SP','CGSP']
+	filenames_input  = ['{}.lammpstrj'.format(n) for n in filenames_output]
+	dir_input        = 'small_colony'
+	dir_edited_data  = 'small_colony'
+	'''
 	
-
+	# Small colony 2
+	'''
+	subdirs    = ['CG_con', 'CG_len9', 'CG_lin']
+	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(10)]
+	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
+	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(10)]
+	dir_input        = 'small_colony'
+	dir_edited_data  = 'small_colony'
+	'''
+	
 	# Valency length
 	'''
 	subdirs    = ['val_{}'.format(i) for i in range(2,14,2)]
@@ -282,28 +298,21 @@ if __name__ == '__main__':
 	
 	
 	# CG Valency length
-	'''
+	#'''
 	subdirs    = ['val{}'.format(i) for i in range(2,14,2)]
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
 	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
 	dir_input        = 'CG_valency_length'
 	dir_edited_data  = 'CG_valency_length'
-	'''
-	
-	
-	# Small colony 
-	subdirs    = ['CaMKII_432_GluN2Bc_8640', 'CaMKII_864_GluN2Bc_8640']
-	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
-	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
-	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(7)]
-	dir_input        = 'small_colony'
-	dir_edited_data  = 'small_colony'
-	
-	
+	#'''
+
+
+
+		
 	# Shared part of initialization
-	dir_lammpstrj    = os.path.join('..', 'lammpstrj4', dir_input)
-	dir_edited_data  = os.path.join('data4',dir_edited_data)
+	dir_lammpstrj    = os.path.join('..', 'lammpstrj3', dir_input)
+	dir_edited_data  = os.path.join('data3',dir_edited_data)
 	os.makedirs(dir_edited_data, exist_ok=True)
 	suffix = 'connectivity_graph'
 	
