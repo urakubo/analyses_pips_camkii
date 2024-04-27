@@ -18,8 +18,10 @@ os.environ['OVITO_GUI_MODE'] = '1'
 from ovito.io import import_file
 import pyvista
 import trimesh
-import colormap as c
-import parameters as p
+
+import lib.parameters as p
+import lib.colormap as c
+
 
 plt.rcParams.update(p.rc_param)
 
