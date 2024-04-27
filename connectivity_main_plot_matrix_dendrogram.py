@@ -212,7 +212,7 @@ if __name__ == '__main__':
 
 
 	# Input file
-	i = 6
+	i = 12
 	prefix      = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(7)][i]
 	dir_target  = 'small_colony'
 	nth_largest = 0
