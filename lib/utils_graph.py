@@ -15,6 +15,46 @@ from matplotlib import patches
 plt.rcParams.update(p.rc_param)
 
 
+
+def draw_network_simple(ax, G, pos, cols):
+
+	# pos = nx.kamada_kawai_layout(G)
+	
+	# https://stackoverflow.com/questions/43541376/how-to-draw-communities-with-networkx
+	# https://qiita.com/yuru/items/4208e13a399773c2b9f8
+	
+	#draw(G, pos=None, ax=None, **kwds)
+	
+	nx.draw_networkx_nodes(	G, \
+				ax = ax, \
+				pos = pos, \
+				node_size=25, \
+				node_color = cols, \
+				edgecolors = 'k', \
+				linewidths = 1.0)
+	
+	nx.draw_networkx_edges(	G, \
+				pos = pos, \
+				ax = ax, \
+				edge_color =c.cmap_universal_ratio['CaMKII'],\
+				width = 0.5)
+	
+	ax.set_aspect('equal')
+	
+	xy=np.array([v.tolist() for v in pos.values()] )
+	x_min_max = [np.min(xy[:,0]), np.max(xy[:,0])/10 + np.min(xy[:,0])* 9/10 ]
+	ymax = np.max(xy[:,1])
+	
+	ax.plot(x_min_max, [ymax, ymax], 'k-')
+	ax.plot(x_min_max, [ymax, ymax], 'k-')
+	
+	ax.set_title('{:.3g}'.format( ( np.max(xy[:,0])-np.min(xy[:,0]))/10 ) )
+	plt.box(False)
+	#plt.suptitle(prefix)
+	return
+
+
+
 def get_angle(x, y):
 
 	dot_xy = np.dot(x, y)

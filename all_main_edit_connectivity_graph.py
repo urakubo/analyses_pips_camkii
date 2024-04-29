@@ -1,24 +1,17 @@
 
 import os, sys, glob, pickle, pprint
 import numpy as np
-import math
-
 
 import skimage
 from scipy import ndimage
 
-import matplotlib
-import matplotlib.pyplot as plt
-
 import networkx as nx
 
+import lib.utils as utils
+import lib.parameters as p
+import lib.colormap as c
 
-import utils
-import parameters as p
-import colormap as c
 
-
-	
 def get_surface_condensate_CaMKII(types, positions, ids_molecule, sigma=2):
 	
 	# Parameters
@@ -249,6 +242,84 @@ def get_connection_statistics(multi_graph, species, type_analysis):
 	return dist
 	
 	
+	
+def process_and_save(types, positions_grid_coord, ids_molecule, bp, filename_edited, suffix, mc_step, sampling_frame ):
+
+	# Centering
+	# reference_molecule_for_centering = 'CaMKII'
+	center_of_mass = utils.get_center_of_mass(types, positions_grid_coord)
+	positions_real_coord = utils.centering(positions_grid_coord, center_of_mass)
+	
+	
+	# Generate graph
+	multi_graph, simple_graph_CaMKII_GluN2B = get_graphs(ids_molecule, types, bp, positions_real_coord)
+	d = {}
+	d['mc_step']        = mc_step
+	d['sampling_frame'] = sampling_frame
+	d['multi_graph']    = multi_graph
+	d['simple_graph_CaMKII_GluN2B'] = simple_graph_CaMKII_GluN2B
+	
+	for species in ['STG','GluN2B', 'PSD95','CaMKII']:
+		d[species] = {}
+		for type_analysis in ['average', 'distribution']:
+			d[species][type_analysis] = get_connection_statistics(multi_graph, species, type_analysis)
+	
+	species = 'GluN2B'
+	for type_analysis in ['CaMKII', 'PSD95']:
+		d[species][type_analysis] = get_connection_statistics(multi_graph, species, type_analysis)
+	
+	species = 'PSD95'
+	type_analysis = 'ratio'
+	d[species][type_analysis] = get_connection_statistics(multi_graph, species, type_analysis)
+	
+	
+	d['condensate_CaMKII'] = get_surface_condensate_CaMKII(types, positions_real_coord, ids_molecule)
+	
+	# Save the edited data
+	prefix = filename_edited
+	utils.save(dir_edited_data, prefix, suffix, d)
+	
+	
+def repeat_for_files(filenames_lammpstrj, filenames_edited):
+	#
+	suffix = 'connectivity_graph'
+	for filename_lammpstrj, filename_edited in zip(filenames_lammpstrj, filenames_edited):
+		
+		# Check sampling point
+		sampling_frame = utils.get_num_frames(dir_lammpstrj, filename_lammpstrj)
+		
+		# Load data
+		types, positions,ids_molecule, mc_step = \
+			utils.load_lammpstrj( dir_lammpstrj, filename_lammpstrj, sampling_frame )
+		bp = utils.load_lammpstrj_binding_partners( dir_lammpstrj, filename_lammpstrj, sampling_frame )
+		
+		print("\n"+filename_lammpstrj)
+		# print("The last timeframe was sampled: ", sampling_frame )
+		
+		process_and_save(types, positions, ids_molecule, bp, filename_edited, suffix, mc_step, sampling_frame )
+		
+
+def repeat_for_time_development(filename_lammpstrj, filename_edited, max_backward_frames_for_sampling):
+	
+	num_frames = utils.get_num_frames(dir_lammpstrj, filename_lammpstrj)
+	for i in range(0, max_backward_frames_for_sampling):
+		# Check sampling point
+		sampling_frame = num_frames + (i - max_backward_frames_for_sampling)*100
+		suffix = 'connectivity_graph_{}'.format(i)
+		
+		# Load data
+		types, positions,ids_molecule, mc_step = \
+			utils.load_lammpstrj( dir_lammpstrj, filename_lammpstrj, sampling_frame )
+		bp = utils.load_lammpstrj_binding_partners( dir_lammpstrj, filename_lammpstrj, sampling_frame )
+		
+		process_and_save(types, positions, ids_molecule, bp, filename_edited, suffix, mc_step, sampling_frame )
+		
+		print("\n"+filename_lammpstrj)
+		print("The sampling timeframe was: ", sampling_frame )
+		print("The sampling MC step   was: ", mc_step )
+		
+	
+	
 if __name__ == '__main__':
 	
 	
@@ -274,51 +345,16 @@ if __name__ == '__main__':
 	dir_lammpstrj    = os.path.join('..', 'lammpstrj4', dir_target)
 	dir_edited_data  = os.path.join('data4', dir_target)
 	os.makedirs(dir_edited_data, exist_ok=True)
-	suffix = 'connectivity_graph'
 	
-	#
-	for filename_lammpstrj, filename_edited in zip(filenames_lammpstrj, filenames_edited):
-		
-		# Check sampling point
-		print("\n"+filename_lammpstrj)
-		sampling_frame = utils.get_num_frames(dir_lammpstrj, filename_lammpstrj)
-		# print("The last timeframe was sampled: ", sampling_frame )
-		
-		
-		# Load data
-		types, positions_,ids_molecule, mc_step = \
-			utils.load_lammpstrj( dir_lammpstrj, filename_lammpstrj, sampling_frame )
-		bp = utils.load_lammpstrj_binding_partners( dir_lammpstrj, filename_lammpstrj, sampling_frame )
-		
-		
-		# Centering
-		center_of_mass = utils.get_center_of_mass(types, positions_) # reference_molecule_for_centering = 'CaMKII'
-		positions = utils.centering(positions_, center_of_mass)
-		
-		
-		# Generate graph
-		multi_graph, simple_graph_CaMKII_GluN2B = get_graphs(ids_molecule, types, bp, positions)
-		d = {}
-		d['multi_graph'] = multi_graph
-		d['simple_graph_CaMKII_GluN2B'] = simple_graph_CaMKII_GluN2B
-		
-		for species in ['STG','GluN2B', 'PSD95','CaMKII']:
-			d[species] = {}
-			for type_analysis in ['average', 'distribution']:
-				d[species][type_analysis] = get_connection_statistics(multi_graph, species, type_analysis)
-		
-		species = 'GluN2B'
-		for type_analysis in ['CaMKII', 'PSD95']:
-			d[species][type_analysis] = get_connection_statistics(multi_graph, species, type_analysis)
-		
-		species = 'PSD95'
-		type_analysis = 'ratio'
-		d[species][type_analysis] = get_connection_statistics(multi_graph, species, type_analysis)
-		
-		
-		d['condensate_CaMKII'] = get_surface_condensate_CaMKII(types, positions, ids_molecule)
-		
-		# Save the edited data
-		prefix = filename_edited
-		utils.save(dir_edited_data, prefix, suffix, d)
-		
+	#repeat_for_files(filenames_lammpstrj, filenames_edited)
+	
+	
+	i = 2
+	filename_lammpstrj = filenames_lammpstrj[i]
+	filename_edited    = filenames_edited[i]
+	max_backward_frames_for_sampling = 6	
+	repeat_for_time_development(filename_lammpstrj, filename_edited, max_backward_frames_for_sampling)
+	
+	
+	# 
+
