@@ -280,7 +280,7 @@ def process_and_save(types, positions_grid_coord, ids_molecule, bp, filename_edi
 	utils.save(dir_edited_data, prefix, suffix, d)
 	
 	
-def repeat_for_files(filenames_lammpstrj, filenames_edited):
+def repeat_for_valency_length(filenames_lammpstrj, filenames_edited):
 	#
 	suffix = 'connectivity_graph'
 	for filename_lammpstrj, filename_edited in zip(filenames_lammpstrj, filenames_edited):
@@ -304,7 +304,7 @@ def repeat_for_time_development(filename_lammpstrj, filename_edited, max_backwar
 	num_frames = utils.get_num_frames(dir_lammpstrj, filename_lammpstrj)
 	for i in range(0, max_backward_frames_for_sampling):
 		# Check sampling point
-		sampling_frame = num_frames + (i - max_backward_frames_for_sampling)*100
+		sampling_frame = num_frames + (i - max_backward_frames_for_sampling)*10
 		suffix = 'connectivity_graph_{}'.format(i)
 		
 		# Load data
@@ -346,15 +346,15 @@ if __name__ == '__main__':
 	dir_edited_data  = os.path.join('data4', dir_target)
 	os.makedirs(dir_edited_data, exist_ok=True)
 	
-	#repeat_for_files(filenames_lammpstrj, filenames_edited)
+	repeat_for_valency_length(filenames_lammpstrj, filenames_edited)
 	
-	
+	'''
 	i = 2
 	filename_lammpstrj = filenames_lammpstrj[i]
 	filename_edited    = filenames_edited[i]
-	max_backward_frames_for_sampling = 6	
+	max_backward_frames_for_sampling = 40
 	repeat_for_time_development(filename_lammpstrj, filename_edited, max_backward_frames_for_sampling)
-	
+	'''
 	
 	# 
 
