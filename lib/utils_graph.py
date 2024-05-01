@@ -209,6 +209,76 @@ def community_layout(g, partition):
 	return pos
 	
 
+
+def get_graphs(ids_molecule, types, bp, positions_grid_coord):
+	
+	unique_ids_molecule = np.unique( ids_molecule )
+	multi_graph = nx.MultiGraph()
+	simple_graph_CaMKII_GluN2B = nx.Graph()
+	# CaMKII_or_GluN2B = np.zeros( len(ids_molecule), dtype = 'int')
+	
+	# Create nodes
+	for id in unique_ids_molecule:
+		flags = (id == ids_molecule)
+		ids_bead         = np.nonzero(flags)
+		types_bead       = types[flags]
+		positions_bead   = positions_grid_coord[flags,:]
+		
+		ids_partner_bead = bp[flags]
+		species = [k for k, i in p.molecules_without_all.items() if types_bead[0] in i['id']][0]
+		
+		
+		multi_graph.add_node(id,\
+			species    = species, \
+			ids_bead   = ids_bead, \
+			types_bead = types_bead, \
+			num_beads  = np.sum(flags), \
+			positions_grid_coord = positions_bead, \
+			ids_partner_bead =ids_partner_bead)
+		
+		if species in ['CaMKII','GluN2B']:
+			simple_graph_CaMKII_GluN2B.add_node(id, \
+				species    = species, \
+				ids_bead   = ids_bead, \
+				types_bead = types_bead, \
+				num_beads  = np.sum(flags), \
+				positions_grid_coord = positions_bead, \
+				ids_partner_bead =ids_partner_bead)
+		
+	# Make connection
+	list_ids = list(multi_graph.nodes.keys())
+	ids_bead_already_connected = np.zeros_like( bp, dtype='int' )
+	for i in range(ids_molecule.shape[0]):
+		if 	(bp[i] >= 0) and \
+			(ids_bead_already_connected[i] == 0) and \
+			(ids_bead_already_connected[bp[i]] == 0):
+			
+			ids_bead_already_connected[i]     = 1
+			ids_bead_already_connected[bp[i]] = 1
+			
+			id_molecule = ids_molecule[i]
+			id_molecule_partner = ids_molecule[bp[i]]
+			
+			species = multi_graph.nodes[id_molecule]['species']
+			species_partner = multi_graph.nodes[id_molecule_partner]['species']
+			connecting_species = [species, species_partner]
+			if ('GluN2B' in connecting_species) and ('CaMKII' in connecting_species):
+				type_connection = 'GluN2B_CaMKII'
+			elif ('GluN2B' in connecting_species) and ('PSD95' in connecting_species):
+				type_connection = 'GluN2B_PSD95'
+			elif ('STG' in connecting_species) and ('PSD95' in connecting_species):
+				type_connection = 'STG_PSD95'
+			else:
+				raise ValueError("Erronous connection: {}", connecting_species)
+			multi_graph.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection, id_bead1 = i ,id_bead2 = bp[i])
+			
+			if type_connection == 'GluN2B_CaMKII':
+				simple_graph_CaMKII_GluN2B.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection, id_bead1 = i ,id_bead2 = bp[i])
+	
+	return multi_graph, simple_graph_CaMKII_GluN2B
+
+
+
 def make_new_graphs_CaMKII_connectivity(d, nth_largest = 0):
 
 	# Use the multi graph.

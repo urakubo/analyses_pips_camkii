@@ -19,11 +19,16 @@ import matplotlib.pyplot as plt
 plt.rcParams.update(p.rc_param)
 
 
-def plot_figure_and_save_it(dir_imgs, fig_title, G_, rcm_flat, partitions, suffix='connect_matrix'):
+def plot_figure_and_save_it(dir_imgs, fig_title, G, rcm, rcm_flat, partitions, suffix='connect_matrix'):
 	fig = plt.figure(figsize=(4,4))
 	ax2 = fig.add_axes([0.3,0.1,0.6,0.6])
-	ax2.set_title(fig_title)
-	utils_graph.draw_adjacency_matrix(ax2, G_, node_order = rcm_flat, partitions= partitions, color= 'r')
+	
+	
+	from networkx.algorithms.community import modularity
+	modl = modularity(G, rcm)
+	
+	ax2.set_title(fig_title+', modularity: {:.3f}'.format(modl))
+	utils_graph.draw_adjacency_matrix(ax2, G, node_order = rcm_flat, partitions= partitions, color= 'r')
 	fig.savefig( os.path.join(dir_imgs, '{}_{}.svg'.format( fig_title, suffix ) ) )
 	fig.savefig( os.path.join(dir_imgs, '{}_{}.png'.format( fig_title, suffix ) ) , dpi=150)
 	plt.show()
@@ -59,26 +64,28 @@ def process_and_save( d, dir_edited_data, prefix_save ):
 	G = multi_graph_CaMKII
 	
 	# rcm, rcm_flat = utils_graph.girvan_newman_by_hand(G, num_div = 4)
-	
 	# print('girvan_newman_auto')
 	# rcms, rcm = girvan_newman_auto(G, num_div = 10)
 	
+	'''
 	from networkx.algorithms.community import greedy_modularity_communities
 	rcm  = list(greedy_modularity_communities(G))
 	rcms = None
 	suffix_save='greedy_modularity'
-	
 	'''
+
+	#'''
 	from networkx.algorithms.community import louvain_communities
 	rcm  = list(louvain_communities(G))
 	rcms = None
-	#print('rcm ', rcm)	
 	suffix_save='louvain'
-	'''
+	#'''
 	
 	print('suffix_save ', suffix_save)
+	print('lengths of cluster: ', [len(c) for c in rcm])
+	
 	rcm_flat, partitions = get_flat_partitions(rcm)
-	#plot_figure_and_save_it(dir_imgs, prefix_save, G, rcm_flat, partitions, suffix_save)
+	#plot_figure_and_save_it(dir_imgs, prefix_save, G, rcm, rcm_flat, partitions, suffix_save)
 	
 	data = {}
 	data['mc_step'] = d['mc_step']
@@ -88,7 +95,7 @@ def process_and_save( d, dir_edited_data, prefix_save ):
 	data['rcm']        = rcm
 	data['rcm_flat']   = rcm_flat
 	data['partitions']  = partitions	
-	utils.save(dir_edited_data, prefix_save, suffix_save, d)
+	utils.save(dir_edited_data, prefix_save, suffix_save, data)
 	
 	#sys.exit(0)
 	
@@ -101,7 +108,6 @@ def repeat_for_time_development(dir_edited_data, prefix_load):
 		suffix_load = 'connectivity_graph_{}'.format(time_frame)
 		prefix_save = '{}_{}'.format(time_frame, prefix_load)
 		print('prefix_save ', prefix_save)
-		print('suffix_load ', suffix_load)
 		# Load graph.
 		d = utils.load(dir_edited_data, prefix_load, suffix_load)
 		
@@ -114,7 +120,6 @@ def repeat_for_valency_length(dir_edited_data, prefixes_load):
 		suffix_load = 'connectivity_graph'
 		prefix_save = prefix_load
 		print('prefix_save ', prefix_save)
-		print('suffix_load ', suffix_load)
 		# Load graph.
 		d = utils.load(dir_edited_data, prefix_load, suffix_load)
 		process_and_save( d, dir_edited_data, prefix_save )
@@ -123,20 +128,31 @@ def repeat_for_valency_length(dir_edited_data, prefixes_load):
 if __name__ == '__main__':
 
 	# Input file
+	'''
 	dir_target  = 'small_colony'
 	# prefixes_load = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(7)]
-	prefixes_load = [ '00_'+str(id_f).zfill(3) for id_f in range(7)]
+	prefixes_load = [ '01_'+str(id_f).zfill(3) for id_f in range(7)]
+	'''
 	
-	id_length_valency = 2
-	prefix_load   = prefixes_load[id_length_valency]
+	dir_target    = 'small_colony2'
+	prefixes_load = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7)]	
 	
 	# Shared init
 	dir_edited_data  = os.path.join('data4', dir_target)
 	dir_imgs         = os.path.join('imgs4', dir_target, 'connectivity_matrix_dendrogram')
-	os.makedirs(dir_imgs, exist_ok=True)
+	os.makedirs(dir_imgs, exist_ok=True)	
 	
-	#
-	repeat_for_time_development(dir_edited_data, prefix_load)
 	#repeat_for_valency_length(dir_edited_data, prefixes_load)
+	
+	#'''
+	i = 7*5+2 # val_12\R2_002
+	#i = 7*4+2 # val_10\R2_002
+	#i = 7*3+2 # val_08\R2_002
+	#i = 7*2+2 # val_06\R2_002
+	id_length_valency = i
+	prefix_load   = prefixes_load[id_length_valency]
+	print('prefix_load ', prefix_load)
+	repeat_for_time_development(dir_edited_data, prefix_load)
+	#'''
 	
 	

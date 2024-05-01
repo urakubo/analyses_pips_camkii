@@ -74,11 +74,10 @@ def get_surface_condensate_CaMKII(types, positions, ids_molecule, sigma=2):
 	return d
 	
 	
-def get_graphs(ids_molecule, types, bp, positions_grid_coord):
+def get_multi_graph(ids_molecule, types, bp, positions_grid_coord):
 	
 	unique_ids_molecule = np.unique( ids_molecule )
 	multi_graph = nx.MultiGraph()
-	simple_graph_CaMKII_GluN2B = nx.Graph()
 	# CaMKII_or_GluN2B = np.zeros( len(ids_molecule), dtype = 'int')
 	
 	# Create nodes
@@ -90,8 +89,6 @@ def get_graphs(ids_molecule, types, bp, positions_grid_coord):
 		
 		ids_partner_bead = bp[flags]
 		species = [k for k, i in p.molecules_without_all.items() if types_bead[0] in i['id']][0]
-		
-		
 		multi_graph.add_node(id,\
 			species    = species, \
 			ids_bead   = ids_bead, \
@@ -99,15 +96,7 @@ def get_graphs(ids_molecule, types, bp, positions_grid_coord):
 			num_beads  = np.sum(flags), \
 			positions_grid_coord = positions_bead, \
 			ids_partner_bead =ids_partner_bead)
-		
-		if species in ['CaMKII','GluN2B']:
-			simple_graph_CaMKII_GluN2B.add_node(id, \
-				species    = species, \
-				ids_bead   = ids_bead, \
-				types_bead = types_bead, \
-				num_beads  = np.sum(flags), \
-				positions_grid_coord = positions_bead, \
-				ids_partner_bead =ids_partner_bead)
+	
 		
 	# Make connection
 	list_ids = list(multi_graph.nodes.keys())
@@ -136,10 +125,8 @@ def get_graphs(ids_molecule, types, bp, positions_grid_coord):
 				raise ValueError("Erronous connection: {}", connecting_species)
 			multi_graph.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection, id_bead1 = i ,id_bead2 = bp[i])
 			
-			if type_connection == 'GluN2B_CaMKII':
-				simple_graph_CaMKII_GluN2B.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection, id_bead1 = i ,id_bead2 = bp[i])
 	
-	return multi_graph, simple_graph_CaMKII_GluN2B
+	return multi_graph
 	
 	
 def get_connection_statistics(multi_graph, species, type_analysis):
@@ -252,12 +239,12 @@ def process_and_save(types, positions_grid_coord, ids_molecule, bp, filename_edi
 	
 	
 	# Generate graph
-	multi_graph, simple_graph_CaMKII_GluN2B = get_graphs(ids_molecule, types, bp, positions_real_coord)
+	multi_graph = get_multi_graph(ids_molecule, types, bp, positions_real_coord)
 	d = {}
 	d['mc_step']        = mc_step
 	d['sampling_frame'] = sampling_frame
 	d['multi_graph']    = multi_graph
-	d['simple_graph_CaMKII_GluN2B'] = simple_graph_CaMKII_GluN2B
+	#d['simple_graph_CaMKII_GluN2B'] = simple_graph_CaMKII_GluN2B
 	
 	for species in ['STG','GluN2B', 'PSD95','CaMKII']:
 		d[species] = {}
@@ -280,6 +267,27 @@ def process_and_save(types, positions_grid_coord, ids_molecule, bp, filename_edi
 	utils.save(dir_edited_data, prefix, suffix, d)
 	
 	
+	
+def process_and_save2(types, positions_grid_coord, ids_molecule, bp, filename_edited, suffix, mc_step, sampling_frame ):
+
+	# Centering
+	# reference_molecule_for_centering = 'CaMKII'
+	center_of_mass = utils.get_center_of_mass(types, positions_grid_coord)
+	positions_real_coord = utils.centering(positions_grid_coord, center_of_mass)
+	
+	# Generate graph
+	multi_graph = get_multi_graph(ids_molecule, types, bp, positions_real_coord)
+	d = {}
+	d['mc_step']        = mc_step
+	d['sampling_frame'] = sampling_frame
+	d['multi_graph']    = multi_graph
+	#d['simple_graph_CaMKII_GluN2B'] = simple_graph_CaMKII_GluN2B
+	
+	# Save the edited data
+	prefix = filename_edited
+	utils.save(dir_edited_data, prefix, suffix, d)
+	
+	
 def repeat_for_valency_length(filenames_lammpstrj, filenames_edited):
 	#
 	suffix = 'connectivity_graph'
@@ -296,15 +304,16 @@ def repeat_for_valency_length(filenames_lammpstrj, filenames_edited):
 		print("\n"+filename_lammpstrj)
 		# print("The last timeframe was sampled: ", sampling_frame )
 		
-		process_and_save(types, positions, ids_molecule, bp, filename_edited, suffix, mc_step, sampling_frame )
+		#process_and_save(types, positions, ids_molecule, bp, filename_edited, suffix, mc_step, sampling_frame )
+		process_and_save2(types, positions, ids_molecule, bp, filename_edited, suffix, mc_step, sampling_frame )
 		
 
-def repeat_for_time_development(filename_lammpstrj, filename_edited, max_backward_frames_for_sampling):
+def repeat_for_time_development(filename_lammpstrj, filename_edited, max_backward_frames_for_sampling, num_skip_frames_for_sampling = 10):
 	
 	num_frames = utils.get_num_frames(dir_lammpstrj, filename_lammpstrj)
 	for i in range(0, max_backward_frames_for_sampling):
 		# Check sampling point
-		sampling_frame = num_frames + (i - max_backward_frames_for_sampling)*10
+		sampling_frame = num_frames + (i - max_backward_frames_for_sampling)*num_skip_frames_for_sampling
 		suffix = 'connectivity_graph_{}'.format(i)
 		
 		# Load data
@@ -312,7 +321,7 @@ def repeat_for_time_development(filename_lammpstrj, filename_edited, max_backwar
 			utils.load_lammpstrj( dir_lammpstrj, filename_lammpstrj, sampling_frame )
 		bp = utils.load_lammpstrj_binding_partners( dir_lammpstrj, filename_lammpstrj, sampling_frame )
 		
-		process_and_save(types, positions, ids_molecule, bp, filename_edited, suffix, mc_step, sampling_frame )
+		process_and_save2(types, positions, ids_molecule, bp, filename_edited, suffix, mc_step, sampling_frame )
 		
 		print("\n"+filename_lammpstrj)
 		print("The sampling timeframe was: ", sampling_frame )
@@ -333,12 +342,21 @@ if __name__ == '__main__':
 	'''
 	
 	
-	# Small colony 
+	# Small colony
+	'''
 	subdirs    = ['CaMKII_432_GluN2Bc_8640', 'CaMKII_864_GluN2Bc_8640']
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
 	filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
 	filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(7)]
 	dir_target  = 'small_colony'
+	'''
+	
+	# Small colony 2
+	subdirs    = ['val_{}'.format(i) for i in range(2,14,2)]
+	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
+	filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
+	filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7)]
+	dir_target  = 'small_colony2'
 	
 	
 	# Shared part of initialization
@@ -346,15 +364,26 @@ if __name__ == '__main__':
 	dir_edited_data  = os.path.join('data4', dir_target)
 	os.makedirs(dir_edited_data, exist_ok=True)
 	
-	repeat_for_valency_length(filenames_lammpstrj, filenames_edited)
 	
-	'''
-	i = 2
+	# repeat_for_valency_length(filenames_lammpstrj, filenames_edited)
+	
+	
+	
+	i = 7*5+2 # val_12\R2_002
+	#i = 7*4+2 # val_10\R2_002
+	#i = 7*3+2 # val_08\R2_002
+	#i = 7*2+2 # val_06\R2_002
 	filename_lammpstrj = filenames_lammpstrj[i]
 	filename_edited    = filenames_edited[i]
+	print('filename_lammpstrj ', filename_lammpstrj)
+	print('filename_edited    ', filename_edited   )
 	max_backward_frames_for_sampling = 40
-	repeat_for_time_development(filename_lammpstrj, filename_edited, max_backward_frames_for_sampling)
-	'''
+	num_skip_frames_for_sampling = 1
+	repeat_for_time_development(filename_lammpstrj, \
+		filename_edited, \
+		max_backward_frames_for_sampling, \
+		num_skip_frames_for_sampling = num_skip_frames_for_sampling)
+	
 	
 	# 
 
