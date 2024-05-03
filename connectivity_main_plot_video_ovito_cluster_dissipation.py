@@ -117,7 +117,6 @@ def plot_snapshots(data_all, sampling_frames, dir_imgs, fig_title, ids_col, ref_
 		vp.overlays.remove(timelabel)
 	
 	
-		
 	return
 
 def get_ratio_code(hex_code):
@@ -140,7 +139,12 @@ if __name__ == '__main__':
 	max_backward_frames_for_sampling = 80
 	num_skip_frames_for_sampling     = 1
 	
-	i = 7*5+2 # val_12\R2_002
+	#i = 7*5+1 # val_12\R2_001
+	#i = 7*5+3 # val_12\R2_003
+	#i = 7*5+4 # val_12\R2_004
+	#i = 7*5+5 # val_12\R2_005
+	i = 7*5+6 # val_12\R2_006
+	#i = 7*5+2 # val_12\R2_002
 	#i = 7*4+2 # val_10\R2_002
 	#i = 7*3+2 # val_08\R2_002
 	#i = 7*2+2 # val_06\R2_002
@@ -159,7 +163,7 @@ if __name__ == '__main__':
 	
 	dir_lammpstrj    = os.path.join('..','lammpstrj4', dir_target)
 	dir_edited_data  = os.path.join('data4', dir_target)
-	dir_imgs         = os.path.join('imgs4', dir_target, 'connectivity_imgs_for_movie')
+	dir_imgs         = os.path.join('imgs4', dir_target, 'connectivity_imgs_for_movie',filename_edited)
 	dir_videos       = os.path.join('imgs4', dir_target, 'connectivity_movie')
 	os.makedirs(dir_imgs, exist_ok=True)
 	os.makedirs(dir_videos, exist_ok=True)
@@ -193,8 +197,6 @@ if __name__ == '__main__':
 	
 	data_all = import_file(os.path.join(dir_lammpstrj, filename_lammpstrj), input_format= "lammps/dump" )
 	plot_snapshots(data_all, sampling_frames, dir_imgs, filename_edited, ids_col, ref_mc_step)
-	
-	#'''
 	
 	
 	

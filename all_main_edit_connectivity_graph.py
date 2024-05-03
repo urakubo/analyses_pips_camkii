@@ -343,23 +343,23 @@ if __name__ == '__main__':
 	
 	
 	# Small colony
-	#'''
+	'''
 	subdirs    = ['CaMKII_432_GluN2Bc_8640', 'CaMKII_864_GluN2Bc_8640']
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
 	filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
 	filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(7)]
 	dir_target  = 'small_colony'
 	i = 0
-	#'''
+	'''
 	
 	# Small colony 2
-	'''
+	#'''
 	subdirs    = ['val_{}'.format(i) for i in range(2,14,2)]
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
 	filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
 	filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7)]
 	dir_target  = 'small_colony2'
-	'''
+	#'''
 	
 	# Shared part of initialization
 	dir_lammpstrj    = os.path.join('..', 'lammpstrj4', dir_target)
@@ -375,16 +375,18 @@ if __name__ == '__main__':
 	#i = 7*4+2 # val_10\R2_002
 	#i = 7*3+2 # val_08\R2_002
 	#i = 7*2+2 # val_06\R2_002
-	filename_lammpstrj = filenames_lammpstrj[i]
-	filename_edited    = filenames_edited[i]
-	print('filename_lammpstrj ', filename_lammpstrj)
-	print('filename_edited    ', filename_edited   )
-	max_backward_frames_for_sampling = 40
-	num_skip_frames_for_sampling = 1
-	repeat_for_time_development(filename_lammpstrj, \
-		filename_edited, \
-		max_backward_frames_for_sampling, \
-		num_skip_frames_for_sampling = num_skip_frames_for_sampling)
+	
+	#filename_lammpstrj = filenames_lammpstrj[i]
+	#filename_edited    = filenames_edited[i]
+	for filename_lammpstrj, filename_edited in zip(filenames_lammpstrj, filenames_edited):
+		print('filename_lammpstrj ', filename_lammpstrj)
+		print('filename_edited    ', filename_edited   )
+		max_backward_frames_for_sampling = 80
+		num_skip_frames_for_sampling = 1
+		repeat_for_time_development(filename_lammpstrj, \
+			filename_edited, \
+			max_backward_frames_for_sampling, \
+			num_skip_frames_for_sampling = num_skip_frames_for_sampling)
 	
 	
 	# 

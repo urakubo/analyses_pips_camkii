@@ -4,7 +4,7 @@
 
 
 
-import os, sys, glob, pprint,itertools
+import os, sys, glob, pprint,itertools, copy
 import numpy as np
 os.environ['OVITO_GUI_MODE'] = '1' # Request a session with OpenGL support
 
@@ -54,60 +54,58 @@ class SetColorsById(ModifierInterface):
 		data.particles_.create_property('Color', data=color_values)
 	
 	
-def plot_snapshots(data_all, dir_imgs, fig_title):
+def plot_snapshots(full_filename_lammpstrj, dir_imgs, dir_edited_data, filename_edited):
 	
-	'''
-	for k, v in p.molecules_without_all.items():
-		data_all.modifiers.append(SelectTypeModifier(types=set(v['id'])))
-		data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio[k] ))
-	'''
-	
-	#data_all.modifiers.append(compute_particle_transparency)
-	
-	
-
-	vp = Viewport()
-	vp.type = Viewport.Type.Perspective
-	vp.fov = np.radians(10.0) # math.radians
-	vp.camera_pos = (850, 60, 60)
-	vp.camera_dir = (-1, 0, 0)
 	
 	
 	# Calc colors
 	from cycler import cycler
 	cols_matplotlib = plt.rcParams['axes.prop_cycle'].by_key()['color']
 	cols = [get_ratio_code(hex_code) for hex_code in cols_matplotlib]
-	
+	cols = cols
+	cols_org = cols
 	# Intial
-	rcm, multi_graph, ref_mc_step = load_graph_data(dir_edited_data, filename_edited, 0)
-	ids_col  = {id: col for ids_node, col in zip(rcm, cols) for id_node in ids_node for id in multi_graph.nodes[id_node]['id_bead_all']}
-	rcm_prev = rcm
+	rcm_prev, multi_graph, ref_mc_step = load_graph_data(dir_edited_data, filename_edited, 0)
+	#ids_col  = {id: col for ids_node, col in zip(rcm_prev, cols) for id_node in ids_node for id in multi_graph.nodes[id_node]['id_bead_all']}
 	
-	max_backward_frames_for_sampling = 40
+	
+	max_backward_frames_for_sampling = 80
 	num_skip_frames_for_sampling     = 1
-	
-	num_frames = utils.get_num_frames(dir_lammpstrj, filename_lammpstrj)
-	
-	data   = data_all.compute()
-	data_all.add_to_scene()
+	data_all   = import_file(full_filename_lammpstrj, input_format= "lammps/dump" )
+	num_frames = data_all.source.num_frames	
 	
 	for i in range(0, max_backward_frames_for_sampling):
+		
+		
+		
+		'''
+		ids_col = {}
+		cols_next = []
+		print('len(cols)      : ', len(cols))
+		for i_current in rcm:
+			shared_hubs = [len(set(i_prev) & set(i_current)) for i_prev in rcm_prev]
+			max_index   = shared_hubs.index(max(shared_hubs))
+			print('max_index      : ', max_index)
+			#print('rcm[max_index] : ', rcm[max_index])
+			tmp = {id: cols[max_index] for id_node in rcm[max_index] for id in multi_graph.nodes[id_node]['id_bead_all']}
+			ids_col.update( tmp )
+			cols_next.append(cols[max_index])
+		cols = cols_next
+		rcm_prev = rcm
+		'''
+		
 		
 		sampling_frame   = num_frames + (i - max_backward_frames_for_sampling)*num_skip_frames_for_sampling
 		rcm, multi_graph, mc_step = load_graph_data(dir_edited_data, filename_edited, i )
 		t =  ( mc_step - ref_mc_step ) / 1e9
 		
-		ids_col = {}
-		cols_next = []
-		for i_current in rcm:
-			shared_hubs = [len(set(i_prev) & set(i_current)) for i_prev in rcm_prev]
-			max_index   = shared_hubs.index(max(shared_hubs))
-			ids_col.update( {id: cols[max_index] for id_node in i_current for id in multi_graph.nodes[id_node]['id_bead_all']} )
-			cols_next.append(cols[max_index])
 		
-		cols = cols_next
-		rcm_prev = rcm
-		
+		print('rcm', rcm)
+		ids_col = {id: col for ids_node, col in zip(rcm, cols) for id_node in ids_node for id in multi_graph.nodes[id_node]['id_bead_all']}
+
+		data_all   = import_file(full_filename_lammpstrj, input_format= "lammps/dump" )
+		num_frames = data_all.source.num_frames
+
 		modifier = SetColorsById()
 		modifier.ids_colors = ids_col
 		data_all.modifiers.append(modifier)
@@ -116,6 +114,21 @@ def plot_snapshots(data_all, dir_imgs, fig_title):
 		modifier_delete.ids = list(ids_col.keys())
 		data_all.modifiers.append(modifier_delete)
 		
+		data   = data_all.compute()
+		data_all.add_to_scene()		
+		
+		###
+		###
+		###
+
+		vp = Viewport()
+		vp.type = Viewport.Type.Perspective
+		vp.fov = np.radians(10.0) # math.radians
+		vp.camera_pos = (850, 60, 60)
+		vp.camera_dir = (-1, 0, 0)
+		
+		###
+		###
 		
 		timelabel = TextLabelOverlay( text = 'Time: {:.5f} G MC step'.format(t),\
 			font_size = 0.03, \
@@ -123,12 +136,15 @@ def plot_snapshots(data_all, dir_imgs, fig_title):
 		timelabel.alignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom
 		vp.overlays.append(timelabel)
 		
-		filename = os.path.join(dir_imgs, fig_title+'__{}.png'.format( str(i).zfill(4)) )
+		filename = os.path.join(dir_imgs, filename_edited+'__{}.png'.format( str(i).zfill(4)) )
 		print( filename )
 		i += 1
+		
 		vp.render_image(size=(800,800), filename=filename, background=(1,1,1),frame=sampling_frame, renderer=OpenGLRenderer())
-		vp.overlays.remove(timelabel)
-		del data_all.modifiers[-1]
+		del vp
+		del data_all
+		#vp.overlays.remove(timelabel)
+		#del data_all.modifiers[-1]
 		# print('dir(data_all) ', dir(data_all))
 		# data_all.delete(modifier_delete)
 	
@@ -165,13 +181,11 @@ if __name__ == '__main__':
 	dir_target  = 'small_colony2'
 	
 	
-	i = 7*5+2 # val_12\R2_002
-	#i = 7*4+2 # val_10\R2_002
-	#i = 7*3+2 # val_08\R2_002
+	#i = 7*5+6 # val_12\R2_006
 	#i = 7*2+2 # val_06\R2_002
+	i = 7*5+1 # val_06\R2_001
 	filename_lammpstrj = filenames_lammpstrj[i]
 	filename_edited    = filenames_edited[i]
-	
 	
 	
 	
@@ -181,18 +195,17 @@ if __name__ == '__main__':
 	
 	dir_lammpstrj    = os.path.join('..','lammpstrj4', dir_target)
 	dir_edited_data  = os.path.join('data4', dir_target)
-	dir_imgs         = os.path.join('imgs4', dir_target, 'connectivity_imgs_for_movie')
+	dir_imgs         = os.path.join('imgs4', dir_target, 'connectivity_imgs_for_movie',filename_edited+'_inherit')
 	dir_videos       = os.path.join('imgs4', dir_target, 'connectivity_movie')
 	os.makedirs(dir_imgs, exist_ok=True)
 	os.makedirs(dir_videos, exist_ok=True)
 	
-	
-	data_all = import_file(os.path.join(dir_lammpstrj, filename_lammpstrj), input_format= "lammps/dump" )
-	plot_snapshots(data_all, dir_imgs, filename_edited)
+	full_filename_lammpstrj = os.path.join(dir_lammpstrj, filename_lammpstrj)
+	plot_snapshots(full_filename_lammpstrj, dir_imgs, dir_edited_data, filename_edited)
 	
 	
 	ffname = os.path.join(dir_imgs, '{}__%04d.png'.format(filename_edited))
-	targ_name = os.path.join(dir_videos,'{}.mp4'.format(filename_edited) )
+	targ_name = os.path.join(dir_videos,'{}_relay_cluster.mp4'.format(filename_edited) )
 	com = ['ffmpeg','-r', '5', \
 		'-i', ffname,\
 		'-vf','scale=trunc(iw/2)*2:trunc(ih/2)*2',\

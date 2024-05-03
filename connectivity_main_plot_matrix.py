@@ -67,19 +67,19 @@ def process_and_save( d, dir_edited_data, prefix_save ):
 	# print('girvan_newman_auto')
 	# rcms, rcm = girvan_newman_auto(G, num_div = 10)
 	
-	'''
+	#'''
 	from networkx.algorithms.community import greedy_modularity_communities
 	rcm  = list(greedy_modularity_communities(G))
 	rcms = None
 	suffix_save='greedy_modularity'
-	'''
-
 	#'''
+
+	'''
 	from networkx.algorithms.community import louvain_communities
 	rcm  = list(louvain_communities(G))
 	rcms = None
 	suffix_save='louvain'
-	#'''
+	'''
 	
 	print('suffix_save ', suffix_save)
 	print('lengths of cluster: ', [len(c) for c in rcm])
@@ -101,7 +101,7 @@ def process_and_save( d, dir_edited_data, prefix_save ):
 	
 def repeat_for_time_development(dir_edited_data, prefix_load):
 
-	time_frames  = list(range(40)) # 0-5
+	time_frames  = list(range(80)) # 0-5
 	
 	for time_frame in time_frames:
 		
@@ -128,17 +128,17 @@ def repeat_for_valency_length(dir_edited_data, prefixes_load):
 if __name__ == '__main__':
 
 	# Input file
-	#'''
+	'''
 	dir_target  = 'small_colony'
 	prefixes_load = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(7)]
-	# prefixes_load = [ '01_'+str(id_f).zfill(3) for id_f in range(7)]
-	id_length_valency = 0
+	id_length_valency = 6
+	'''
+	
+	#'''
+	dir_target    = 'small_colony2'
+	prefixes_load = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(4,14,2) for id_f in range(7)]	
 	#'''
 	
-	'''
-	dir_target    = 'small_colony2'
-	prefixes_load = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7)]	
-	'''
 	
 	# Shared init
 	dir_edited_data  = os.path.join('data4', dir_target)
@@ -148,14 +148,18 @@ if __name__ == '__main__':
 	#repeat_for_valency_length(dir_edited_data, prefixes_load)
 	
 	#'''
-	#i = 7*5+2 # val_12\R2_002
-	#i = 7*4+2 # val_10\R2_002
-	#i = 7*3+2 # val_08\R2_002
-	#i = 7*2+2 # val_06\R2_002
-	#id_length_valency = i
+	#i = 7*4+2 # val_12\R2_002
+	#i = 7*3+2 # val_10\R2_002
+	#i = 7*2+2 # val_08\R2_002
+	#i = 7*1+2 # val_06\R2_002
+	id_length_valency = 7*4+1
 	prefix_load   = prefixes_load[id_length_valency]
-	print('prefix_load ', prefix_load)
 	repeat_for_time_development(dir_edited_data, prefix_load)
-	#'''
+	
+	'''
+	for prefix_load in prefixes_load:
+		print('prefix_load ', prefix_load)
+		repeat_for_time_development(dir_edited_data, prefix_load)
+	'''
 	
 	

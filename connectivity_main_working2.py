@@ -82,7 +82,7 @@ def prep_fig(ax, time_points):
 	xmin = 0
 	xmax = np.max(time_points)
 	ax.set_xlabel('Time (/10^9 MC steps)')
-	ax.set_ylabel('Standard deviation of mixture ratio')
+	ax.set_ylabel('Standard deviation of cluster-wise mixture ratios')
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
 	ax.set_xlim([xmin, xmax])
