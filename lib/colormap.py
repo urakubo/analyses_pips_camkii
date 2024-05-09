@@ -408,7 +408,7 @@ orange_uint  = (246,170,0)
 purple_uint  = (153,0,153)
 blown_uint   = (128,64,0)
 
-cols_list_uint  = [red_uint, green_uint, blue_uint, pink_uint, \
+cols_list_uint  = [red_uint, green_uint, blue_uint, skyblue_uint, pink_uint, \
 	orange_uint, purple_uint, blown_uint]
 	
 cols_list_ratio = [[cols[0]/255, cols[1]/255, cols[2]/255] for cols in cols_list_uint]

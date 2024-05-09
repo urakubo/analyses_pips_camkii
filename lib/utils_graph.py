@@ -4,6 +4,8 @@ import numpy as np
 
 import networkx as nx
 from networkx.algorithms.community.centrality import girvan_newman
+from scipy.optimize import curve_fit
+
 
 import lib.utils as utils
 import lib.parameters as p
@@ -12,6 +14,7 @@ import lib.colormap as c
 
 import matplotlib.pyplot as plt
 from matplotlib import patches
+from cycler import cycler
 plt.rcParams.update(p.rc_param)
 
 
@@ -79,6 +82,19 @@ def flatten(sequence):
     return result
 
 
+def _draw_a_patch(ax, p, c):
+	p_start = p[0]
+	p_end   = p[1]
+	p_size  = p_end - p_start
+	ax.add_patch(patches.Rectangle((p_start-0.5, p_start-0.5),
+	                              p_size, # Width
+	                              p_size, # Height
+	                              facecolor=None,
+	                              fill=False,
+	                              edgecolor=c,
+	                              linewidth=1))
+	
+	
 def draw_adjacency_matrix(ax, G, node_order=None, partitions=None, color=None):
 	"""
 	- G is a netorkx graph
@@ -103,19 +119,12 @@ def draw_adjacency_matrix(ax, G, node_order=None, partitions=None, color=None):
 	# highlight the module boundaries
 	#ax = pyplot.gca()
 
-	if partitions is not None:
+	if partitions is not None and not isinstance(color, (list, tuple)):
 		for p in partitions:
-			p_start = p[0]
-			p_end   = p[1]
-			p_size  = p_end - p_start
-			ax.add_patch(patches.Rectangle((p_start-0.5, p_start-0.5),
-			                              p_size, # Width
-			                              p_size, # Height
-			                              facecolor=None,
-			                              fill=False,
-			                              edgecolor=color,
-			                              linewidth=1))
-
+			_draw_a_patch(ax, p, color)
+	elif partitions is not None and isinstance(color, (list, tuple)):
+		for p, c in zip(partitions, color) :
+			_draw_a_patch(ax, p, c)
 
 def _position_communities(g, partition, **kwargs):
 
@@ -409,3 +418,138 @@ def girvan_newman_by_hand(G, num_div = 4):
 	return rcm, rcm_flat
 	
 
+def get_a_profile( data, i_split = 0 ):
+	
+	org_num_clusters  = len(data[0]['rcm'])
+	# print('org_num_clusters ', org_num_clusters )
+	
+	rcm_t0_0     = set(data[0]['rcm'][i_split])
+	num_rcm_t0_0 = len(rcm_t0_0)
+	
+	tot_num_CaMKII =  sum( [len(r) for r in data[0]['rcm']] )
+	ave_ratio = num_rcm_t0_0 / tot_num_CaMKII
+	
+	prof = []
+	# print('len(rcm_t0_0) ', num_rcm_t0_0)
+	for d in data.values():
+		num_clusters_t = len(d['rcm'])
+		# print('num_clusters_t ', num_clusters_t)
+		rcm_0 = [set(d['rcm'][c]) for c in range(num_clusters_t)]
+		rcm_0 = [len(rcm_t0_0 & r)/len(r) for r in rcm_0]
+		#print('rcm_0 ', rcm_0)
+		prof.append(rcm_0)
+	
+	return prof, ave_ratio
+
+
+def get_time( data ):
+	mc_step_0   = data[0]['mc_step']
+	time_points = [d['mc_step'] - mc_step_0 for d in data.values()]
+	time_points = np.array(time_points)
+	return time_points
+
+
+def prep_fig(ax, time_points):
+	xmin = 0
+	xmax = np.max(time_points)
+	ax.set_xlabel('Time (/10^9 MC steps)')
+	ax.set_ylabel('Standard deviation of cluster-wise mixture ratios')
+	ax.spines['right'].set_visible(False)
+	ax.spines['top'].set_visible(False)
+	ax.set_xlim([xmin, xmax])
+	ax.set_ylim([-0.1, 0.5])
+	
+	return xmin, xmax
+	
+	
+def func_exponential(x, tau, a, b):
+    return a*(np.exp(-x/tau) + b)
+
+def get_profiles(data):
+	# Num of cluster
+	partitions  = data[0]['partitions']
+	num_cluster = len(partitions)
+	
+	# Decode time
+	time_points = get_time( data ) / 1e9
+	
+	# Set colors
+	cols   = cycler( color=c.cols_list_ratio )
+	colors = [col['color'] for p, col in zip(partitions, cols())]
+	
+	profs  = []
+	taus   = []
+	params = []
+	for k, col in enumerate( colors ):
+		prof, ave_ratio = get_a_profile( data, k )
+		prof = np.array([np.std(p) for p in prof])
+		# exponential fit: func_exponential(x, tau, a, b):
+		min_tau, max_tau = 0, 20
+		min_a  , max_a   = 0, 0.3
+		min_b  , max_b   = 0, 1.0
+		param, cov = curve_fit(func_exponential, time_points[1:], prof[1:],\
+			p0=[1, 0.2, 0.0 ],\
+			bounds = ((min_tau, min_a, min_b), (max_tau, max_a, max_b)),\
+			maxfev=5000)
+		profs.append(prof)
+		params.append(param)
+		taus.append(param[0])
+		
+	return time_points, profs, taus, params, colors
+	
+	
+	
+def get_multi_graph(ids_molecule, types, bp, positions_grid_coord):
+	
+	unique_ids_molecule = np.unique( ids_molecule )
+	multi_graph = nx.MultiGraph()
+	# CaMKII_or_GluN2B = np.zeros( len(ids_molecule), dtype = 'int')
+	
+	# Create nodes
+	for id in unique_ids_molecule:
+		flags = (id == ids_molecule)
+		ids_bead         = np.nonzero(flags)
+		types_bead       = types[flags]
+		positions_bead   = positions_grid_coord[flags,:]
+		
+		ids_partner_bead = bp[flags]
+		species = [k for k, i in p.molecules_without_all.items() if types_bead[0] in i['id']][0]
+		multi_graph.add_node(id,\
+			species    = species, \
+			ids_bead   = ids_bead, \
+			types_bead = types_bead, \
+			num_beads  = np.sum(flags), \
+			positions_grid_coord = positions_bead, \
+			ids_partner_bead =ids_partner_bead)
+	
+		
+	# Make connection
+	list_ids = list(multi_graph.nodes.keys())
+	ids_bead_already_connected = np.zeros_like( bp, dtype='int' )
+	for i in range(ids_molecule.shape[0]):
+		if 	(bp[i] >= 0) and \
+			(ids_bead_already_connected[i] == 0) and \
+			(ids_bead_already_connected[bp[i]] == 0):
+			
+			ids_bead_already_connected[i]     = 1
+			ids_bead_already_connected[bp[i]] = 1
+			
+			id_molecule = ids_molecule[i]
+			id_molecule_partner = ids_molecule[bp[i]]
+			
+			species = multi_graph.nodes[id_molecule]['species']
+			species_partner = multi_graph.nodes[id_molecule_partner]['species']
+			connecting_species = [species, species_partner]
+			if ('GluN2B' in connecting_species) and ('CaMKII' in connecting_species):
+				type_connection = 'GluN2B_CaMKII'
+			elif ('GluN2B' in connecting_species) and ('PSD95' in connecting_species):
+				type_connection = 'GluN2B_PSD95'
+			elif ('STG' in connecting_species) and ('PSD95' in connecting_species):
+				type_connection = 'STG_PSD95'
+			else:
+				raise ValueError("Erronous connection: {}", connecting_species)
+			multi_graph.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection, id_bead1 = i ,id_bead2 = bp[i])
+			
+	
+	return multi_graph
+	

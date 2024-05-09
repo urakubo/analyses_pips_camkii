@@ -1077,6 +1077,67 @@ def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False):
 	return cs, cb
 	
 	
+	
+def plot_a_panel_log(ax, oZ, x, y, colormap, levels, draw_border = False):
+	
+	# Observed data arrangement
+	oX, oY  = np.meshgrid(x, y)
+	ox      = np.ravel(oX)
+	oy      = np.ravel(oY)
+	oz  = np.ravel(oZ.T)
+	
+	# Mesh grids for interpolation
+	mx_max = np.max(x)
+	my_max = np.max(y)
+	my_min = np.min(y)
+	
+	mx = np.linspace(0.0, mx_max*1.1, 55*4)
+	my = np.linspace(my_min*0.9, my_max*1.1, 55*4)
+	
+	mX, mY = np.meshgrid(mx,my)
+	
+	oZ_panel = copy.deepcopy( oZ )
+	mZ = make_grid_using_RegularGridInterpolator(x, y, oZ_panel, mX, mY)
+	
+	# Plot
+	# colormap.set_bad(color='magenta')
+	cs = ax.contourf(mX, mY, mZ, levels=levels, alpha=0.5, \
+				cmap= colormap, extend='both' ) # vmin=0, vmax=np.max(levels)
+	if draw_border == True:
+		ax.contour(cs, colors='k')
+	vmin = np.min(levels)
+	vmax = np.max(levels)
+	
+	ax.scatter(ox, oy, c=oz, cmap=colormap, marker='o', edgecolors='k', s=16, vmin=vmin, vmax=vmax)
+	
+	
+	# Overlay exception (not clean).
+	'''
+	oz_except = (oZ < 1)
+	mZ_except = make_grid_using_RegularGridInterpolator(x, y, oz_except, mX, mY)
+	mZ_except[mZ_except > 0.5] = 1.0
+	mZ_except[mZ_except <= 0.5] = np.nan
+	print('np.unique(mZ_except) ' , np.unique(mZ_except) )
+	cs = ax.contourf(mX, mY, mZ_except, vmin=0.3, vmax=0.4, cmap='binary' )
+	'''
+	#ax.set_facecolor("black")
+	
+	
+	ax.set_xlim( np.min(mx), np.max(mx) )
+	ax.set_ylim( np.min(my), np.max(my) )
+	
+	ax.set_box_aspect(1)
+	ax.spines['right'].set_visible(False)
+	ax.spines['top'].set_visible(False)
+	
+	divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
+	cax = divider.append_axes('right', '5%', pad='3%')
+	cb = plt.colorbar(cs, cax=cax, ticks=np.linspace(vmin, vmax, 5))
+	#cb.ax.set_yticklabels(["{:.2f}".format(i) for i in cb.get_ticks()])
+	
+	return cs, cb
+	
+	
 def plot_a_panel_overlay(ax, oZ, x, y, colormap, levels):
 	
 	# Observed data arrangement
@@ -1106,20 +1167,20 @@ def plot_a_panel_overlay(ax, oZ, x, y, colormap, levels):
 		cmap=colormap, marker='o', edgecolors='k', s=16, \
 		vmin=np.min(levels), vmax=np.max(levels), \
 		zorder = 4)
-
-
-
-
-
+	
+	
 def flatten(sequence):
     result = []
-
     for item in sequence:
         if isinstance(item, (list, tuple, range, dict, set, frozenset)):
             result.extend(flatten(item))
         else:
             result.append(item)
-
     return result
 	
-		
+	
+def get_ratio_code(hex_code):
+	hex_code   = hex_code.lstrip("#")
+	ratio_code = [int(hex_code[i:i+2], 16)/255 for i in range(0, 6, 2)]
+	return ratio_code
+	

@@ -73,16 +73,16 @@ if __name__ == '__main__':
 	species = 'PSD95_connection' # 'STG','GluN2B', 'PSD95','CaMKII', 'PSD95_connection'
 	
 	dir_target = 'conc_dependence'
+	dir_edited_data  = 'conc_dependence_cluster'
+	dir_edited_data  = os.path.join('..','data2',dir_edited_data)
 	
-	dir_edited_data  = os.path.join('data3',dir_target)
-	
-	dir_imgs = os.path.join('imgs3', dir_target)
+	dir_imgs = os.path.join('imgs2', dir_target)
 	os.makedirs(dir_imgs, exist_ok=True)
 	suffix = 'connection'
 	
 	
-	STG    = [540, 1620, 2160, 2700, 3240, 4520] 
-	GluN2B = [570, 1080, 4320, 6480, 8640, 10800, 12960, 17280]
+	STG    = [540 , 1620, 2160,  2700,  3240, 4520] 
+	GluN2B = [1080, 4320, 8640, 10800, 12960]
 	
 	volume = np.prod(p.space_np)
 	STG    = [ s / volume for s in STG    ]

@@ -10,7 +10,7 @@ import networkx as nx
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
-
+import lib.utils_graph as utils_graph
 
 def get_surface_condensate_CaMKII(types, positions, ids_molecule, sigma=2):
 	
@@ -73,60 +73,6 @@ def get_surface_condensate_CaMKII(types, positions, ids_molecule, sigma=2):
 		}
 	return d
 	
-	
-def get_multi_graph(ids_molecule, types, bp, positions_grid_coord):
-	
-	unique_ids_molecule = np.unique( ids_molecule )
-	multi_graph = nx.MultiGraph()
-	# CaMKII_or_GluN2B = np.zeros( len(ids_molecule), dtype = 'int')
-	
-	# Create nodes
-	for id in unique_ids_molecule:
-		flags = (id == ids_molecule)
-		ids_bead         = np.nonzero(flags)
-		types_bead       = types[flags]
-		positions_bead   = positions_grid_coord[flags,:]
-		
-		ids_partner_bead = bp[flags]
-		species = [k for k, i in p.molecules_without_all.items() if types_bead[0] in i['id']][0]
-		multi_graph.add_node(id,\
-			species    = species, \
-			ids_bead   = ids_bead, \
-			types_bead = types_bead, \
-			num_beads  = np.sum(flags), \
-			positions_grid_coord = positions_bead, \
-			ids_partner_bead =ids_partner_bead)
-	
-		
-	# Make connection
-	list_ids = list(multi_graph.nodes.keys())
-	ids_bead_already_connected = np.zeros_like( bp, dtype='int' )
-	for i in range(ids_molecule.shape[0]):
-		if 	(bp[i] >= 0) and \
-			(ids_bead_already_connected[i] == 0) and \
-			(ids_bead_already_connected[bp[i]] == 0):
-			
-			ids_bead_already_connected[i]     = 1
-			ids_bead_already_connected[bp[i]] = 1
-			
-			id_molecule = ids_molecule[i]
-			id_molecule_partner = ids_molecule[bp[i]]
-			
-			species = multi_graph.nodes[id_molecule]['species']
-			species_partner = multi_graph.nodes[id_molecule_partner]['species']
-			connecting_species = [species, species_partner]
-			if ('GluN2B' in connecting_species) and ('CaMKII' in connecting_species):
-				type_connection = 'GluN2B_CaMKII'
-			elif ('GluN2B' in connecting_species) and ('PSD95' in connecting_species):
-				type_connection = 'GluN2B_PSD95'
-			elif ('STG' in connecting_species) and ('PSD95' in connecting_species):
-				type_connection = 'STG_PSD95'
-			else:
-				raise ValueError("Erronous connection: {}", connecting_species)
-			multi_graph.add_edge(id_molecule, id_molecule_partner, type_connection = type_connection, id_bead1 = i ,id_bead2 = bp[i])
-			
-	
-	return multi_graph
 	
 	
 def get_connection_statistics(multi_graph, species, type_analysis):
@@ -239,7 +185,7 @@ def process_and_save(types, positions_grid_coord, ids_molecule, bp, filename_edi
 	
 	
 	# Generate graph
-	multi_graph = get_multi_graph(ids_molecule, types, bp, positions_real_coord)
+	multi_graph = utils_graph.get_multi_graph(ids_molecule, types, bp, positions_real_coord)
 	d = {}
 	d['mc_step']        = mc_step
 	d['sampling_frame'] = sampling_frame
@@ -276,7 +222,7 @@ def process_and_save2(types, positions_grid_coord, ids_molecule, bp, filename_ed
 	positions_real_coord = utils.centering(positions_grid_coord, center_of_mass)
 	
 	# Generate graph
-	multi_graph = get_multi_graph(ids_molecule, types, bp, positions_real_coord)
+	multi_graph = utils_graph.get_multi_graph(ids_molecule, types, bp, positions_real_coord)
 	d = {}
 	d['mc_step']        = mc_step
 	d['sampling_frame'] = sampling_frame
@@ -324,6 +270,7 @@ def repeat_for_time_development(filename_lammpstrj, filename_edited, max_backwar
 		process_and_save2(types, positions, ids_molecule, bp, filename_edited, suffix, mc_step, sampling_frame )
 		
 		print("\n"+filename_lammpstrj)
+		print("{} / {} ".format(i, max_backward_frames_for_sampling) )
 		print("The sampling timeframe was: ", sampling_frame )
 		print("The sampling MC step   was: ", mc_step )
 		
@@ -332,25 +279,6 @@ def repeat_for_time_development(filename_lammpstrj, filename_edited, max_backwar
 if __name__ == '__main__':
 	
 	
-	# CG Valency length
-	'''
-	subdirs    = ['val{}'.format(i) for i in range(2,14,2)]
-	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
-	filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
-	filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
-	dir_target          = 'CG_valency_length'
-	'''
-	
-	
-	# Small colony
-	'''
-	subdirs    = ['CaMKII_432_GluN2Bc_8640', 'CaMKII_864_GluN2Bc_8640']
-	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
-	filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
-	filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(7)]
-	dir_target  = 'small_colony'
-	i = 0
-	'''
 	
 	# Small colony 2
 	#'''
@@ -361,33 +289,63 @@ if __name__ == '__main__':
 	dir_target  = 'small_colony2'
 	#'''
 	
-	# Shared part of initialization
-	dir_lammpstrj    = os.path.join('..', 'lammpstrj4', dir_target)
-	dir_edited_data  = os.path.join('data4', dir_target)
-	os.makedirs(dir_edited_data, exist_ok=True)
-	
-	
 	# repeat_for_valency_length(filenames_lammpstrj, filenames_edited)
-	
-	
 	
 	#i = 7*5+2 # val_12\R2_002
 	#i = 7*4+2 # val_10\R2_002
 	#i = 7*3+2 # val_08\R2_002
 	#i = 7*2+2 # val_06\R2_002
+	i = 7*5+1 # val_12\R2_002
+	i = 7*4+0 # val_10\R2_000
+	i = 7*5+0 # val_12\R2_000
+	i = 7*4+1 # val_10\R2_001
+	i = 7*3+0 # val_08\R2_000
+
+
 	
-	#filename_lammpstrj = filenames_lammpstrj[i]
-	#filename_edited    = filenames_edited[i]
+	# Small colony
+	#'''
+	subdirs    = ['CaMKII_432_GluN2Bc_8640', 'CaMKII_864_GluN2Bc_8640']
+	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
+	filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
+	filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(7)]
+	dir_target  = 'small_colony'
+	i = 6 # 5
+	num_skip_frames_for_sampling = 1
+	i = 5 #
+	num_skip_frames_for_sampling = 3
+	#'''
+	
+	# Shared part of initialization
+	dir_lammpstrj    = os.path.join('..', 'lammpstrj4', dir_target)
+	dir_edited_data  = os.path.join('data4', dir_target)
+	os.makedirs(dir_edited_data, exist_ok=True)
+	
+
+	#'''
+	filename_lammpstrj = filenames_lammpstrj[i]
+	filename_edited    = filenames_edited[i]
+	
+	print('filename_lammpstrj ', filename_lammpstrj)
+	print('filename_edited    ', filename_edited   )
+	max_backward_frames_for_sampling = 80
+	repeat_for_time_development(filename_lammpstrj, \
+		filename_edited, \
+		max_backward_frames_for_sampling, \
+		num_skip_frames_for_sampling = num_skip_frames_for_sampling)	
+	#'''
+	
+	'''
 	for filename_lammpstrj, filename_edited in zip(filenames_lammpstrj, filenames_edited):
 		print('filename_lammpstrj ', filename_lammpstrj)
 		print('filename_edited    ', filename_edited   )
 		max_backward_frames_for_sampling = 80
-		num_skip_frames_for_sampling = 1
+		num_skip_frames_for_sampling = 10
 		repeat_for_time_development(filename_lammpstrj, \
 			filename_edited, \
 			max_backward_frames_for_sampling, \
 			num_skip_frames_for_sampling = num_skip_frames_for_sampling)
-	
+	'''
 	
 	# 
 

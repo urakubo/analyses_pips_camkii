@@ -26,71 +26,29 @@ from ovito.qt_compat import QtCore
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
+import lib.utils_ovito as utils_ovito
+
 #import lib.utils_graph as utils_graph
 
 
-def delete_particle(frame, data, ids):
-	transparency = np.ones((data.particles.count), dtype='int')
-	transparency[ids] = 0
 
-class DeleteParticle(ModifierInterface):
-	def modify(self, data, frame, **kwargs):
-		transparency = np.ones((data.particles.count), dtype='int')
-		transparency[self.ids] = 0
-		data.particles_.delete_elements(transparency)
-		#print('transparency ', transparency)
-
-class MakeTransparent(ModifierInterface):
-	def modify(self, data, frame, **kwargs):
-		transparency = np.ones((data.particles.count), dtype='float')*0.95
-		transparency[self.ids] = 0.0
-		data.particles_.create_property('Transparency', data=transparency)
-
-class SetColorsById(ModifierInterface):
-	def modify(self, data, frame, **kwargs):
-		color_values = np.ones((data.particles.count, 3), dtype='float')
-		for id, col in self.ids_colors.items():
-			color_values[id,:] = col
-		data.particles_.create_property('Color', data=color_values)
-	
-	
 def plot_snapshots(data_all, sampling_frames, dir_imgs, fig_title, ids_col, ref_mc_step):
 	
-	'''
-	for k, v in p.molecules_without_all.items():
-		data_all.modifiers.append(SelectTypeModifier(types=set(v['id'])))
-		data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio[k] ))
-	'''
 	
-	#data_all.modifiers.append(compute_particle_transparency)
-	
-	modifier = SetColorsById()
+	modifier = utils_ovito.SetColorsById()
 	modifier.ids_colors = ids_col
 	data_all.modifiers.append(modifier)
 	
-
-	modifier = DeleteParticle()
+	
+	modifier = utils_ovito.DeleteParticle()
 	modifier.ids = list(ids_col.keys())
 	data_all.modifiers.append(modifier)
-	
-	'''
-	modifier = MakeTransparent()
-	modifier.ids = list(ids_col.keys())
-	data_all.modifiers.append(modifier)
-	'''
-	
-	'''
-	# Slice data
-	modifier = SliceModifier()
-	modifier.normal   = (-1.0, 0.0, 0.0)
-	modifier.distance = 60
-	data_all.modifiers.append(modifier)
-	'''	
 	
 	
 	data   = data_all.compute()
 	data_all.add_to_scene()
-
+	
+	
 	vp = Viewport()
 	vp.type = Viewport.Type.Perspective
 	#vp.fov = math.radians(40.0)
@@ -102,28 +60,28 @@ def plot_snapshots(data_all, sampling_frames, dir_imgs, fig_title, ids_col, ref_
 	
 	i = 0
 	for time_frame in sampling_frames:
-	
+		
+		# Time label
 		t =  ( data_all.compute(time_frame).attributes['Timestep'] - ref_mc_step ) / 1e9
-		timelabel = TextLabelOverlay( text = 'Time: {:.5f} G MC step'.format(t),\
+		timelabel = TextLabelOverlay( text = 'Time: {:.5f} 10^9 MC step'.format(t),\
 			font_size = 0.03, \
 			text_color = (0,0,0) )
 		timelabel.alignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom
 		vp.overlays.append(timelabel)
 		
+		# Set filename
 		filename = os.path.join(dir_imgs, fig_title+'_{}.png'.format( str(i).zfill(4)) )
 		print( filename )
 		i += 1
+		
+		# Plot
 		vp.render_image(size=(800,800), filename=filename, background=(1,1,1),frame=time_frame, renderer=OpenGLRenderer())
 		vp.overlays.remove(timelabel)
 	
-	
 	return
-
-def get_ratio_code(hex_code):
-	hex_code   = hex_code.lstrip("#")
-	ratio_code = [int(hex_code[i:i+2], 16)/255 for i in range(0, 6, 2)]
-	return ratio_code
-
+	
+	
+	
 if __name__ == '__main__':
 	
 	
@@ -139,18 +97,11 @@ if __name__ == '__main__':
 	max_backward_frames_for_sampling = 80
 	num_skip_frames_for_sampling     = 1
 	
-	#i = 7*5+1 # val_12\R2_001
-	#i = 7*5+3 # val_12\R2_003
-	#i = 7*5+4 # val_12\R2_004
-	#i = 7*5+5 # val_12\R2_005
-	i = 7*5+6 # val_12\R2_006
 	#i = 7*5+2 # val_12\R2_002
-	#i = 7*4+2 # val_10\R2_002
-	#i = 7*3+2 # val_08\R2_002
-	#i = 7*2+2 # val_06\R2_002
+	i = 7*5+6 # val_12\R2_006
+	
 	filename_lammpstrj = filenames_lammpstrj[i]
 	filename_edited    = filenames_edited[i]
-	
 	
 	time_frame = 0
 	prefix_connect_graph = '{}_{}'.format(time_frame, filename_edited)
@@ -168,14 +119,20 @@ if __name__ == '__main__':
 	os.makedirs(dir_imgs, exist_ok=True)
 	os.makedirs(dir_videos, exist_ok=True)
 	
+	
 	# Load connect_graph.
 	d_connect_graph = utils.load(dir_edited_data, prefix_connect_graph, suffix_connect_graph)
 	
 	rcm                = d_connect_graph['rcm']
 	multi_graph_CaMKII = d_connect_graph['multi_graph_CaMKII']
+	partitions         = d_connect_graph['partitions']
 	rcm                = [list(r) for r in rcm]
 	ref_mc_step = d_connect_graph['mc_step']
 	
+	'''
+	print('rcm ', rcm)
+	print('partitions ', partitions)
+	'''
 	#sampling_frame = d_connect_graph['sampling_frame']
 	
 	
@@ -189,15 +146,32 @@ if __name__ == '__main__':
 	
 	# Calc colors
 	from cycler import cycler
-	#col = cycler( color=c.cols_list_ratio )
-	cols_matplotlib = plt.rcParams['axes.prop_cycle'].by_key()['color']
-	cols = [get_ratio_code(hex_code) for hex_code in cols_matplotlib]
-	ids_col = {id: col for ids_node, col in zip(rcm, cols) for id_node in ids_node for id in multi_graph_CaMKII.nodes[id_node]['id_bead_all']}
+	cols   = cycler( color=c.cols_list_ratio )
+	colors = [c['color'] for p, c in zip(partitions, cols())]
+	
+	# ids_col = {id: c for ids_node, c in zip(rcm, colors) for id_node in ids_node for id in multi_graph_CaMKII.nodes[id_node]['id_bead_all']}
+	ids_col = {}
+	for ids_node, c in zip(rcm, colors):
+		for id_node in ids_node:
+			for id in multi_graph_CaMKII.nodes[id_node]['id_bead_all']:
+				ids_col[id] = c
+	
+	#len_ids_col_1 = len([1 for v in ids_col.values() if v == colors[1]])
+	
+	'''
+	print('colors ', colors)
+	print('len(ids_col)', len(ids_col))
+	#print('len_ids_col_1', len_ids_col_1)
+	#print('len_ids_col_1/len(ids_col) ', len_ids_col_1/len(ids_col))
+	'''
+	
+	#cols_matplotlib = plt.rcParams['axes.prop_cycle'].by_key()['color']
+	#cols = [get_ratio_code(hex_code) for hex_code in cols_matplotlib]
+	#ids_col = {id: col for ids_node, col in zip(rcm, cols) for id_node in ids_node for id in multi_graph_CaMKII.nodes[id_node]['id_bead_all']}
 	
 	
 	data_all = import_file(os.path.join(dir_lammpstrj, filename_lammpstrj), input_format= "lammps/dump" )
 	plot_snapshots(data_all, sampling_frames, dir_imgs, filename_edited, ids_col, ref_mc_step)
-	
 	
 	
 	ffname = os.path.join(dir_imgs, '{}_%04d.png'.format(filename_edited))
