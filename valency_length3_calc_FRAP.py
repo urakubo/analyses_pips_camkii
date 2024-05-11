@@ -5,7 +5,6 @@ import numpy as np
 from ovito.io import import_file
 
 
-
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
@@ -27,7 +26,7 @@ class SimulatePhotobleach():
 		num_frames_before_photobleach = {}
 		for v in valencies:
 			for l in lengths:
-				filename_edited = str(valency).zfill(2)+'_'+str(p.fnames_length2[length]).zfill(3)
+				filename_edited = str(valency).zfill(2)+'_'+str(length).zfill(3)
 				if length == 0 and valency in [10, 12]:
 					num_frames_after_photobleach[filename_edited]  = 900
 					num_frames_before_photobleach[filename_edited] = 90
@@ -49,9 +48,9 @@ class SimulatePhotobleach():
 		num_frames_before_photobleach = {}
 		for valency in valencies:
 			for length in lengths:
-				filename_edited = str(valency).zfill(2)+'_'+str(p.fnames_length2[length]).zfill(3)
-				num_frames_after_photobleach[filename_edited]  = 300
-				num_frames_before_photobleach[filename_edited] = 100
+				filename_edited = str(valency).zfill(2)+'_'+str(length).zfill(3)
+				num_frames_after_photobleach[filename_edited]  = 100
+				num_frames_before_photobleach[filename_edited] = 30
 		
 		return num_frames_before_photobleach, num_frames_after_photobleach
 		
@@ -69,7 +68,7 @@ class SimulatePhotobleach():
 		
 		# Small colony 3
 		self.valencies = range(4,14,2)
-		self.lengths   = range(7) # [1, 2, 3, 4, 5, 6, 9]
+		self.lengths   = range(4,7) # [1, 2, 3, 4, 5, 6, 9]
 		dir_target  = 'small_colony3'
 		self.num_frames_before_photobleach, self.num_frames_after_photobleach = \
 			self.set_frames_photobleach_colony3(self.valencies, self.lengths)
@@ -100,8 +99,8 @@ class SimulatePhotobleach():
 				print('num_frames : ', num_frames)
 				
 				# Time
-				nf_after_pb  = self.num_frames_after_photobleach[v,l]
-				nf_before_pb = self.num_frames_before_photobleach[v,l]
+				nf_after_pb  = self.num_frames_after_photobleach[filename_edited]
+				nf_before_pb = self.num_frames_before_photobleach[filename_edited]
 				target_frames     = list(range(num_frames - nf_after_pb - nf_before_pb, num_frames))
 				frame_photobleach = num_frames - nf_after_pb
 				time_steps        = np.array([data_all.compute(t).attributes['Timestep'] for t in target_frames])

@@ -1,5 +1,5 @@
 
-
+import numpy as np
 from ovito.pipeline import ModifierInterface
 #from ovito.pipeline import *
 #from ovito.qt_compat import QtCore

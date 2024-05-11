@@ -15,16 +15,24 @@ import lib.utils_graph as utils_graph
 plt.rcParams.update(p.rc_param)
 
 
-class MatrixCGValencyLength():
+class MatrixValencyLength():
 	def __init__( self ):
 		plt.rcParams.update( {'font.size': 6} )
-		# Input files
+		# Small colony 2
+		'''
 		self.valencies = range(4,14,2)
-		self.lengths   = p.lengths2
-		
-		self.filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in self.valencies for id_f in self.lengths]
+		self.lengths   = range(7) # [1, 2, 3, 4, 5, 6, 9]
 		dir_target  = 'small_colony2'
 		self.suffix = 'FRAP'
+		'''
+		
+		# Small colony 3
+		self.valencies = range(4,14,2)
+		self.lengths   = range(7) # [1, 2, 3, 4, 5, 6, 9]
+		dir_target  = 'small_colony3'
+		self.suffix = 'FRAP'
+		
+		self.filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in self.valencies for id_f in self.lengths]
 		
 		self.dir_edited_data = os.path.join('data4', dir_target)
 		self.dir_imgs        = os.path.join('imgs4', dir_target, 'matrix')
@@ -42,7 +50,7 @@ class MatrixCGValencyLength():
 		for i, v in enumerate( self.valencies ):
 			for j, l in enumerate( self.lengths ):
 				# Load data
-				prefix = p.fnames_valency2[v]+'_'+p.fnames_length2[l]
+				prefix = str(v).zfill(2)+'_'+str(l).zfill(3)
 				row    = self.num_rows-i-1
 				column = j+1
 				print('Target file: ', prefix, ', column: ', column, ', row: ', row)
@@ -71,10 +79,16 @@ class SingleValencyLength():
 		# Input files
 		self.valency = 12
 		self.length   = 2
+		dir_target  = 'small_colony2'
+		
+		'''
+		self.valency = 12
+		self.length   = 6
+		dir_target  = 'small_colony3'
+		'''
 		
 		self.filename_edited = str(self.valency).zfill(2)+'_'+str(self.length).zfill(3)
 		self.basename = self.filename_edited
-		dir_target  = 'small_colony2'
 		self.suffix = 'FRAP'
 		
 		self.dir_edited_data = os.path.join('data4', dir_target)
@@ -83,18 +97,25 @@ class SingleValencyLength():
 		self.num_rows = 1
 		self.num_columns = 1
 		
+		
 	def plot( self ):
 		d = utils.load(self.dir_edited_data, self.filename_edited, self.suffix)
 		
-		self.fig  = plt.figure(figsize=(1.3, 1.3))
+		self.fig  = plt.figure(figsize=(1.3, 1.0))
 		
 		legend = True
 		row = 0
 		column = 1
 		value, ax = self.plot_a_graph(row, column, d, self.basename, legend)
-		ax.set_xlim([-1,8])
-		ax.set_xticks([0,2,4,6,8])
-		ax.set_title('{},{:.3f}'.format( self.basename, value))
+		
+		if self.length  == 2:
+			ax.set_xlim([-1,8])
+			ax.set_xticks([0,2,4,6,8])
+		elif self.length == 6:
+			ax.set_xlim([-0.01,0.08])
+			ax.set_xticks([0,0.04,0.08])
+		
+		ax.set_title('{},{:.4f}'.format( self.basename, value))
 		
 	def save( self ):
 		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.svg' ) )
@@ -118,7 +139,7 @@ class PlotFRAP():
 		ax = self.fig.add_subplot( self.num_rows, self.num_columns, row*self.num_columns+column )
 		ax.set_title(title)
 		
-		ax.set_xlabel('Time (109 MC steps)')
+		ax.set_xlabel('Time (10^9 MC steps)')
 		ax.set_ylabel('CaMKII (% baseline)')
 		ax.spines['right'].set_visible(False)
 		ax.spines['top'].set_visible(False)
@@ -169,10 +190,10 @@ class PlotFRAP():
 		
 		return pp[0], ax
 	
-class PlotFRAPMatrixCGValencyLength(PlotFRAP, MatrixCGValencyLength):
+class PlotFRAPMatrixValencyLength(PlotFRAP, MatrixValencyLength):
 	def __init__( self ):
 		PlotFRAP.__init__(self )
-		MatrixCGValencyLength.__init__(self)
+		MatrixValencyLength.__init__(self)
 
 
 class PlotFRAPSingleValencyLength(PlotFRAP, SingleValencyLength):
@@ -188,8 +209,7 @@ if __name__ == '__main__':
 	## Define Input
 	##
 	
-	'''
-	CG_valnecy_length = PlotFRAPMatrixCGValencyLength()
+	CG_valnecy_length = PlotFRAPMatrixValencyLength()
 	values = CG_valnecy_length.run()
 	CG_valnecy_length.save()
 	
@@ -197,10 +217,12 @@ if __name__ == '__main__':
 	prefix = 'FRAP'
 	suffix = 'matrix'
 	utils.save(dir_edited_data, prefix, suffix, values)
-	'''
 	
+	'''
 	valnecy_length = PlotFRAPSingleValencyLength()
 	values = valnecy_length.plot()
 	valnecy_length.save()
+	'''
 	
-
+	
+	

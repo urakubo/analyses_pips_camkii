@@ -512,7 +512,7 @@ def get_rdfs_from_multiple_frames( dir_lammpstrj, filename_input, sampling_time_
 			rdfs[k][:,i] = current_rdfs[k]
 		
 		
-	return rdf, p.rdf_bins
+	return rdfs, p.rdf_bins
 	
 	
 def get_rdfs( dir_input, filename_input, target_frame, center=None, multi_graph=None ):
@@ -1078,7 +1078,7 @@ def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False):
 	
 	
 	
-def plot_a_panel_log(ax, oZ, x, y, colormap, levels, draw_border = False):
+def plot_a_panel_log(ax, oZ, x, y, colormap, levels, draw_border = False, ticks=None ):
 	
 	# Observed data arrangement
 	oX, oY  = np.meshgrid(x, y)
@@ -1130,9 +1130,12 @@ def plot_a_panel_log(ax, oZ, x, y, colormap, levels, draw_border = False):
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
 	
+	if ticks is None:
+		ticks=np.linspace(vmin, vmax, 5)
+	
 	divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
 	cax = divider.append_axes('right', '5%', pad='3%')
-	cb = plt.colorbar(cs, cax=cax, ticks=np.linspace(vmin, vmax, 5))
+	cb = plt.colorbar(cs, cax=cax, ticks=ticks)
 	#cb.ax.set_yticklabels(["{:.2f}".format(i) for i in cb.get_ticks()])
 	
 	return cs, cb

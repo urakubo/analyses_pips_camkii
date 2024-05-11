@@ -136,7 +136,7 @@ class Connectivity():
 			self.title    = 'Ratio of PSD95 bound to both GluN2B and STG'
 			self.basename = 'PSD95_bound_to_both_GluN2B_STG'
 			self.colormap =  plt.colormaps['Greys']
-			self.levels   = np.linspace(0,1.0,11)		
+			self.levels   = np.linspace(0,1.0,11)
 		else:
 			raise ValueError("Not implemented, species: ", species, ", type_analysis: ", type_analysis)
 		
@@ -206,6 +206,7 @@ class ModularityDensityClustering():
 			self.prefix = 'modularities'
 			self.colormap = plt.colormaps['Greys']
 			self.levels   = np.linspace(0,1,10)
+			self.ticks = [0, 0.2, 0.4, 0.6, 0.8, 1]
 		elif property == 'density':
 			self.title    = 'Density'
 			self.prefix = 'densities'
@@ -214,35 +215,50 @@ class ModularityDensityClustering():
 			self.levels   = np.linspace(0,8,30)		
 		elif property == 'clustering':
 			self.title    = 'Clustering coefficient'
-			self.prefix = 'average_clustering_coefficient'
+			self.prefix   = 'average_clustering_coefficient'
 			self.basename = 'clustering'
 			self.colormap = plt.colormaps['Greys']
 			self.levels   = np.linspace(0,0.30,10)
+			self.ticks    = [0, 0.1, 0.2, 0.3]
 		elif property == 'FRAP':
 			self.title    = 'CaMKII FRAP'
-			self.prefix   = 'FRAP'
+			self.prefix   = 'FRAP_merged'
 			self.basename = 'FRAP'
 			self.colormap = plt.colormaps['Greys']
-			self.levels   = np.linspace(-1,2.5,10)
-			
-		
+			self.levels   = np.linspace(-2,2.5,10)
+			self.ticks = [-2,-1, 0, 1, 2]
+		elif property == 'FRAP_GluN2B':
+			self.dir_target     = 'small_colony3'
+			self.title    = 'GluN2B FRAP'
+			self.prefix   = 'FRAP_GluN2B'
+			self.basename = 'FRAP_GluN2B'
+			self.colormap = plt.colormaps['Greys']
+			self.levels   = np.linspace(0, 0.02, 10)
+			self.ticks = [0, 0.01, 0.02]
+		#
 	def plot( self ):
 		#
 		suffix = 'matrix'
-		d    = utils.load(self.dir_edited_data, self.prefix, suffix)
+		self.d = utils.load(self.dir_edited_data, self.prefix, suffix)
+		#
 		data = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
 		for i, v in enumerate(self.valencies):
 			for j, l in enumerate(self.lengths):
 				# Load data
 				prefix    = p.fnames_valency[v]+'_'+p.fnames_length[l]
 				print('Target file: ', prefix)
-				data[j,i] = d[prefix]
+				data[j,i] = self.d[prefix]
 				if prefix in ['04_000', '04_001', '04_006']:
 					data[j,i] = np.nan
 		
 		print('data ', data)
 		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel_log(ax, data, self.lengths, self.valencies, self.colormap, self.levels)
+		cs, cb = utils.plot_a_panel_log(ax, data, \
+			self.lengths, \
+			self.valencies, \
+			self.colormap, \
+			self.levels, \
+			ticks = self.ticks)
 		
 		
 class PlotConnectivityValencyLength(Connectivity, PlotValencyLength):
@@ -274,9 +290,7 @@ if __name__ == '__main__':
 	pl = PlotPhaseDiagramValencyLength()
 	pl.plot()
 	pl.save()
-	'''
 	
-	'''
 	species, type_analysis = 'CaMKII', 'average'
 	#species, type_analysis = 'PSD95' , 'average'
 	#species, type_analysis = 'PSD95' , 'ratio'
@@ -284,17 +298,34 @@ if __name__ == '__main__':
 	pl = PlotConnectivityValencyLength(species, type_analysis)
 	pl.run()
 	pl.save()
-	'''
-	'''	
+	
 	pl = PlotRelaxzationTimeForMixtureValencyLength()
 	pl.run_mixture()
 	pl.save()
 	'''	
 	
-
-	property =  'FRAP' # 'density', 'modularity', 'clustering', 'FRAP'
+	
+	# Two FRAP files are merged and saved.
+	'''
+	prefix = 'FRAP'
+	suffix = 'matrix'
+	dir_edited_data = os.path.join('data4', 'small_colony2')
+	d_colony2 = utils.load(dir_edited_data, prefix, suffix)
+	dir_edited_data = os.path.join('data4', 'small_colony3')
+	d_colony3 = utils.load(dir_edited_data, prefix, suffix)
+	
+	for valency_length in ['12_000','10_000','08_000','12_001','10_001','12_002']:
+		d_colony3[valency_length] = d_colony2[valency_length]
+	
+	dir_edited_data = os.path.join('data4', 'small_colony2')
+	prefix = 'FRAP_merged'
+	utils.save(dir_edited_data, prefix, suffix, d_colony3)
+	'''
+	
+	#'''	
+	property = 'FRAP_GluN2B' # 'density', 'modularity', 'clustering', 'FRAP', 'FRAP_GluN2B'
 	pl = PlotPropertiesValencyLength(property)
 	pl.plot()
 	pl.save()
-
-
+	#'''
+	
