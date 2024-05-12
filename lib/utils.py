@@ -511,7 +511,6 @@ def get_rdfs_from_multiple_frames( dir_lammpstrj, filename_input, sampling_time_
 		for k in rdfs.keys():
 			rdfs[k][:,i] = current_rdfs[k]
 		
-		
 	return rdfs, p.rdf_bins
 	
 	
@@ -526,10 +525,10 @@ def get_rdfs( dir_input, filename_input, target_frame, center=None, multi_graph=
 		rdf_sampling_frames = [0]
 
 	print('rdf_sampling_frames ', rdf_sampling_frames)
-	rdf = get_rdfs_from_multiple_frames(dir_input, filename_input, \
+	rdfs, p.rdf_bins = get_rdfs_from_multiple_frames(dir_input, filename_input, \
 			rdf_sampling_frames, center = center, multi_graph=multi_graph)
 	
-	return rdf, p.rdf_bins, rdf_sampling_frames
+	return rdfs, p.rdf_bins, rdf_sampling_frames
 
 
 def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.molecules_without_all.keys() , ylim = (-0.006,0.66) ):

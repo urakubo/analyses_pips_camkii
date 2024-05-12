@@ -50,9 +50,6 @@ def process_and_save( d, dir_edited_data, prefix_save ):
 		utils_graph.make_new_graphs_CaMKII_connectivity(d, nth_largest = 0)
 	G = multi_graph_CaMKII
 	
-	# rcm, rcm_flat = utils_graph.girvan_newman_by_hand(G, num_div = 4)
-	# print('girvan_newman_auto')
-	# rcms, rcm = girvan_newman_auto(G, num_div = 10)
 	
 	'''
 	from networkx.algorithms.community import greedy_modularity_communities
@@ -128,8 +125,6 @@ def plot_matrix_histogram_and_save_it(dir_imgs, fig_title, G, rcm, rcm_flat, par
 	
 	
 def load_and_plot_a_matrix( dir_imgs, dir_edited_data, prefix_load_save, suffix_load_save ):
-	
-	print("ddd")
 	
 	
 	data = utils.load(dir_edited_data, prefix_load_save, suffix_load_save)
@@ -240,13 +235,9 @@ if __name__ == '__main__':
 	
 	
 	
-	id_length_valency = 7*4+6
-	id_length_valency = 7*4+2
+	id_length_valency = 7*4+6 # val_12\R2_006
+	id_length_valency = 7*4+2 # val_12\R2_002
 	
-	#id_length_valency = 7*3+0 # val_10\R2_000
-	#id_length_valency = 7*4+0 # val_12\R2_000
-	#id_length_valency = 7*3+1 # val_10\R2_001
-	#id_length_valency = 7*2+0 # val_08\R2_001
 	
 	
 	prefix_load = prefixes_load[id_length_valency] # '0_'+

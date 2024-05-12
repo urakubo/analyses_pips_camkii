@@ -42,10 +42,28 @@ def prepare_plot():
 	ax.spines['top'].set_visible(False)
 	return fig, ax
 
-def plot_and_save( fig, dir_imgs, basename ):
+def plot_a_graph(ax, x, y, title, fitting_function, fitting_params, label):
+	xlim  = [-2.5, 2.5]
+	#ax.set_yscale('log')
+	ax.set_xlim(xlim)
+	ax.set_ylim([-0.03,0.3])
+	ax.set_yticks([0,0.1,0.2,0.3])
+	ax.set_xlabel('FRAP (log[10^9 MC steps])')
+	ax.set_ylabel('Clustering coefficient')
+	ax.set_title( title )
 	
-	fig.savefig( os.path.join(dir_imgs, basename + '.svg' ) )
-	fig.savefig( os.path.join(dir_imgs, basename + '.png' ) , dpi=150)
+	xx = np.linspace(xlim[0],xlim[1],40)
+	ax.plot( xx, fitting_function( xx,*fitting_params.tolist() ), '-', color = (0.5,0.5,0.5), label=label)
+	ax.plot(x, y,'o', \
+		markersize = 4, \
+		color = 'k', \
+		markerfacecolor = 'k' )
+	ax.legend(frameon=False)
+
+def save_plots( fig, dir_imgs, img_basename ):
+	
+	fig.savefig( os.path.join(dir_imgs, img_basename + '.svg' ) )
+	fig.savefig( os.path.join(dir_imgs, img_basename + '.png' ) , dpi=150)
 	plt.show()
 	plt.clf()
 	plt.close(fig=fig)
@@ -64,11 +82,11 @@ if __name__ == '__main__':
 	os.makedirs(dir_imgs, exist_ok=True)
 	filename_img = 'FRAP_clustering_coefficient_fitting'
 	
-	# FRAP
+	# Load data: FRAP
 	prefix = 'FRAP_merged'
 	d_FRAP = utils.load(dir_edited_data, prefix, suffix)
 	
-	# Clustering coefficient.
+	# Load data: Clustering coefficient.
 	prefix = 'average_clustering_coefficient'
 	d_cluster = utils.load(dir_edited_data, prefix, suffix)
 	
@@ -78,41 +96,29 @@ if __name__ == '__main__':
 	y = np.array(y)
 	
 	
-	fitting_params_exp , pcov = curve_fit(exponential, x, y, inits = np.array([0.5, 0.02]))
-	fitting_params_soft, pcov = curve_fit(soft_plus  , x, y)
+	# Fitting
+	title = 'Soft_plus'
+	fitting_function = soft_plus
+	inits = None
 	
-	y_pred =  exponential(x, *fitting_params_exp.tolist())
+	'''
+	title = 'Exponential'
+	fitting_function = exponential
+	inits = np.array([0.5, 0.02])
+	'''
+	
+	fitting_params , pcov = curve_fit(fitting_function, x, y, p0= inits)
+	
+	y_pred = fitting_function(x, *fitting_params.tolist())
 	r2_exp = r2_score(y, y_pred)
 	
-	y_pred  =  soft_plus(x, *fitting_params_soft.tolist())
-	r2_soft = r2_score(y, y_pred)
-
-	
-	print('fitting parameters (exponential): ', fitting_params_exp)
-	print('R2 statistics: '     , r2_exp)
-	print()
-	print('fitting parameters (soft plus)  : ', fitting_params_soft)
-	print('R2 statistics: '     , r2_soft)
+	label = 'R2: {:.3f}'.format(r2_exp)
+	print('fitting parameters: ', fitting_params)
+	print(label)
 	print()
 
-	
-	title = 'Cluster coeeficient'
-	xlim  = [-2.5, 2.5]
+	# Plot a figure and save it.
 	fig, ax = prepare_plot()
-	#ax.set_yscale('log')
-	ax.set_xlim(xlim)
-	ax.set_ylim([-0.03,0.3])
-	ax.set_yticks([0,0.1,0.2,0.3])
-	ax.set_xlabel('FRAP ()')
-	ax.set_ylabel('Clustering coefficient')
-	
-	xx = np.linspace(xlim[0],xlim[1],40)
-	#ax.plot( xx, exponential( xx,*fitting_params_exp.tolist() ), '-', color = 'b', label='R2 (exp): {:.3f}'.format(r2_exp) )
-	ax.plot( xx, soft_plus( xx,*fitting_params_soft.tolist() ), '-', color = (0.5,0.5,0.5), label='R2 (soft): {:.3f}'.format(r2_soft))
-	ax.plot(x, y,'o', \
-		markersize = 4, \
-		color = 'k', \
-		markerfacecolor = 'k' )
-	ax.legend(frameon=False)
-	plot_and_save( fig, dir_imgs, filename_img )
+	plot_a_graph(ax, x, y, title, fitting_function, fitting_params, label)
+	save_plots( fig, dir_imgs, filename_img + '_' + title)
 

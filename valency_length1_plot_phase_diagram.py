@@ -305,22 +305,6 @@ if __name__ == '__main__':
 	'''	
 	
 	
-	# Two FRAP files are merged and saved.
-	'''
-	prefix = 'FRAP'
-	suffix = 'matrix'
-	dir_edited_data = os.path.join('data4', 'small_colony2')
-	d_colony2 = utils.load(dir_edited_data, prefix, suffix)
-	dir_edited_data = os.path.join('data4', 'small_colony3')
-	d_colony3 = utils.load(dir_edited_data, prefix, suffix)
-	
-	for valency_length in ['12_000','10_000','08_000','12_001','10_001','12_002']:
-		d_colony3[valency_length] = d_colony2[valency_length]
-	
-	dir_edited_data = os.path.join('data4', 'small_colony2')
-	prefix = 'FRAP_merged'
-	utils.save(dir_edited_data, prefix, suffix, d_colony3)
-	'''
 	
 	#'''	
 	property = 'FRAP_GluN2B' # 'density', 'modularity', 'clustering', 'FRAP', 'FRAP_GluN2B'

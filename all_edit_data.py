@@ -21,16 +21,19 @@ if __name__ == '__main__':
 	
 	has_multi_graph = False
 	# Valency length
-	subdirs    = ['val_{}'.format(i) for i in range(2,16,2)]
-	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
+	valencies = range(2,16,2)
+	lengths   = range(7)
+	subdirs    = ['val_{}'.format(i) for i in valencies]
+	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in lengths]
 	filenames_input  = [ os.path.join(d, f) for d in subdirs for f in filenames]
-	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
+	filenames_output = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in valencies for id_f in lengths ]
 	dir_lammpstrj    = 'valency_length'
 	dir_edited_data  = 'valency_length'
 	has_energy = False
 	has_multi_graph = False
 	
-	
+	#filenames_input  = [filenames_input[-1]]
+	#filenames_output = [filenames_output[-1]]
 	
 	# Shared part of initialization
 	dir_lammpstrj    = os.path.join('..', 'lammpstrj4', dir_lammpstrj)
@@ -81,7 +84,7 @@ if __name__ == '__main__':
 		d['rdf_sampling_frames'] = rdf_sampling_frames
 		d['rdf'] = rdf
 		#'''
-
+		
 		# RDF, CaMKII binding beads
 		'''
 		rdf, rdf_bins = \

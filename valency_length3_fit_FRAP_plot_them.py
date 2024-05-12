@@ -12,86 +12,35 @@ import lib.parameters as p
 import lib.colormap as c
 import lib.utils_graph as utils_graph
 
+from both_main_plot_matrix import MatrixValencyLength
+
+
 plt.rcParams.update(p.rc_param)
 
-
-class MatrixValencyLength():
-	def __init__( self ):
-		plt.rcParams.update( {'font.size': 6} )
-		
-		# Small colony 3
-		self.valencies = range(4,14,2)
-		self.lengths   = range(7) # [1, 2, 3, 4, 5, 6, 9]
-		dir_target  = 'small_colony3'
-		self.suffix = 'FRAP'
-		
-		self.filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in self.valencies for id_f in self.lengths]
-		
-		self.dir_edited_data = os.path.join('data4', dir_target)
-		self.dir_imgs        = os.path.join('imgs4', dir_target, 'matrix')
-		os.makedirs(self.dir_imgs, exist_ok=True)
-		
-		self.num_rows		= len( self.valencies )
-		self.num_columns	= len( self.lengths   )
-		
-	def run( self ):
-		
-		vals = {}
-		self.fig  = plt.figure(figsize=(8, 6), tight_layout=True)
-		#fig.subplots_adjust(wspace=0.4,  hspace=0.6)
-		
-		for i, v in enumerate( self.valencies ):
-			for j, l in enumerate( self.lengths ):
-				# Load data
-				prefix = str(v).zfill(2)+'_'+str(l).zfill(3)
-				
-				row    = self.num_rows-i-1
-				column = j+1
-				print('Target file: ', prefix, ', column: ', column, ', row: ', row)
-				d      = utils.load(self.dir_edited_data, prefix, self.suffix)
-				
-				legend = (v == 12) and (l == 1)
-				title = prefix # prefix, None
-				vv, _ = self.plot_a_graph(row, column, d, title, legend)
-				vals[prefix] = vv
-		return vals
-		
-		
-	def save( self ):
-		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.svg' ) )
-		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.png' ), dpi=150 )
-		plt.show()
-		plt.clf()
-		plt.close(fig=self.fig)
-	
 	
 	
 class SingleValencyLength():
-	def __init__( self ):
+	def __init__( self , target_molecule, length):
 		
 		# Input files
+		print(target_molecule , length)
+		#self.length   = 2
+		self.length   = length
 		self.valency = 12
-		self.length   = 2
-		self.dir_target  = 'small_colony2'
-		self.xlim        = [-1,8]
-		self.set_xticks  = [0,2,4,6,8]
-		
-		'''
-		self.valency = 12
-		self.length   = 6
-		self.dir_target  = 'small_colony3'
-		self.xlim        = [-0.01,0.08]
-		self.set_xticks  = [0,0.04,0.08]
-		'''
-		
-		
-		self.valency = 12
-		self.dir_target  = 'small_colony3'
-		self.xlim        = [-0.01,0.08]
-		self.set_xticks  = [0,0.04,0.08]
-		
-		self.length   = 2
-		#self.length   = 6
+		if target_molecule == 'CaMKII' and self.length == 2:
+			self.dir_target  = 'small_colony2'
+			self.xlim        = [-1,8]
+			self.set_xticks  = [0,2,4,6,8]
+		elif target_molecule == 'GluN2B' and self.length == 2:
+			self.dir_target  = 'small_colony3'
+			self.xlim        = [-0.01,0.08]
+			self.set_xticks  = [0,0.04,0.08]
+		elif target_molecule in ['CaMKII','GluN2B'] and self.length == 6:
+			self.dir_target  = 'small_colony3'
+			self.xlim        = [-0.01,0.08]
+			self.set_xticks  = [0,0.04,0.08]
+		else:
+			print('Error!')
 		
 		
 		self.num_rows = 1
@@ -218,26 +167,29 @@ class PlotFRAP():
 		
 		
 class PlotFRAPMatrixValencyLength(PlotFRAP, MatrixValencyLength):
-	def __init__( self, target_molecule = 'CaMKII' ):
+	def __init__( self, target_molecule = 'CaMKII', dir_target  = 'small_colony3' ):
+		
+		valencies = range(4,14,2)
+		lengths   = range(7)
+		
 		PlotFRAP.__init__(self, target_molecule )
-		MatrixValencyLength.__init__(self)
+		MatrixValencyLength.__init__(self, valencies, lengths, dir_target )
 		
 		
 class PlotFRAPSingleValencyLength(PlotFRAP, SingleValencyLength):
-	def __init__( self, target_molecule = 'CaMKII' ):
+	def __init__( self, target_molecule = 'CaMKII',length = '2'):
 		PlotFRAP.__init__(self, target_molecule )
-		SingleValencyLength.__init__(self)
+		SingleValencyLength.__init__(self, target_molecule , length)
 
 
 	
 if __name__ == '__main__':
 	
-	##
-	## Define Input
-	##
 	
-	#'''
-	valnecy_length = PlotFRAPMatrixValencyLength('GluN2B')
+	# Calculate taus and save them.
+	
+	'''
+	valnecy_length = PlotFRAPMatrixValencyLength( target_molecule = 'GluN2B')
 	values = valnecy_length.run()
 	valnecy_length.save()
 	
@@ -245,30 +197,46 @@ if __name__ == '__main__':
 	prefix = 'FRAP_GluN2B'
 	suffix = 'matrix'
 	utils.save(dir_edited_data, prefix, suffix, values)
-	#'''
+	'''
 	
 	'''
-	valnecy_length = PlotFRAPSingleValencyLength('GluN2B')
+	dir_target  = 'small_colony2' # 'small_colony2', 'small_colony3'
+	valnecy_length = PlotFRAPMatrixValencyLength(dir_target  = dir_target)
+	fitting_tau    = valnecy_length.run()
+	valnecy_length.save()
+	
+	fitting_tau = {k: np.log10(v) for k, v in fitting_tau.items()}
+	
+	dir_edited_data = os.path.join('data4', dir_target)
+	prefix          = 'FRAP'
+	suffix          = 'matrix'
+	utils.save(dir_edited_data, prefix, suffix, fitting_tau)
+	'''
+	
+	
+	# Single profiles of FRAP
+	target_molecule = 'CaMKII' # 'GluN2B', 'CaMKII'
+	length          = 6 # 2, 6
+	
+	valnecy_length = PlotFRAPSingleValencyLength(target_molecule = 'CaMKII',length = 6)
 	values = valnecy_length.plot()
 	valnecy_length.save()
+	
+	
+	# Two FRAP files are merged and saved.
 	'''
-	
-	'''
-	valnecy_length = PlotFRAPMatrixValencyLength()
-	values = valnecy_length.run()
-	valnecy_length.save()
-	
-	values = np.log10(values)
-	
-	dir_edited_data = valnecy_length.dir_edited_data
 	prefix = 'FRAP'
 	suffix = 'matrix'
-	utils.save(dir_edited_data, prefix, suffix, values)
-
-	valnecy_length = PlotFRAPSingleValencyLength()
-	values = valnecy_length.plot()
-	valnecy_length.save()
+	dir_edited_data = os.path.join('data4', 'small_colony2')
+	d_colony2 = utils.load(dir_edited_data, prefix, suffix)
+	dir_edited_data = os.path.join('data4', 'small_colony3')
+	d_colony3 = utils.load(dir_edited_data, prefix, suffix)
+	
+	for valency_length in ['12_000','10_000','08_000','12_001','10_001','12_002']:
+		d_colony3[valency_length] = d_colony2[valency_length]
+	
+	dir_edited_data = os.path.join('data4', 'small_colony2')
+	prefix = 'FRAP_merged'
+	utils.save(dir_edited_data, prefix, suffix, d_colony3)
 	'''
-	
-	
 	
