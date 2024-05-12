@@ -88,7 +88,8 @@ class MatrixConcDependence():
 				column = i+1
 				print('Target file: ', prefix, ', column: ', column, ', row: ', row)
 				d = utils.load(self.dir_edited_data, prefix, self.suffix)
-				vals[row, column-1] = self.plot_a_graph(row, column, d, title)
+				vv, _ = self.plot_a_graph(row, column, d, title)
+				vals[row, column-1] = vv
 		return vals
 		
 		
@@ -151,7 +152,7 @@ class PlotConc():
 		
 	def plot_a_graph( self, row, column, d, title, legend = None ):
 		val = utils.select_plot(self.target, self.fig, self.num_rows, self.num_columns, row, column, d, title)
-		return val
+		return val, None
 		
 		
 		
@@ -163,8 +164,8 @@ class PlotConcMatrixConcDependence(PlotConc, MatrixConcDependence):
 class PlotConcMatrixValencyLength(PlotConc, MatrixValencyLength):
 	def __init__( self, target ):
 		
-		valencies = p.valencies
-		lengths   = p.lengths
+		valencies = range(2,14,2)
+		lengths   = range(7)
 		dir_target= 'valency_length'
 		
 		PlotConc.__init__(self, target )
@@ -179,8 +180,8 @@ class PlotConnectivityMatrixConcDependence(PlotConnectivity, MatrixConcDependenc
 class PlotConnectivityMatrixValencyLength(PlotConnectivity, MatrixValencyLength):
 	def __init__( self, species, type_analysis ):
 		
-		valencies = p.valencies
-		lengths   = p.lengths
+		valencies = range(2,14,2)
+		lengths   = range(7)
 		dir_target= 'valency_length'
 		
 		PlotConnectivity.__init__(self, species, type_analysis )
@@ -194,8 +195,8 @@ if __name__ == '__main__':
 	# 'concs_in_CaMKII', 'concs_in_STG',
 	# 'shared_PSD95', 'unshared_PSD95'
 	#'''
-	target = 'region_condensates'
-	plot_concs = PlotConcMatrixConcDependence(target) # PlotConcMatrixConcDependence
+	target = 'concs_in_STG'
+	plot_concs = PlotConcMatrixValencyLength(target) # PlotConcMatrixConcDependence, PlotConcMatrixValencyLength
 	values = plot_concs.run()
 	plot_concs.save()
 	#'''
