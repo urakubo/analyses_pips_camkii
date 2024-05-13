@@ -52,7 +52,7 @@ def make_a_figure( d ):
 		ax    = utils.plot_regions_condenstate_from_a_direction_(fig, num_rows, num_columns, row, column, d, transp )
 		loc0  = ax.get_position()
 		axes.append(ax)
-		columns = {'CaMKII':2, 'GluN2B':3, 'STG':4,'PSD95':5}
+		columns = {'CaMKII':2, 'GluN2B':3, 'PSD95':4,'STG':5}
 		axes1 = utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp, pre_rotated=False )
 		axes.extend(axes1)
 		'''
@@ -116,7 +116,7 @@ def make_a_figure( d ):
 	# Plot RDF
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*2 )
 	errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
-	utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=True ) # , ylim = (-0.006,0.46)
+	utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=True, ylim = (-0.05,0.5) ) # , ylim = (-0.006,0.46)
 	arrange_graph_bar(ax, panel_dx, yloc[2], panel_size/2, panel_size)
 	
 	return fig
@@ -127,20 +127,19 @@ if __name__ == '__main__':
 	# Datasets
 	
 	# Linker length
-	#'''
+	'''
 	valencies = range(2,16,2)
 	lengths   = range(7)
 	filenames_edited_data = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in valencies for id_f in lengths ]
 	dir_target  = 'valency_length'
-	#'''
+	'''
 	
 	
 	# Conc dependence
-	'''
+	#'''
 	dir_target  = 'conc_dependence'
-	filenames_edited_data 	= [str(i).zfill(3) for i in range(48) ] # 70
-	#filenames_edited_data 	= [str(i).zfill(3) for i in [30,31,46] ] # 70
-	'''	
+	filenames_edited_data 	= [str(i).zfill(3) for i in range(81) ]
+	#'''	
 	
 	# Mixtures
 	'''

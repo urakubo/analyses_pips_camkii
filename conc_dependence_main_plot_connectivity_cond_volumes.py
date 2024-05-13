@@ -12,9 +12,6 @@ import colormap as c
 import parameters as p
 
 from skimage.measure import label
-
-
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import r2_score
 
@@ -70,7 +67,7 @@ def prepare_plot():
 	ax.spines['top'].set_visible(False)
 	return fig, ax
 
-def plot_and_save( fig, dir_imgs, basename ):
+def save_plots( fig, dir_imgs, basename ):
 	
 	fig.savefig( os.path.join(dir_imgs, basename + '.svg' ) )
 	fig.savefig( os.path.join(dir_imgs, basename + '.png' ) , dpi=150)
@@ -85,8 +82,8 @@ class ConcDependence():
 		# Parameters
 		self.sigma = 2
 		dir_target = 'conc_dependence'
-		self.dir_edited_data = os.path.join('data3',dir_target)
-		self.dir_imgs        = os.path.join('imgs3', dir_target,'phase_diagram')
+		self.dir_edited_data = os.path.join('data4', dir_target)
+		self.dir_imgs        = os.path.join('imgs4', dir_target, 'phase_diagram')
 		
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		
@@ -114,9 +111,6 @@ class ConcDependence():
 		return data
 		
 		
-
-
-
 class GetConnectivity():
 	def __init__( self, species, type_analysis ):
 		
@@ -202,7 +196,6 @@ class GetCondVolume():
 		return data
 		
 		
-		
 class GetConnectivityConcDependence(GetConnectivity, ConcDependence):
 	def __init__( self, species, type_analysis ):
 		GetConnectivity.__init__(self, species, type_analysis )
@@ -212,6 +205,8 @@ class GetCondVolumeConcDependence(GetCondVolume, ConcDependence):
 	def __init__( self, species ):
 		GetCondVolume.__init__(self, species )
 		ConcDependence.__init__(self)
+		
+		
 		
 if __name__ == '__main__':
 	
@@ -230,14 +225,15 @@ if __name__ == '__main__':
 	# Shared parameters
 	prefix = 'conn_volume'
 	suffix = species + '_' + species_vol
-	dir_edited_data  = os.path.join('data3',dir_target, prefix)
+	dir_edited_data  = os.path.join('data4',dir_target, prefix)
 	os.makedirs(dir_edited_data, exist_ok=True)
-	dir_imgs = os.path.join('imgs3', dir_target, prefix)
+	dir_imgs = os.path.join('imgs4', dir_target, prefix)
 	os.makedirs(dir_imgs, exist_ok=True)
 	basename = suffix
 	
 	conn = GetConnectivityConcDependence(species, type_analysis)
 	vol  = GetCondVolumeConcDependence(species_vol)
+	
 	
 	'''
 	numbers_connection = conn.run()
@@ -252,6 +248,9 @@ if __name__ == '__main__':
 	
 	fig, ax = prepare_plot()
 	ax.set_xlabel(conn.title)
+	
+	
+	
 	
 	if species_vol == 'PIPS':
 		
@@ -346,5 +345,5 @@ if __name__ == '__main__':
 			markerfacecolor = c.cmap_universal_ratio_light[species_vol] )
 		ax.set_ylabel('(% of total volume)')
 		ax.set_title('R2: {:.4f}, param: a = {:.4f}, b = {:.4f}, c = {:.4f}'.format(r2, *fittedParameters))
-	plot_and_save( fig, dir_imgs, basename )
+	save_plots( fig, dir_imgs, basename )
 	

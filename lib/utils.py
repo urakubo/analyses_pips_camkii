@@ -532,7 +532,7 @@ def get_rdfs( dir_input, filename_input, target_frame, center=None, multi_graph=
 
 
 def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.molecules_without_all.keys() , ylim = (-0.006,0.66) ):
-	r = d['rdf_bins'][1:-1]
+	r = d['rdf_bins'][1:-1] / np.sqrt(3) 
 	for k in target_molecules:
 		rdf_mean  = np.mean( d['rdf'][k][1:], axis = 1 )
 		rdf_std   = np.std(  d['rdf'][k][1:], axis = 1 )
@@ -558,9 +558,9 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.mole
 
 	ax.set_xlabel('Distance from \n center-of-mass (l.u.)')
 	ax.set_ylabel('(beads / voxel)')
-	ax.set_xlim(0,40)
+	ax.set_xlim(0,22)
 	ax.set_ylim(*ylim)
-	ax.set_xticks(range(0,50,10))
+	ax.set_xticks(range(0,25,5))
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
 
@@ -568,7 +568,7 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.mole
 
 
 def plot_a_rdf_PSD95( ax, d, legend=True , ylim = (-0.006,0.66) ):
-	r = d['rdf_PSD95_bins'][1:-1]
+	r = d['rdf_PSD95_bins'][1:-1] / np.sqrt(3) #
 	target_molecules = ['CaMKII', 'GluN2B', 'STG', 'Shared PSD95','Unshared PSD95']
 	for k in target_molecules:
 		'''
@@ -589,9 +589,9 @@ def plot_a_rdf_PSD95( ax, d, legend=True , ylim = (-0.006,0.66) ):
 
 	ax.set_xlabel('Distance from \n center-of-mass (l.u.)')
 	ax.set_ylabel('(beads / voxel)')
-	ax.set_xlim(0,40)
+	ax.set_xlim(0,22)
 	ax.set_ylim(*ylim)
-	ax.set_xticks(range(0,50,10))
+	ax.set_xticks(range(0,25,5))
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
 
@@ -619,7 +619,7 @@ def plot_colorbar(ax, cs):
 	
 	
 def plot_scalebar(ax, col='k', linewidth=2):
-	ax.plot([5,25],[5,5], '-', color=col, linewidth=linewidth)
+	ax.plot([5,15*np.sqrt(3)],[5,5], '-', color=col, linewidth=linewidth)
 	return
 	
 	
@@ -1027,9 +1027,10 @@ def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False):
 	# Mesh grids for interpolation
 	mx_max = np.max(x)
 	my_max = np.max(y)
+	my_min = 1.0
 	
 	mx = np.linspace(0.0, mx_max*1.1, 55*4)
-	my = np.linspace(0.0, my_max*1.1, 55*4)
+	my = np.linspace(my_min, my_max*1.1, 55*4)
 	
 	mX, mY = np.meshgrid(mx,my)
 	
@@ -1089,9 +1090,10 @@ def plot_a_panel_log(ax, oZ, x, y, colormap, levels, draw_border = False, ticks=
 	mx_max = np.max(x)
 	my_max = np.max(y)
 	my_min = np.min(y)
+	my_min = my_min*0.9
 	
 	mx = np.linspace(0.0, mx_max*1.1, 55*4)
-	my = np.linspace(my_min*0.9, my_max*1.1, 55*4)
+	my = np.linspace(my_min, my_max*1.1, 55*4)
 	
 	mX, mY = np.meshgrid(mx,my)
 	
@@ -1121,9 +1123,9 @@ def plot_a_panel_log(ax, oZ, x, y, colormap, levels, draw_border = False, ticks=
 	'''
 	#ax.set_facecolor("black")
 	
-	
+	print('my_min ', my_min )
 	ax.set_xlim( np.min(mx), np.max(mx) )
-	ax.set_ylim( np.min(my), np.max(my) )
+	ax.set_ylim( my_min, my_max )
 	
 	ax.set_box_aspect(1)
 	ax.spines['right'].set_visible(False)
@@ -1153,7 +1155,7 @@ def plot_a_panel_overlay(ax, oZ, x, y, colormap, levels):
 	my_max = np.max(y)
 	
 	mx = np.linspace(0.0, mx_max*1.1, 55*4)
-	my = np.linspace(0.0, my_max*1.1, 55*4)
+	my = np.linspace(1.0, my_max*1.1, 55*4)
 	
 	mX, mY = np.meshgrid(mx,my)
 	print('x ', x)

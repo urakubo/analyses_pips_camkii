@@ -31,15 +31,15 @@ subunits = \
 molecules_with_all = \
 	{'CaMKII'	:{'s':['CaMKII binding site', 'CaMKII hub']	,'c':'#228B22'},\
 	'GluN2B'	:{'s':['GluN2B binding site']			,'c':'#ED0DD9'},\
-	'STG'		:{'s':['STG binding site','STG hub']	,'c':'r'},\
 	'PSD95'		:{'s':['PSD']				,'c':'#00FFFF'},\
+	'STG'		:{'s':['STG binding site','STG hub']	,'c':'r'},\
 	'All'		:{'s':['GluN2B binding site','CaMKII hub','CaMKII binding site','STG binding site','STG hub','PSD']	,'c':'k'}}
 
 molecules_without_all = \
 	{'CaMKII'	:{'s':['CaMKII binding site', 'CaMKII hub']	,'c':'#228B22'},\
 	'GluN2B'	:{'s':['GluN2B binding site']			,'c':'#ED0DD9'},\
-	'STG'		:{'s':['STG binding site','STG hub']	,'c':'r'},\
-	'PSD95'		:{'s':['PSD']							,'c':'#00FFFF'}}
+	'PSD95'		:{'s':['PSD']							,'c':'#00FFFF'},\
+	'STG'		:{'s':['STG binding site','STG hub']	,'c':'r'}}
 
 for k, v in molecules_with_all.items():
 	molecules_with_all[k]['id'] = [subunits[s]['id'] for s in v['s']]
@@ -72,8 +72,9 @@ neighbors26 = np.delete(neighbors26, 13, axis=0)
 
 
 # Conc dependence
-STGs    = [540, 1620, 2160, 2700, 3240, 4520] 
-GluN2Bs = [570, 1080, 4320, 6480, 8640, 10800, 12960, 17280]
+
+STGs    = [108,216,432,864,1728,2592,3456,4320,5184]
+GluN2Bs = [270,540,1080,2160,4320,6480,8640,12960,17280]
 volume  = np.prod(space_np)
 
 STGs    = [ s / volume for s in STGs    ]
@@ -88,10 +89,10 @@ lengths   = [1, 2, 3, 4, 5, 6, 9]
 valencies2 = list(range(4,14,2)) 
 lengths2   = [1, 2, 3, 4, 5, 6, 9]
 
-fnames_valency = { v: str(v).zfill(2) for v in valencies }
-fnames_length  = {ll: str(i).zfill(3) for i,ll in enumerate(lengths) }
+fnames_valency = {v: str(v).zfill(2) for v in valencies }
+fnames_length  = {l: str(i).zfill(3) for i,l in enumerate(lengths) }
 
-fnames_valency2 = { v: str(v).zfill(2) for v in valencies2 }
-fnames_length2  = {ll: str(i).zfill(3) for i,ll in enumerate(lengths2) }
+fnames_valency2 = {v: str(v).zfill(2) for v in valencies2 }
+fnames_length2  = {l: str(i).zfill(3) for i,l in enumerate(lengths2) }
 
 

@@ -325,7 +325,7 @@ cmap_phase_diagram1 = make_colormap_phase_diagram(c)
 c    = {}
 c[0] = [255 ,128, 130] # Pink
 c[1] = [255 ,128, 130] # Pink
-c[2] = [255 ,255, 255] # Gray
+c[2] = [255 ,255, 255] # White
 c[3] = [77  ,196, 255]  # Light blue
 c[4] = [gy  , gy,  gy] # Gray
 c[5] = [gy  , gy,  gy] # Gray
@@ -333,10 +333,11 @@ cmap_phase_diagram2 = make_colormap_phase_diagram(c)
 #
 #
 c    = {}
-c[0] = [255 ,255, 255] # Pink
-c[1] = [255 ,255, 255] # Pink
-c[2] = [77+89  ,196+30, 255]  # Light blue
+c[0] = [255 ,255, 255] # White
+c[1] = [255 ,255, 255] # White
+c[2] = [gy  , gy,  gy] # Gray
 c[3] = [77+89  ,196+30, 255]  # Light blue
+c[4] = [77+89  ,196+30, 255]  # Light blue
 cmap_phase_diagram3 = make_colormap_phase_diagram(c)
 
 

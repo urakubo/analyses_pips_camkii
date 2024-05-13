@@ -19,7 +19,7 @@ import lib.parameters as p
 	
 if __name__ == '__main__':
 	
-	has_multi_graph = False
+	
 	# Valency length
 	valencies = range(2,16,2)
 	lengths   = range(7)
@@ -31,6 +31,17 @@ if __name__ == '__main__':
 	dir_edited_data  = 'valency_length'
 	has_energy = False
 	has_multi_graph = False
+	
+	
+	# Conc dependence
+	
+	filenames_output = [str(i).zfill(3) for i in range(81) ]
+	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ] #70
+	dir_lammpstrj    = 'conc_dependence'
+	dir_edited_data  = 'conc_dependence'
+	has_energy = False
+	has_multi_graph = False
+	
 	
 	#filenames_input  = [filenames_input[-1]]
 	#filenames_output = [filenames_output[-1]]

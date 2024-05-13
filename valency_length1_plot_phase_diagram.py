@@ -21,6 +21,12 @@ class PlotValencyLength():
 		# Parameters
 		self.sigma = 2
 		
+		
+		self.valencies = range(0,14,2)
+		self.lengths   = range(7)
+		self.dir_target= 'valency_length'
+		
+		
 		self.dir_edited_data = os.path.join('data4', self.dir_target)
 		self.dir_imgs        = os.path.join('imgs4', self.dir_target, 'phase_diagram')
 		os.makedirs(self.dir_imgs, exist_ok=True)
@@ -68,7 +74,7 @@ class PhaseDiagram():
 		
 		self.dir_target = 'valency_length'
 		
-		self.valencies   = [12, 10, 8, 6, 4, 2, -2] # [4, 6, 8, 10, 12] 
+		self.valencies   = [12, 10, 8, 6, 4, 2, -0] # [4, 6, 8, 10, 12] 
 		self.basename = 'phase_diagram_valency_length'
 		self.title    = 'Phase diagram'
 		# 1: PIPS
@@ -84,7 +90,7 @@ class PhaseDiagram():
 			[ 1, 1, 1, 2,  2, 2, 2], # 6
 			[ 1, 1, 1, 2,  2, 2, 2], # 4
 			[ 1, 1, 1, 2,  2, 2, 2], # 2
-			[ 1, 1, 1, 2,  2, 2, 2], # -2
+			[ 1, 1, 1, 2,  2, 2, 2], # 0
 			]
 		
 		self.STG_only = [\
@@ -92,9 +98,9 @@ class PhaseDiagram():
 			[ 0, 0, 0, 0,  0, 0, 0], # 10
 			[ 0, 0, 0, 0,  0, 0, 0], # 8
 			[ 0, 0, 0, 0,  0, 0, 0], # 6
-			[ 0, 0, 0, 0,  0, 0, 0], # 4
-			[ 1, 1, 1, 1,  1, 1, 1], # 2
-			[ 1, 1, 1, 1,  1, 1, 1], # -2
+			[ 1, 1, 1, 1,  1, 1, 1], # 4
+			[ 2, 2, 2, 2,  2, 2, 2], # 2
+			[ 2, 2, 2, 2,  2, 2, 2], # 0
 			]
 		
 	def plot( self ):
@@ -104,7 +110,9 @@ class PhaseDiagram():
 		colormap1	= c.cmap_phase_diagram2
 		
 		STG_only	= np.array(self.STG_only).T
-		levels2		= [-0.5, 0.5, 1.5]
+		STG_only    = np.fliplr(STG_only)
+		print(STG_only)
+		levels2		= [-0.5, 0.5, 1.5, 2.5]
 		colormap2	= c.cmap_phase_diagram3
 		
 		max_conc      = np.max(phase_diagram)
@@ -286,11 +294,11 @@ class PlotPropertiesValencyLength(ModularityDensityClustering, PlotValencyLength
 
 if __name__ == '__main__':
 	
-	'''
 	pl = PlotPhaseDiagramValencyLength()
 	pl.plot()
 	pl.save()
 	
+	'''
 	species, type_analysis = 'CaMKII', 'average'
 	#species, type_analysis = 'PSD95' , 'average'
 	#species, type_analysis = 'PSD95' , 'ratio'
@@ -306,10 +314,10 @@ if __name__ == '__main__':
 	
 	
 	
-	#'''	
+	'''	
 	property = 'FRAP_GluN2B' # 'density', 'modularity', 'clustering', 'FRAP', 'FRAP_GluN2B'
 	pl = PlotPropertiesValencyLength(property)
 	pl.plot()
 	pl.save()
-	#'''
+	'''
 	
