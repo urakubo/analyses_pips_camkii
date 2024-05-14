@@ -28,7 +28,27 @@ class SetColorsById(ModifierInterface):
 		for id, col in self.ids_colors.items():
 			color_values[id,:] = col
 		data.particles_.create_property('Color', data=color_values)
-	
-	
-	
+
+def compute_particle_transparency(frame, data):
+    transparency = np.ones((data.particles.count))*0.3
+    data.particles_.create_property('Transparency', data=transparency)
+
+
+'''
+line_vis = data_all.source.data.line.vis
+line_vis.color = (0.0, 0.0, 0.0)
+line_vis.width = 0.5
+positions = np.array([[0,0,60],[0,120,60],[120,120,60],[120,0,60],[0,0,60] ])
+lines_data = ovito.data.Lines
+lines_data.create_line = positions
+lines_data.color = (0.0, 0.0, 0.0)
+lines_data.width = 0.5
+
+line = GenerateTrajectoryLinesModifier(only_selected=False)
+# line.generate()
+line.vis.color = (0.0, 0.0, 0.0)
+line.vis.width = 0.5
+data_all.modifiers.append(line)
+'''
+
 	

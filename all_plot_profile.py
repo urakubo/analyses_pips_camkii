@@ -136,16 +136,17 @@ if __name__ == '__main__':
 	
 	
 	# Conc dependence
-	#'''
+	'''
 	dir_target  = 'conc_dependence'
 	filenames_edited_data 	= [str(i).zfill(3) for i in range(81) ]
-	#'''	
+	'''	
 	
-	# Mixtures
-	'''
-	filenames_edited_data 	= ['CGSP'] #  ['CG','CPG','PG','SP'] # ,'SPG'
-	dir_target  = 'mixtures'
-	'''
+	# Special conditions
+	#'''
+	filenames_edited_data 	= ['CPG', 'SP', 'SPG','CG_000','CG_001','CG_002','CG_003'] 
+	dir_target  = 'special_conditions'
+	#'''
+	
 	
 	# Shared init
 	dir_edited_data	= os.path.join('data4', dir_target)

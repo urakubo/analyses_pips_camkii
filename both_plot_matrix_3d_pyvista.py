@@ -65,15 +65,19 @@ def plot_valency_length_save_it(dir_data, dir_imgs, sub = False):
 
 
 	
-def plot_conc_dependence_save_it(dir_data, dir_imgs, sub = True): 
+def plot_conc_dependence_save_it(dir_data, dir_imgs, sub = False): 
 	
+	
+	
+	# STGs    = [108,216,432,864,1728,2592,3456,4320,5184]
+	# GluN2Bs = [270,540,1080,2160,4320,6480,8640,12960,17280]
 	
 	# Subset of concs
-	sub_STG    = [540, 1620, 2160, 2700, 3240] 
-	sub_GluN2B = [1080, 4320, 6480, 10800, 17280]
-	volume = np.prod(p.space_np)
-	sub_STG    = [ s / volume for s in sub_STG    ]
-	sub_GluN2B = [ n / volume for n in sub_GluN2B ]
+	sub_STGs    = [540, 1620, 2160, 2700, 3240] 
+	sub_GluN2Bs = [1080, 4320, 6480, 10800, 17280]
+	volume      = np.prod(p.space_np)
+	sub_STGs    = [ s / volume for s in sub_STGs    ]
+	sub_GluN2Bs = [ n / volume for n in sub_GluN2Bs ]
 	suffix = 'sigma_2'
 	
 	if sub == True:
@@ -112,7 +116,7 @@ def plot_conc_dependence_save_it(dir_data, dir_imgs, sub = True):
 	pl.show(interactive=False, auto_close=True) # off_screen = True
 	#pl.show(interactive=True, auto_close=False) # off_screen = True
 	
-	filename = os.path.join(dir_imgs, save_img_filename)
+	save_img_filename = os.path.join(dir_imgs, save_img_filename)
 	pl.screenshot(save_img_filename)
 	
 	
@@ -127,10 +131,10 @@ if __name__ == '__main__':
 	
 	dir_target = 'conc_dependence'
 	func       = plot_conc_dependence_save_it
-	sub        = True
+	sub        = False
 	
 	dir_edited_data	= os.path.join('data4', dir_target)
 	dir_imgs = os.path.join('imgs4', dir_target, 'matrix_3d_pyvista')
 	os.makedirs(dir_imgs, exist_ok=True)
-	func(dir_edited_data, dir_imgs, sub = True)
+	func(dir_edited_data, dir_imgs, sub = sub)
 	
