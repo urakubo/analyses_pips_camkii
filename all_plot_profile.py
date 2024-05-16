@@ -139,13 +139,19 @@ if __name__ == '__main__':
 	'''
 	dir_target  = 'conc_dependence'
 	filenames_edited_data 	= [str(i).zfill(3) for i in range(81) ]
+	dir_target  = 'conc_dependence_0.33'
+	filenames_edited_data 	= [str(i).zfill(3) for i in range(9) ]
 	'''	
 	
+	dir_target  = 'conc_dependence_merged'
+	filenames_edited_data 	= [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in range(10) for glun2b in range(9)  ]
+	
+	
 	# Special conditions
-	#'''
+	'''
 	filenames_edited_data 	= ['CPG', 'SP', 'SPG','CG_000','CG_001','CG_002','CG_003'] 
 	dir_target  = 'special_conditions'
-	#'''
+	'''
 	
 	
 	# Shared init

@@ -7,9 +7,9 @@ from matplotlib import cm
 # import mpl_toolkits.axes_grid1
 # from scipy.interpolate import griddata, RegularGridInterpolator
 
-import utils
-import colormap as c
-import parameters as p
+import lib.utils as utils
+import lib.parameters as p
+import lib.colormap as c
 
 from skimage.measure import label
 
@@ -21,18 +21,21 @@ class PhaseDiagramConcDependence():
 		
 		# Parameters
 		self.sigma = 2
-		dir_target = 'conc_dependence'
-		self.dir_edited_data = os.path.join('data3',dir_target)
-		self.dir_imgs        = os.path.join('imgs3', dir_target,'phase_diagram')
+		dir_target = 'conc_dependence_merged'
+		self.dir_edited_data = os.path.join('data4',dir_target)
+		self.dir_imgs        = os.path.join('imgs4', dir_target,'phase_diagram')
 		
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		
 		
 		self.STGs    = np.array( p.STGs ) * 1000
-		self.GluN2Bs = np.array( p.GluN2Bs ) * 100
+		self.GluN2Bs = np.array( p.GluN2Bs ) * 1000
 		
 		self.num_rows		= len( p.GluN2Bs )
 		self.num_columns	= len( p.STGs )
+		
+		self.data = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
+		
 		
 	def prepare_plot( self ):
 		self.fig  = plt.figure(figsize=(5, 5))
@@ -40,28 +43,41 @@ class PhaseDiagramConcDependence():
 		ax = self.fig.add_subplot( 1, 1, 1 )
 		ax.set_title( self.title )
 		ax.set_xlabel('STG (beads / voxel) x 10-3')	
-		ax.set_ylabel('GluN2B (beads / voxel) x 10-2')
+		ax.set_ylabel('GluN2B (beads / voxel) x 10-3')
 		return ax
 		
 		
-	def run( self ):
-		#
-		data = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
+	def collect_data_save_them( self ):
 		#
 		for i, stg in enumerate(self.STGs):
 			for j, glun in enumerate(self.GluN2Bs):
-				id = i + j * len(self.STGs)
-				prefix = str(id).zfill(3)
+				# Load data
+				prefix = str(i).zfill(2)+'_'+str(j).zfill(2)
 				print('Target file: ', prefix)
 				d           = utils.load(self.dir_edited_data, prefix, self.suffix)
-				data[i,j]   = self._modify_data(d)
+				self.data[i,j]   = self._modify_data(d)
 		
-		print('data ', data)
+		print('data ', self.data)
+		prefix = self.basename
+		suffix = 'data'
+		utils.save( self.dir_edited_data, prefix, suffix, self.data )
+		
+	def load_data( self ):
+		prefix = self.basename
+		suffix = 'data'
+		self.data = utils.load( self.dir_edited_data, prefix, suffix  )
+		
+	def plot_data_save_it( self ):
+		mx_min = 0
+		my_min = 0
+		mx_max = np.max(self.STGs[:-1]) * 1.05# None # 2.6
+		my_max = np.max(self.GluN2Bs) *1.05 # None # 10.1
+		
 		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, data, self.STGs, self.GluN2Bs, self.colormap, self.levels)
-		
-		
-	def save( self ):
+		cs, cb = utils.plot_a_panel(ax, self.data, self.STGs, self.GluN2Bs, self.colormap, self.levels,\
+			mx_min=mx_min, my_min=my_min, \
+			mx_max=mx_max, my_max=my_max \
+			)
 		
 		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.svg' ) )
 		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.png' ) , dpi=150)
@@ -145,40 +161,105 @@ class PlotPhaseDiagram( PhaseDiagramConcDependence ):
 		
 		super().__init__()
 		
-		GluN2Bs = ([-570, 570, 1080, 4320, 6480, 8640, 10800, 12960, 17280])
-		GluN2Bs.reverse()
-		volume = np.prod(p.space_np)
-		GluN2Bs = [ n / volume for n in GluN2Bs ]
-		self.GluN2Bs  = np.array( GluN2Bs ) * 100
+		GluN2Bs = np.array([270,540,1080,2160,4320,6480,8640,12960,17280])
+		GluN2Bs = GluN2Bs / np.prod(p.space_np)
+		GluN2Bs = GluN2Bs * 1000
+		GluN2Bs = np.flip(GluN2Bs)
+		#GluN2Bs = np.log(GluN2Bs)
+		self.GluN2Bs = GluN2Bs
+		
+		
+		STGs = np.array([108,216,432,576,864,1728,2592,3456,4320,5184])
+		STGs = STGs / np.prod(p.space_np)
+		STGs = STGs * 1000
+		#STGs = np.log(STGs)
+		self.STGs = STGs
+		
+		
 		self.num_rows = len( GluN2Bs )
 		self.title    = 'Phase diagram'
 		self.basename = 'phase_diagram_conc_dependence'
 		# -1: Unclear
 		# 1: Homogeneous LLPS (STG)
 		# 2: PIPS
-		# 3: Partial engulfment
-		# 4: Homogeneous LLPS (CaMKII)
+		# 3: Homogeneous LLPS (CaMKII)
 		
 		phase_diagram = [\
-			[ 1, 1, 1, 1,   1, 1], # 17280
-			[ 1, 1, 1, 1,   2, 2], # 12960
-			[ 1, 2, 2, 2,   2, 2], # 10800
-			[ 2, 2, 2, 2,   2, 2], # 8640
-			[ 2, 3, 2, 2,   2, 2], # 6480
-			[ 3, 3, 3, 3,   3, 3], # 4320
-			[ 4, 4, 4, 3,   3, 3], # 1080
-			[ 4, 4, 4, 4,   4, 4], # 570
-			[ 4, 4, 4, 4,   4, 4]] # -570
+			[ 1, 1, 1, 1,   1, 1, 1, 1,   1, 1],
+			[ 1, 1, 1, 1,   1, 1, 1, 1,   1, 1],
+			[ 1, 1, 1, 1,   1, 1, 1, 1,   1, 1],
+			[ 1, 1, 1, 1,   1, 1, 1, 1,   1, 1],
+			[ 1, 1, 1, 1,   1, 1, 1, 1,   1, 1],
+			[ 3, 3, 3, 3,   3, 3, 3, 3,   3, 3],
+			[ 3, 3, 3, 3,   3, 3, 3, 3,   3, 3],
+			[ 3, 3, 3, 3,   3, 3, 3, 3,   3, 3],
+			[ 3, 3, 3, 3,   3, 3, 3, 3,   3, 3]]
+			
+		# 1: Partial engulfment
+		phase_diagram_partial_engulfment = [\
+			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
+			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
+			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
+			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
+			[ 0, 0, 0, 0,   0, 0, 1, 1,   1, 1],
+			[ 0, 0, 0, 0,   0, 0, 1, 1,   1, 1],
+			[ 0, 0, 0, 0,   0, 0, 0, 1,   1, 1],
+			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
+			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0]]
+		phase_diagram_pips = [\
+			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
+			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
+			[ 0, 0, 0, 0,   1, 1, 1, 1,   1, 1],
+			[ 0, 0, 1, 1,   1, 1, 1, 1,   1, 1],
+			[ 0, 1, 1, 1,   1, 1, 1, 1,   1, 1],
+			[ 0, 0, 0, 0,   0, 1, 1, 1,   1, 1],
+			[ 0, 0, 0, 0,   0, 0, 0, 1,   1, 1],
+			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
+			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0]]
+			
+			
 		self.phase_diagram = np.array(phase_diagram).T
+		self.phase_diagram_partial_engulfment = np.array(phase_diagram_partial_engulfment).T
+		self.phase_diagram_pips = np.array(phase_diagram_pips).T
 		
 	def plot( self ):
 		
-		colormap = c.cmap_phase_diagram1
-		levels   = np.array([0.0,1.5,2.5,3.5,4.5])
-		# cmap_gray_cr_pk_gray # c.cmap_white_green_universal, plt.colormaps['jet']# 'winter', etc
+		''' Range for log plot
+		mx_min = np.min(self.STGs) +np.log(0.9)
+		my_min = np.min(self.GluN2Bs[:-1]) +np.log(0.9)
+		mx_max = np.max(self.STGs) * 1.1# None # 2.6
+		my_max = np.max(self.GluN2Bs) *1.1 # None # 10.1
+		'''
+		mx_min = 0
+		my_min = 0
+		mx_max = np.max(self.STGs[:-1]) * 1.05# None # 2.6
+		my_max = np.max(self.GluN2Bs) *1.05 # None # 10.1
 		
+		colormap = c.cmap_phase_diagram7
+		levels   = np.array([0.0,2.0,4.0])
 		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.STGs, self.GluN2Bs, colormap, levels, draw_border = True)
+		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.STGs, self.GluN2Bs, colormap, levels, \
+			draw_border = True, \
+			mx_min=mx_min, my_min=my_min, \
+			mx_max=mx_max, my_max=my_max, \
+			)
+		levels2		= [-1.5, 0.5, 1.5, 2.5]
+		colormap2	= c.cmap_phase_diagram6
+		utils.plot_a_panel_overlay(ax, self.phase_diagram_pips, \
+			self.STGs, self.GluN2Bs,
+			colormap2, levels2,\
+			mx_min=mx_min, my_min=my_min, \
+			mx_max=mx_max, my_max=my_max, \
+			)		
+		levels2		= [-0.5, 0.5, 1.5, 2.5]
+		colormap2	= c.cmap_phase_diagram5
+		utils.plot_a_panel_overlay(ax, self.phase_diagram_partial_engulfment, \
+			self.STGs, self.GluN2Bs,
+			colormap2, levels2,\
+			mx_min=mx_min, my_min=my_min, \
+			mx_max=mx_max, my_max=my_max, \
+			)
+		
 		
 class PlotConnectivityPhaseDiagramConcDependence(PlotConnectivity, PhaseDiagramConcDependence):
 	def __init__( self, species, type_analysis ):
@@ -199,15 +280,19 @@ if __name__ == '__main__':
 	'''
 	
 	#species, type_analysis = 'CaMKII', 'average'
-	species, type_analysis = 'PSD95' , 'average'
+	#species, type_analysis = 'PSD95' , 'average'
 	#species, type_analysis = 'PSD95' , 'ratio'
-	'''
+	#'''
 	pl = PlotConnectivityPhaseDiagramConcDependence(species, type_analysis)
-	pl.run()
-	pl.save()
+	pl.collect_data_save_them()
+	#pl.load_data()
+	pl.plot_data_save_it()
+	
+	'''
+	species = 'CaMKII' # 'CaMKII', 'STG'
+	pl = PlotCondVolumePhaseDiagramConcDependence(species)
+	pl.collect_data_save_them()
+	#pl.load_data()
+	pl.plot_data_save_it()
 	'''
 	
-	species = 'STG' # 'CaMKII', 'STG'
-	pl = PlotCondVolumePhaseDiagramConcDependence(species)
-	pl.run()
-	pl.save()

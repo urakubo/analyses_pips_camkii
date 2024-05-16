@@ -89,7 +89,7 @@ class ConcDependence():
 		
 		
 		self.STGs    = np.array( p.STGs ) * 1000
-		self.GluN2Bs = np.array( p.GluN2Bs ) * 100
+		self.GluN2Bs = np.array( p.GluN2Bs ) * 1000
 		
 		self.num_rows		= len( p.GluN2Bs )
 		self.num_columns	= len( p.STGs )
@@ -220,7 +220,7 @@ if __name__ == '__main__':
 	#species, type_analysis = 'CaMKII', 'average'
 	#species_vol = 'CaMKII'
 	
-	dir_target= 'conc_dependence'
+	dir_target= 'conc_dependence_merged'
 	
 	# Shared parameters
 	prefix = 'conn_volume'

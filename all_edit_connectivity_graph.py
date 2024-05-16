@@ -22,11 +22,16 @@ if __name__ == '__main__':
 	# Conc dependnece
 	#'''
 	filenames_output = [str(i).zfill(3) for i in range(81) ]
-	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ] #70
+	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ]
 	dir_input        = 'conc_dependence'
 	dir_edited_data  = 'conc_dependence'
 	#'''
-	
+	'''
+	filenames_output = [str(i).zfill(3) for i in range(9) ]
+	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ]
+	dir_input        = os.path.join('conc_dependence', '0.33')
+	dir_edited_data  = 'conc_dependence_0.33'
+	'''
 	
 	# Valency length
 	'''
@@ -79,7 +84,10 @@ if __name__ == '__main__':
 		# Generate graph
 		multi_graph = utils_graph.get_multi_graph(ids_molecule, types, bp, positions_real_coord)
 		d = {}
-		d['multi_graph'] = multi_graph
+		d['multi_graph']   = multi_graph
+		d['dir_lammpstrj'] = dir_lammpstrj
+		d['filename']      = filename_input
+		d['sampling_frame']= sampling_frame
 		
 		for species in ['STG','GluN2B', 'PSD95','CaMKII']:
 			d[species] = {}
@@ -93,6 +101,10 @@ if __name__ == '__main__':
 		species = 'PSD95'
 		type_analysis = 'ratio'
 		d[species][type_analysis] = utils_graph.get_connection_statistics(multi_graph, species, type_analysis)
+		
+		
+		_, ids_bead_shared_PSD = utils.get_ids_PSD95_shared_by_STG_GluN2B(multi_graph, shared_or_unshared = 'shared')
+		d['ids_bead_shared_PSD'] = ids_bead_shared_PSD
 		
 		
 		d['condensate_CaMKII'] = utils_graph.get_surface_condensate_CaMKII(types, positions_real_coord, ids_molecule)

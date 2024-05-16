@@ -3,8 +3,15 @@ import numpy as np
 from ovito.pipeline import ModifierInterface
 #from ovito.pipeline import *
 #from ovito.qt_compat import QtCore
+import lib.utils as utils
 
 
+class CenteringModifier(ModifierInterface):
+	def modify(self, data, frame, **kwargs):
+		positions = data.particles.positions
+		data.particles_.positions_ = utils.centering_lattice_space(positions, self.center)
+		
+		
 def delete_particle(frame, data, ids):
 	transparency = np.ones((data.particles.count), dtype='int')
 	transparency[ids] = 0

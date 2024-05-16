@@ -56,7 +56,7 @@ rdf_num_sampling_frames = 5
 rdf_sampling_interval   = 5 # 2
 
 
-rdf_targets_multi_graph = ['Shared PSD95', 'Unshared PSD95']
+rdf_targets_multi_graph = ['Shared PSD95']
 
 # Matplotlib
 rc_param = {'pdf.fonttype' : 'truetype',
@@ -73,7 +73,7 @@ neighbors26 = np.delete(neighbors26, 13, axis=0)
 
 # Conc dependence
 
-STGs    = [108,216,432,864,1728,2592,3456,4320,5184]
+STGs    = [108,216,432,576,864,1728,2592,3456,4320,5184]
 GluN2Bs = [270,540,1080,2160,4320,6480,8640,12960,17280]
 volume  = np.prod(space_np)
 

@@ -62,11 +62,11 @@ class MatrixConcDependence():
 		plt.rcParams.update( {'font.size': 6} )
 		
 		# Input files
-		self.dir_edited_data 		= os.path.join('data4', 'conc_dependence')
+		self.dir_edited_data 		= os.path.join('data4', 'conc_dependence_merged')
 		self.filenames_edited_data 	= [str(i).zfill(3) for i in range(81) ]
 		
 		# Output files
-		self.dir_imgs = os.path.join('imgs4', 'conc_dependence','matrix')
+		self.dir_imgs = os.path.join('imgs4', 'conc_dependence_merged','matrix')
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		
 		self.num_rows		= len( p.GluN2Bs )
@@ -80,8 +80,7 @@ class MatrixConcDependence():
 		for i, stg in enumerate(p.STGs):
 			for j, glun in enumerate(p.GluN2Bs):
 				# Load data
-				id = i + j * len(p.STGs)
-				prefix = str(id).zfill(3)
+				prefix = str(i).zfill(2)+'_'+str(j).zfill(2)
 				
 				title = prefix # prefix, None
 				row    = self.num_rows-j-1
@@ -201,12 +200,13 @@ if __name__ == '__main__':
 	plot_concs.save()
 	#'''
 
+	'''
 	species       = 'CaMKII' # 'STG','GluN2B', 'PSD95','CaMKII'
 	type_analysis = 'distribution'
 	# 'average' and 'distribution' for all,
 	# species: 'GluN2B', type_analysis 'CaMKII' or 'PSD95'
 	# species: 'PSD95' , type_analysis 'ratio'
-	'''
+
 	connectivity = PlotConnectivityMatrixValencyLength(species, type_analysis)
 	values = connectivity.run()
 	connectivity.save()	

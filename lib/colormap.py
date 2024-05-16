@@ -342,6 +342,41 @@ cmap_phase_diagram3 = make_colormap_phase_diagram(c)
 
 
 
+c    = {}
+c[0] = [0.0 , 0.0, 0.0]
+c[1] = [gy ,gy, gy] # Gray
+c[2] = [255,128,130] # Pink
+#c[3] = [255,255,255] # Ligh pink
+# c[3] = [255,202,191] # Ligh pink
+c[3] = [77  ,196, 255]  # Light blue
+c[4] = [77  ,196, 255]  # Light blue
+cmap_phase_diagram4 = make_colormap_phase_diagram(c)
+
+c    = {}
+c[0] = [255 ,255, 255] # White
+c[1] = [255 ,255, 255] # White
+c[2] = [255 ,255, 255] # White
+c[3] = [255 ,255, 255] # White
+c[4] = [255 ,255, 255] # White
+cmap_phase_diagram5 = make_colormap_phase_diagram(c)
+
+c    = {}
+c[0] = [255,191,192] # Light pink
+c[1] = [255,191,192] # Light pink
+c[2] = [255,191,192] # Light pink
+c[3] = [255,191,192] # Light pink
+c[4] = [255,191,192] # Light pink
+cmap_phase_diagram6 = make_colormap_phase_diagram(c)
+
+
+c    = {}
+c[0] = [0.0 , 0.0, 0.0]
+c[1] = [gy ,gy, gy] # Gray
+c[2] = [77  ,196, 255]  # Light blue
+c[3] = [77  ,196, 255]  # Light blue
+cmap_phase_diagram7 = make_colormap_phase_diagram(c)
+
+
 cmap_black_red = LinearSegmentedColormap("black_red", black_red, N=256)
 cmap_white_red = LinearSegmentedColormap("white_red", white_red, N=256)
 cmap_black_green = LinearSegmentedColormap("black_green", black_green, N=256)
@@ -368,6 +403,7 @@ cmap = {'CaMKII': cmap_black_green,
 		'STG'   : cmap_black_red,
 		'GluN2B': cmap_black_magenta,
 		'PSD95' : cmap_black_cyan,
+		'All PSD95' : cmap_black_cyan,
 		'Shared PSD95' : cmap_black_dark_cyan,
 		'Unshared PSD95' : cmap_black_light_cyan,
 		'PSD95 shared only by GluN2B' : cmap_black_dark_cyan}

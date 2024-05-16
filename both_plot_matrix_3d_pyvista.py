@@ -69,12 +69,13 @@ def plot_conc_dependence_save_it(dir_data, dir_imgs, sub = False):
 	
 	
 	
-	# STGs    = [108,216,432,864,1728,2592,3456,4320,5184]
-	# GluN2Bs = [270,540,1080,2160,4320,6480,8640,12960,17280]
+	#STGs    = [108,216,432,576,864,1728,2592,3456,4320,5184]
+	#GluN2Bs = [270,540,1080,2160,4320,6480,8640,12960,17280]
+	
 	
 	# Subset of concs
-	sub_STGs    = [540, 1620, 2160, 2700, 3240] 
-	sub_GluN2Bs = [1080, 4320, 6480, 10800, 17280]
+	sub_STGs    = [216, 576, 1728, 3456] 
+	sub_GluN2Bs = [540, 4320, 8640,17280]
 	volume      = np.prod(p.space_np)
 	sub_STGs    = [ s / volume for s in sub_STGs    ]
 	sub_GluN2Bs = [ n / volume for n in sub_GluN2Bs ]
@@ -97,8 +98,7 @@ def plot_conc_dependence_save_it(dir_data, dir_imgs, sub = False):
 	for i_fig, (i_file, stg) in enumerate(sampling_STG.items()):
 		for j_fig, (j_file, glun) in enumerate(sampling_GluN2B.items()):
 			# Load data
-			id     = i_file + j_file * len(p.STGs)
-			prefix = str(id).zfill(3)
+			prefix = str(i_file).zfill(2)+'_'+str(j_file).zfill(2)
 			d      = utils.load(dir_data, prefix, suffix)
 			print('Target: {}'.format(prefix))
 			row    = i_fig
@@ -129,9 +129,9 @@ if __name__ == '__main__':
 	func = plot_valency_length_save_it
 	'''
 	
-	dir_target = 'conc_dependence'
+	dir_target = 'conc_dependence_merged'
 	func       = plot_conc_dependence_save_it
-	sub        = False
+	sub        = True # False
 	
 	dir_edited_data	= os.path.join('data4', dir_target)
 	dir_imgs = os.path.join('imgs4', dir_target, 'matrix_3d_pyvista')

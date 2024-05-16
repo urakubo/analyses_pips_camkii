@@ -20,8 +20,8 @@ import lib.parameters as p
 if __name__ == '__main__':
 	
 	
-	# Valency length
 	'''
+	# Valency length
 	valencies = range(2,16,2)
 	lengths   = range(7)
 	subdirs    = ['val_{}'.format(i) for i in valencies]
@@ -32,19 +32,24 @@ if __name__ == '__main__':
 	dir_edited_data  = 'valency_length'
 	has_energy = False
 	has_multi_graph = False
-	'''
-	
 	
 	# Conc dependence
-	'''
 	filenames_output = [str(i).zfill(3) for i in range(81) ]
 	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ]
 	dir_lammpstrj    = 'conc_dependence'
 	dir_edited_data  = 'conc_dependence'
 	has_energy = False
-	has_multi_graph = False
-	'''
+	has_multi_graph = True
 	
+	'''
+	filenames_output = [str(i).zfill(3) for i in range(9) ]
+	filenames_input  = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ]
+	dir_lammpstrj    = os.path.join('conc_dependence', '0.33')
+	dir_edited_data  = 'conc_dependence_0.33'
+	has_energy = False
+	has_multi_graph = False
+	
+	'''	
 	# other_conditions
 	filenames_output = ['CPG', 'SP', 'SPG','CG_000','CG_001','CG_002','CG_003']
 	filenames_input  = [os.path.join('CPG','R2_000.lammpstrj'), \
@@ -55,17 +60,16 @@ if __name__ == '__main__':
 						os.path.join('binary_CG','R2_002.lammpstrj'), \
 						os.path.join('binary_CG','R2_003.lammpstrj') \
 						]
-
+	
 	filenames_output = ['SPG','PIPS']
 	filenames_input  = [os.path.join('SPG','SPG_unactivated_trj.lammpstrj'), \
 						os.path.join('SPG','PIPS_activated_trj.lammpstrj')\
 						]
-
 	dir_edited_data  = 'special_conditions'
 	dir_lammpstrj    = '.'
 	has_energy = False
 	has_multi_graph = False	
-	
+	'''
 	
 	#filenames_input  = [filenames_input[-1]]
 	#filenames_output = [filenames_output[-1]]
@@ -141,6 +145,10 @@ if __name__ == '__main__':
 		d['time_frame'] = sampling_frame
 		d['mc_step']    = mc_step
 		
+		# Other info
+		d['dir_lammpstrj'] = dir_lammpstrj
+		d['filename_lammpstrj'] = filename_input
+		d['sampling_frame']= sampling_frame
 		
 		# Save the edited data
 		prefix = filename_output

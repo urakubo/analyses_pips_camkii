@@ -42,10 +42,13 @@ def save_a_plot(d, dir_img, prefix, suffix):
 if __name__ == '__main__':
 	
 	# Conc dependence
-	#'''
+	'''
 	dir_target = 'conc_dependence'
 	filenames_edited_data 	= [str(i).zfill(3) for i in range(81) ]
-	#'''
+	'''
+	
+	dir_target  = 'conc_dependence_merged'
+	filenames_edited_data 	= [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in range(10) for glun2b in range(9)  ]
 	
 	
 	# Valency-length
