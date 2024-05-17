@@ -1,12 +1,11 @@
+import os, glob, pickle, pprint, copy
+import numpy as np
 
 from skimage.measure import label
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 import warnings
-
-
-plt.rcParams.update( p.rc_param )
 
 
 def efron_rsquare(y, y_pred):
@@ -44,4 +43,7 @@ def count_rsquare(y, y_pred, t=0.5):
 
 def hill(x, a, b, c): # Hill sigmoidal equation from zunzun.com
 	return  a * np.power(x, b) / (np.power(c, b) + np.power(x, b))
+
+
+
 

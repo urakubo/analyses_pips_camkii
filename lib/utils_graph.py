@@ -658,8 +658,6 @@ def get_connection_statistics(multi_graph, species, type_analysis):
 	
 	
 	
-	
-	
 def get_surface_condensate_CaMKII(types, positions, ids_molecule, sigma=2):
 	
 	# Parameters

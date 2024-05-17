@@ -4,9 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-# import mpl_toolkits.axes_grid1
-# from scipy.interpolate import griddata, RegularGridInterpolator
-
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
@@ -38,7 +35,8 @@ class PhaseDiagramConcDependence():
 		
 		
 	def prepare_plot( self ):
-		self.fig  = plt.figure(figsize=(5, 5))
+		#self.fig  = plt.figure(figsize=(5, 5))
+		self.fig  = plt.figure(figsize=(4, 4))
 		self.fig.subplots_adjust(wspace=0.4,  hspace=0.6)
 		ax = self.fig.add_subplot( 1, 1, 1 )
 		ax.set_title( self.title )
@@ -47,7 +45,7 @@ class PhaseDiagramConcDependence():
 		return ax
 		
 		
-	def collect_data_save_them( self ):
+	def edit_data_save_them( self ):
 		#
 		for i, stg in enumerate(self.STGs):
 			for j, glun in enumerate(self.GluN2Bs):
@@ -67,7 +65,7 @@ class PhaseDiagramConcDependence():
 		suffix = 'data'
 		self.data = utils.load( self.dir_edited_data, prefix, suffix  )
 		
-	def plot_data_save_it( self ):
+	def plot_data( self ):
 		mx_min = 0
 		my_min = 0
 		mx_max = np.max(self.STGs[:-1]) * 1.05# None # 2.6
@@ -79,6 +77,7 @@ class PhaseDiagramConcDependence():
 			mx_max=mx_max, my_max=my_max \
 			)
 		
+	def save_plots( self ):
 		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.svg' ) )
 		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.png' ) , dpi=150)
 		plt.show()
@@ -99,11 +98,16 @@ class PlotConnectivity():
 			self.basename = 'num_STG_bound_to_one_PSD95'
 			self.colormap = c.cmap_white_red_universal
 			self.levels   = np.linspace(0,3,6)
+		elif species == 'PSD95' and type_analysis == 'average_GluN2B':
+			self.title    = 'Number of GluN2B bound to one PSD95'
+			self.basename = 'num_GluN2B_bound_to_one_PSD95'
+			self.colormap = c.cmap_white_red_universal
+			self.levels   = np.linspace(0,3,6)
 		elif species == 'PSD95' and type_analysis == 'ratio':
 			self.title    = 'Ratio of PSD95 bound to both GluN2B and STG'
 			self.basename = 'PSD95_bound_to_both_GluN2B_STG'
 			self.colormap =  plt.colormaps['Greys']
-			self.levels   = np.linspace(0,1.0,11)		
+			self.levels   = np.linspace(0,1.0,11)
 		else:
 			raise ValueError("Not implemented, species: ", species, ", type_analysis: ", type_analysis)
 		
@@ -119,8 +123,14 @@ class PlotConnectivity():
 			data      = d[self.species][self.type_analysis]['GluN2B']
 		elif self.species == 'PSD95' and self.type_analysis == 'average':
 			data      = d[self.species][self.type_analysis]['STG_PSD95']
+		elif self.species == 'PSD95' and self.type_analysis == 'average_GluN2B':
+			data      = d[self.species]['average']['GluN2B_PSD95']
 		elif self.species == 'PSD95' and self.type_analysis == 'ratio':
 			num_total = sum( d[self.species][self.type_analysis].values() )
+			#both = d[self.species][self.type_analysis]['Both']
+			#STG  = d[self.species][self.type_analysis]['STG only']
+			#PSD95= d[self.species][self.type_analysis]['PSD95 only']
+			#num_total = both + STG + PSD95
 			data      = d[self.species][self.type_analysis]['Both'] / num_total
 		return data
 
@@ -206,7 +216,7 @@ class PlotPhaseDiagram( PhaseDiagramConcDependence ):
 			[ 0, 0, 0, 0,   0, 0, 0, 1,   1, 1],
 			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
 			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0]]
-		phase_diagram_pips = [\
+		phase_diagram_two_condensates = [\
 			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
 			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
 			[ 0, 0, 0, 0,   1, 1, 1, 1,   1, 1],
@@ -220,7 +230,7 @@ class PlotPhaseDiagram( PhaseDiagramConcDependence ):
 			
 		self.phase_diagram = np.array(phase_diagram).T
 		self.phase_diagram_partial_engulfment = np.array(phase_diagram_partial_engulfment).T
-		self.phase_diagram_pips = np.array(phase_diagram_pips).T
+		self.phase_diagram_two_condensates = np.array(phase_diagram_two_condensates).T
 		
 	def plot( self ):
 		
@@ -245,7 +255,7 @@ class PlotPhaseDiagram( PhaseDiagramConcDependence ):
 			)
 		levels2		= [-1.5, 0.5, 1.5, 2.5]
 		colormap2	= c.cmap_phase_diagram6
-		utils.plot_a_panel_overlay(ax, self.phase_diagram_pips, \
+		utils.plot_a_panel_overlay(ax, self.phase_diagram_two_condensates, \
 			self.STGs, self.GluN2Bs,
 			colormap2, levels2,\
 			mx_min=mx_min, my_min=my_min, \
@@ -261,12 +271,12 @@ class PlotPhaseDiagram( PhaseDiagramConcDependence ):
 			)
 		
 		
-class PlotConnectivityPhaseDiagramConcDependence(PlotConnectivity, PhaseDiagramConcDependence):
+class HandleConnectivityPhaseDiagramConcDependence(PlotConnectivity, PhaseDiagramConcDependence):
 	def __init__( self, species, type_analysis ):
 		PlotConnectivity.__init__(self, species, type_analysis )
 		PhaseDiagramConcDependence.__init__(self)
 		
-class PlotCondVolumePhaseDiagramConcDependence(PlotCondVolume, PhaseDiagramConcDependence):
+class HandleCondVolumePhaseDiagramConcDependence(PlotCondVolume, PhaseDiagramConcDependence):
 	def __init__( self, species ):
 		PlotCondVolume.__init__(self, species )
 		PhaseDiagramConcDependence.__init__(self)
@@ -276,23 +286,25 @@ if __name__ == '__main__':
 	'''
 	pl = PlotPhaseDiagram()
 	pl.plot()
-	pl.save()
+	pl.save_plots()
 	'''
 	
-	#species, type_analysis = 'CaMKII', 'average'
+	species, type_analysis = 'CaMKII', 'average'
 	#species, type_analysis = 'PSD95' , 'average'
 	#species, type_analysis = 'PSD95' , 'ratio'
-	#'''
-	pl = PlotConnectivityPhaseDiagramConcDependence(species, type_analysis)
-	pl.collect_data_save_them()
-	#pl.load_data()
-	pl.plot_data_save_it()
-	
+	# species, type_analysis = 'PSD95' , 'average_GluN2B'
+	pl = HandleConnectivityPhaseDiagramConcDependence(species, type_analysis)
+	#pl.edit_data_save_them()
+	pl.load_data()
+	pl.plot_data()
+	pl.save_plots()
+
 	'''
 	species = 'CaMKII' # 'CaMKII', 'STG'
-	pl = PlotCondVolumePhaseDiagramConcDependence(species)
-	pl.collect_data_save_them()
-	#pl.load_data()
-	pl.plot_data_save_it()
+	pl = HandleCondVolumePhaseDiagramConcDependence(species)
+	#pl.edit_data_save_them()
+	pl.load_data()
+	pl.plot_data()
+	pl.save_plots()
 	'''
-	
+

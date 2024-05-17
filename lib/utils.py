@@ -1073,7 +1073,7 @@ def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False, \
 	
 	divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
 	cax = divider.append_axes('right', '5%', pad='3%')
-	cb = plt.colorbar(cs, cax=cax, ticks=np.linspace(vmin, vmax, 5))
+	cb = plt.colorbar(cs, cax=cax, ticks=np.linspace(vmin, vmax, 4))
 	#cb.ax.set_yticklabels(["{:.2f}".format(i) for i in cb.get_ticks()])
 	
 	return cs, cb
