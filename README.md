@@ -1,10 +1,14 @@
 # analyses_pips
 Communication between Pandey and Urakubo
 
+### lib directory files
+Files in this directory are shared by the following executable Python files.
+
 ### all_edit_data.py
-It calculates the of .
+All of the beginning, Simulated lammpstrj files were translated into the dict variable d that contains many.
 
 ### all_edit_connectivity_graph.py
+All of the beginning, Simulated lammpstrj files were translated into the dict variable d that contains a network multigraph and generated connectivity info.
 
 ### all_plot_profile.py
 
