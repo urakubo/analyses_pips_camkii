@@ -3,6 +3,7 @@ import os, glob, pickle, pprint, copy
 import numpy as np
 
 import pyvista
+
 import trimesh
 from skimage import measure
 
@@ -41,6 +42,17 @@ def square_yz():
 	pointc = [0.0, y , -z]
 	pointd = [0.0, y ,  z]
 	return pyvista.Rectangle([pointa, pointb, pointc])
+
+def square_yz_mag(magnification):
+	y = p.space[1]/2/magnification
+	z = p.space[2]/2/magnification
+	pointa = [0.0, -y,  z]
+	pointb = [0.0, -y, -z]
+	pointc = [0.0, y , -z]
+	pointd = [0.0, y ,  z]
+	return pyvista.Rectangle([pointa, pointb, pointc])
+
+
 
 
 def plot_a_condensate_pyvista(d, pl, rotation=True): 

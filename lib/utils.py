@@ -458,7 +458,7 @@ def get_a_rdf(types, positions, rdf_grid_points, center = None, multi_graph=None
 	
 	return rdf
 
-def get_rdf_CaMKII_bead( dir_lammpstrj, filename_input, sampling_frame ):
+def get_rdf_CaMKII( dir_lammpstrj, filename_input, sampling_frame ):
 
 	# Load data
 	types, positions, _ = load_data( dir_lammpstrj, filename_input, sampling_frame )
@@ -466,23 +466,23 @@ def get_rdf_CaMKII_bead( dir_lammpstrj, filename_input, sampling_frame ):
 	# Intial setting
 	rdf_grid_points         = get_lattice_grids()
 	center = get_center_of_mass(types, positions, reference_molecule_for_centering = 'CaMKII')
-	print('get_rdf_CaMKII_bead center: ', center)
+	print('get_rdf_CaMKII center: ', center)
 	
 	positions               = centering(positions, center)
 	positions_grid_centered = centering(rdf_grid_points, center)
 	
-	type_CaMKII_bead = [True if t == p.subunits['CaMKII binding site']['id'] else False for t in types]
-	position_CaMKII_bead = positions[type_CaMKII_bead,:]
+	type_CaMKII = [True if t in p.molecules_with_all['CaMKII']['id'] else False for t in types]
+	position_CaMKII = positions[type_CaMKII,:]
 	
 	
 	# Get distances from the center
-	dists_CaMKII_bead = np.linalg.norm(position_CaMKII_bead, axis=1)
-	dists_grid        = np.linalg.norm(positions_grid_centered, axis=1)
+	dists_CaMKII = np.linalg.norm(position_CaMKII, axis=1)
+	dists_grid   = np.linalg.norm(positions_grid_centered, axis=1)
 	
 	
 	# Get radial distribution function (rdf)
-	num_grid_around_center, _      = np.histogram(dists_grid , bins=p.rdf_bins)
-	num_molecule_around_center, _  = np.histogram(dists_CaMKII_bead , bins=p.rdf_bins)
+	num_grid_around_center, _      = np.histogram(dists_grid   , bins=p.rdf_bins)
+	num_molecule_around_center, _  = np.histogram(dists_CaMKII , bins=p.rdf_bins)
 	rdf = {}
 	rdf['CaMKII_bead'] = num_molecule_around_center / num_grid_around_center
 	
