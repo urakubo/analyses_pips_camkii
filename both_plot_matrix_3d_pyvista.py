@@ -4,6 +4,9 @@ import numpy as np
 
 import lib.utils as utils
 import lib.parameters as p
+import lib.utils_pyvista as utils_pyvista
+
+
 import pyvista
 
 
@@ -49,7 +52,7 @@ def plot_valency_length_save_it(dir_data, dir_imgs, sub = False):
 			
 			pl.subplot(row, column)
 			#utils.plot_a_condensate_pyvista(d, pl)
-			utils.plot_a_pre_rotated_condensate_pyvista(d, pl)
+			utils_pyvista.plot_a_pre_rotated_condensate_pyvista(d, pl)
 
 			pl.camera_position = [(150.0, 0.0, 0.0),\
 				 (7.0, -0.2, 2.5),\
@@ -105,7 +108,7 @@ def plot_conc_dependence_save_it(dir_data, dir_imgs, sub = False):
 			column = len(sampling_GluN2B)-j_fig-1
 			pl.subplot(column, row)
 			#utils.plot_a_condensate_pyvista(d, pl)
-			utils.plot_a_pre_rotated_condensate_pyvista(d, pl)
+			utils_pyvista.plot_a_pre_rotated_condensate_pyvista(d, pl)
 			
 			pl.camera_position = [(150.0, 0.0, 0.0),\
 				 (7.0, -0.2, 2.5),\

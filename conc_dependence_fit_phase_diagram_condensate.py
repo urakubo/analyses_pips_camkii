@@ -128,34 +128,21 @@ def plot_fit_hill_volumes( fig, ax, title, numbers_connection, volumes, species_
 	
 	volumes = volumes[:-1,:]
 	numbers_connection  = numbers_connection[:-1,:]
-	
 	x = np.ravel( numbers_connection )
 	y = np.ravel( volumes ) / p.volume
-	
-	'''
-	ids_in = np.nonzero(y < 0.033)
-	xi = x[ids_in]
-	yi = y[ids_in]
-	ids_out = np.nonzero(y >= 0.033)
-	xo = x[ids_out]
-	yo = y[ids_out]
-	'''
-	
-	xi = x
-	yi = y
 	
 	initialParameters = np.array([0.01, 3, xmax/10])
 	bounds = ((0, 1, 1), (0.08, 4, 6))
 	bounds = ((0, 0.1, 0.1), (0.08, 6, xmax))
 	#warnings.filterwarnings("ignore")
-	fitting_params, pcov = curve_fit(hill, xi, yi, initialParameters, bounds = bounds )
+	fitting_params, pcov = curve_fit(hill, x, y, initialParameters, bounds = bounds )
 	#fittedParameters = initialParameters 
 	
 	xx = np.linspace(0.0,xmax,40)
 	yy = hill(xx, *fitting_params)
 	
-	yi_pred =  hill(xi, *fitting_params)
-	r2 = r2_score(yi, yi_pred)
+	y_pred =  hill(x, *fitting_params)
+	r2 = r2_score(y, y_pred)
 	
 	print('fitting parameters')
 	print(fitting_params)
@@ -165,14 +152,10 @@ def plot_fit_hill_volumes( fig, ax, title, numbers_connection, volumes, species_
 	
 	ax.set_xlim([0, xmax])
 	ax.plot(xx, yy * 100, '-', color = (0.5,0.5,0.5))
-	ax.plot(xi, yi * 100 ,'o', \
+	ax.plot(x, y * 100 ,'o', \
 		markersize = 4, \
 		color = c.cmap_universal_ratio[species_vol], \
 		markerfacecolor = c.cmap_universal_ratio[species_vol] )
-	#ax.plot(xo, yo * 100 ,'o', \
-	#	markersize = 4, \
-	#	color = c.cmap_universal_ratio[species_vol], \
-	#	markerfacecolor = c.cmap_universal_ratio_light[species_vol] )
 	#ax.set_yticks([0,1,2,3,4])
 	ax.set_yticks([0, 0.5, 1.0, 1.5])
 	ax.set_ylabel('(% of total volume)')
