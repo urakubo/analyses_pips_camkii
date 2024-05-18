@@ -2,12 +2,56 @@
 import numpy as np
 from ovito.pipeline import ModifierInterface
 from ovito.data import DataCollection
-#from ovito.pipeline import *
-#from ovito.qt_compat import QtCore
+import networkx as nx
+
 import lib.utils as utils
 import lib.parameters as p
+import lib.utils_graph as utils_graph
 
 
+def _get_beads_in_largest_cluster(data_all, time_frame):
+	data   = data_all.compute(time_frame)
+	types, positions, ids_molecule = utils.decode_data(data)
+	bp 	= np.array( data.particles['bp'] ).astype('int')
+	multi_graph = utils_graph.get_multi_graph(ids_molecule, types, bp, positions)
+	clusters = sorted(nx.connected_components(multi_graph), key=len, reverse=True)
+	g_largest_cluster = nx.MultiGraph( multi_graph.subgraph(clusters[0]) )
+	ids_GluN2B = [v['ids_bead'][0].tolist() for n, v in g_largest_cluster.nodes.items() if v['species'] == 'GluN2B' ]
+	ids_CaMKII = [v['ids_bead'][0].tolist() for n, v in g_largest_cluster.nodes.items() if v['species'] == 'CaMKII' ]
+	ids_PSD95  = [v['ids_bead'][0].tolist() for n, v in g_largest_cluster.nodes.items() if v['species'] == 'PSD95' ]
+	ids_STG    = [v['ids_bead'][0].tolist() for n, v in g_largest_cluster.nodes.items() if v['species'] == 'STG' ]
+	ids_GluN2B = utils.flatten(ids_GluN2B)
+	ids_CaMKII = utils.flatten(ids_CaMKII)
+	ids_PSD95  = utils.flatten(ids_PSD95 )
+	ids_STG    = utils.flatten(ids_STG   )
+	return ids_GluN2B, ids_CaMKII, ids_PSD95, ids_STG
+	
+	
+def get_beads_in_largest_cluster(data_all, time_frame):
+	ids_GluN2B, ids_CaMKII, ids_PSD95, ids_STG = _get_beads_in_largest_cluster(data_all, time_frame)
+	ids_bead_cluster = ids_GluN2B + ids_CaMKII + ids_PSD95 + ids_STG
+	return ids_bead_cluster
+	
+def get_CaMKII_beads_in_largest_cluster(data_all, time_frame):
+	ids_GluN2B, ids_CaMKII, ids_PSD95, ids_STG = _get_beads_in_largest_cluster(data_all, time_frame)
+	return ids_CaMKII
+	
+def get_GluN2B_beads_in_largest_cluster(data_all, time_frame):
+	ids_GluN2B, ids_CaMKII, ids_PSD95, ids_STG = _get_beads_in_largest_cluster(data_all, time_frame)
+	return ids_GluN2B
+	
+def get_PSD95_beads_in_largest_cluster(data_all, time_frame):
+	ids_GluN2B, ids_CaMKII, ids_PSD95, ids_STG = _get_beads_in_largest_cluster(data_all, time_frame)
+	return ids_PSD95
+
+def get_STG_beads_in_largest_cluster(data_all, time_frame):
+	ids_GluN2B, ids_CaMKII, ids_PSD95, ids_STG = _get_beads_in_largest_cluster(data_all, time_frame)
+	return ids_STG
+
+
+
+
+	
 class CenteringModifier(ModifierInterface):
 	def modify(self, data, frame, **kwargs):
 		positions = data.particles.positions

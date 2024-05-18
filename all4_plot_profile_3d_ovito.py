@@ -20,30 +20,41 @@ import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
 import lib.utils_ovito as utils_ovito
+import lib.utils_graph as utils_graph
 
-  	
-	
+
 def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 	
 	# Fix bounging box
 	data_all.modifiers.append( utils_ovito.FixBoundingbox() )
+	# Non boundary
+	cell_vis = data_all.source.data.cell.vis
+	cell_vis.render_cell = False
+	#cell_vis.line_width = 0.5
+	##cell_vis.rendering_color = (1.0, 1.0, 1.0)
+
+
+	# Show particles only in the largest cluster.
+	'''
+	modifier_del     = utils_ovito.DeleteParticle()
+	#modifier_del.ids = utils_ovito.get_beads_in_largest_cluster(data_all, time_frame)
+	modifier_del.ids = utils_ovito.get_CaMKII_beads_in_largest_cluster(data_all, time_frame)
+	data_all.modifiers.append(modifier_del)
+	'''
+	
 	
 	# Slice data
+	'''
 	modifier = SliceModifier()
 	modifier.normal   = (1.0, 0.0, 0.0)
 	modifier.distance = 60
 	data_all.modifiers.append(modifier)
-	data_all.add_to_scene()
-
+	'''
+	
+	
 	for k, v in p.molecules_without_all.items():
 		data_all.modifiers.append(SelectTypeModifier(types=set(v['id'])))
 		data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio[k] ))
-
-	# Non boundary
-	cell_vis = data_all.source.data.cell.vis
-	#cell_vis.render_cell = False
-	cell_vis.line_width = 0.5
-	##cell_vis.rendering_color = (1.0, 1.0, 1.0)
 	
 	
 	vp = Viewport()
@@ -56,7 +67,7 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 	vp.camera_pos = (60+dist, 60+dist, 60+dist)
 	vp.camera_dir = (-1, -1, -1)
 	'''
-	
+	data_all.add_to_scene()
 	filename = os.path.join(dir_imgs, filename_output+'_{}.png'.format( str(time_frame).zfill(4)) )
 	vp.render_image(size=(800,800), filename=filename, background=(1,1,1),frame=time_frame, renderer=OpenGLRenderer())
 	
@@ -97,6 +108,7 @@ if __name__ == '__main__':
 	'''
 	
 	## CG valency dependence
+	#'''
 	subdirs    = ['val{}'.format(i) for i in range(2,14,2)]
 	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
 	filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
@@ -104,7 +116,8 @@ if __name__ == '__main__':
 	dir_lammpstrj = 'CG_valency_length'
 	dir_target    = 'CG_valency_length'
 	i = 7*5+2 # '12_002'
-	#i = 7*5+6 # '12_006'
+	i = 7*5+6 # '12_006'
+	#'''
 	
 	
 	##

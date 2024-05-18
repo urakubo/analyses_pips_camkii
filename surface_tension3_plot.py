@@ -50,19 +50,19 @@ def plot_graphs(ave_cos, pull_force, pull_force_per_area):
 	ax.bar(*zip(*ave_cos.items()), width=0.6 , color='gray' ) # , color=colormap_conc_bargraph
 	ax.set_ylim([0,1.2*max(ave_cos.values())])
 	ax.set_ylabel('E[cos(theta)]')
-	arrange_graph_bar(ax, panel_size/4, panel_size)
+	arrange_graph_bar(ax, panel_size/5, panel_size)
 	
 	column = 5
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*1 )
 	ax.set_title('Contraction force')
 	ax.bar(*zip(*pull_force.items()), width=0.6, color='gray' ) # , color=colormap_conc_bargraph
-	arrange_graph_bar(ax, panel_size/4, panel_size)
+	arrange_graph_bar(ax, panel_size/5, panel_size)
 	
 	column = 7
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*1 )
 	ax.set_title('Contraction force per area')
 	ax.bar(*zip(*pull_force_per_area.items()), width=0.6, color='gray' ) # , color=colormap_conc_bargraph
-	arrange_graph_bar(ax, panel_size/4, panel_size)
+	arrange_graph_bar(ax, panel_size/5, panel_size)
 	
 	return fig
 	
@@ -213,17 +213,8 @@ if __name__ == '__main__':
 	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(4,14,2) for id_f in range(7) ]
 	dir_target  = 'CG_valency_length'
 	
-	'''
-	#filenames = ['12_{}'.format(str(id_f).zfill(3)) for id_f in range(7)] # '12_002', '12_004', '12_005', '12_006'
-	filenames = ['12_000', '12_001', '12_002', '12_003', '12_004', '12_005', '12_006']
-	filenames = ['04_000', '04_001', '04_002', '04_003', '04_004', '04_005', '04_006']
-	filenames = ['06_000', '06_001', '06_002', '06_003', '06_004', '06_005', '06_006']
-	
-	filenames = ['06_000', '06_001', '06_002', '06_003', '06_004', '06_005', '06_006']
-	filenames = ['04_000', '04_001', '04_002', '04_003', '04_004', '04_005', '04_006']
-
 	filenames = [ '12_002', '12_006']
-	'''
+
 	max_linker_lengths = {'_'+str(id_f).zfill(3): l for id_f, l in zip( range(7), [1,2,3,4,5,6,9]) }
 	max_linker_lengths = {str(id_d).zfill(2)+k: v for id_d in range(2,14,2) for k, v in max_linker_lengths.items() }
 	
@@ -250,8 +241,8 @@ if __name__ == '__main__':
 		
 		angles, distances_to_hub = calc_angle_and_distance_to_hub(d)
 		
-		plot_polar_scatter(angles, distances_to_hub, max_linker_length, dir_imgs, prefix)
-		plot_polar_histogram(angles, distances_to_hub, max_linker_length, dir_imgs, prefix)
+		#plot_polar_scatter(angles, distances_to_hub, max_linker_length, dir_imgs, prefix)
+		#plot_polar_histogram(angles, distances_to_hub, max_linker_length, dir_imgs, prefix)
 		
 		ave_cos, contraction_force, contraction_force_per_area = \
 				calc_contraction_force(angles, distances_to_hub, max_linker_length, radius_condensate)
