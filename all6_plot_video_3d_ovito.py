@@ -27,8 +27,6 @@ import lib.utils_ovito as utils_ovito
 
 
 
-		
-
 def plot_snapshots(data_all, dir_imgs, filename_edited, \
 		frame_num_after_photobleach  = 300, \
 		frame_num_before_photobleach = 10, \
@@ -51,7 +49,6 @@ def plot_snapshots(data_all, dir_imgs, filename_edited, \
 	for k, v in p.molecules_without_all.items():
 		data_all.modifiers.append(SelectTypeModifier(types=set(v['id'])))
 		data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio[k] ))
-		
 	
 	
 	# Centering

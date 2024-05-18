@@ -126,7 +126,7 @@ if __name__ == '__main__':
 	
 	# Datasets
 	
-	# Linker length
+	# Valency and linker length
 	'''
 	valencies = range(2,16,2)
 	lengths   = range(7)
@@ -149,9 +149,15 @@ if __name__ == '__main__':
 	
 	# Special conditions
 	'''
-	filenames_edited_data 	= ['CPG', 'SP', 'SPG','CG_000','CG_001','CG_002','CG_003'] 
+	filenames_edited_data = ['CPG', 'SP', 'SPG','CG_000','CG_001','CG_002','CG_003'] 
 	dir_target  = 'special_conditions'
 	'''
+	
+	
+	# Valency and linker length of CG
+	filenames_edited_data = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
+	dir_target  = 'CG_valency_length'
+	filenames_edited_data = [filenames_edited_data[7*5+2] , filenames_edited_data[7*5+6]]
 	
 	
 	# Shared init

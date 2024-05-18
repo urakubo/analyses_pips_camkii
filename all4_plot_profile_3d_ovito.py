@@ -25,21 +25,9 @@ import lib.utils_ovito as utils_ovito
 	
 def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 	
-	data   = data_all.compute()
-
-	# Bounding box
-	# https://ovito.org/manual/python/introduction/examples/modifiers/shrink_wrap_box.html
-	#   (x_max-x_min  0            0            x_min)
-	#   (0            y_max-y_min  0            y_min)
-	#   (0            0            z_max-z_min  z_min)
-	coords_min = np.array([0,0,0])
-	matrix = np.empty((3,4))
-	matrix[:,:3] = np.diag( p.space_np - coords_min )
-	matrix[:, 3] = coords_min
-	# Assign the cell matrix - or create whole new SimulationCell object in
-	# the DataCollection if there isn't one already.
-	data.create_cell(matrix, (False, False, False))
-
+	# Fix bounging box
+	data_all.modifiers.append( utils_ovito.FixBoundingbox() )
+	
 	# Slice data
 	modifier = SliceModifier()
 	modifier.normal   = (1.0, 0.0, 0.0)
@@ -51,7 +39,7 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 		data_all.modifiers.append(SelectTypeModifier(types=set(v['id'])))
 		data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio[k] ))
 
-	# No boundary
+	# Non boundary
 	cell_vis = data_all.source.data.cell.vis
 	#cell_vis.render_cell = False
 	cell_vis.line_width = 0.5
@@ -63,17 +51,16 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 	vp.fov = np.radians(10.0)
 	vp.camera_pos = (850, 60, 60)
 	vp.camera_dir = (-1, 0, 0)
-	
-	filename = os.path.join(dir_imgs, filename_output+'_{}.png'.format( str(time_frame).zfill(4)) )
-	vp.render_image(size=(800,800), filename=filename, background=(1,1,1),frame=time_frame, renderer=OpenGLRenderer())
-	
 	'''
 	dist = 200/np.sqrt(3)+10
 	vp.camera_pos = (60+dist, 60+dist, 60+dist)
 	vp.camera_dir = (-1, -1, -1)
 	'''
 	
-	return data_all
+	filename = os.path.join(dir_imgs, filename_output+'_{}.png'.format( str(time_frame).zfill(4)) )
+	vp.render_image(size=(800,800), filename=filename, background=(1,1,1),frame=time_frame, renderer=OpenGLRenderer())
+	
+	return
 
 
 	# Scale bar
@@ -81,9 +68,9 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 
 if __name__ == '__main__':
 	
-	'''
 	# I manually ran each one of them,
 	# because I do not know how to fully reset the ovito visualization system.
+	'''
 	i = 6
 	# Special conditions
 	filenames_output 	= ['CPG', 'SP', 'SPG', 'CG_000','CG_001','CG_002','CG_003']
@@ -101,11 +88,23 @@ if __name__ == '__main__':
 	
 	
 	## Conc dependence
+	'''
 	filenames_output    = [str(i).zfill(3) for i in range(81) ]
 	filenames_lammpstrj = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ]
 	dir_lammpstrj    = 'conc_dependence'
 	dir_target       = 'conc_dependence'
 	i = 9*6+4
+	'''
+	
+	## CG valency dependence
+	subdirs    = ['val{}'.format(i) for i in range(2,14,2)]
+	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
+	filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
+	filenames_output    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
+	dir_lammpstrj = 'CG_valency_length'
+	dir_target    = 'CG_valency_length'
+	i = 7*5+2 # '12_002'
+	#i = 7*5+6 # '12_006'
 	
 	
 	##
@@ -115,11 +114,11 @@ if __name__ == '__main__':
 	##
 	
 	
-	
-	print('filename_input: ', filenames_lammpstrj[i])
 	sampling_frame = utils.get_num_frames(dir_lammpstrj, filenames_lammpstrj[i])
-	print("sampling_frame ", sampling_frame )
-	
 	data_all   = import_file(os.path.join(dir_lammpstrj, filenames_lammpstrj[i]), input_format= "lammps/dump" )
 	plot_snapshots(data_all, sampling_frame, dir_imgs, filenames_output[i])
-
+	print('filename_input: ', filenames_lammpstrj[i])
+	print('sampling_frame: ', sampling_frame )
+	
+	
+	

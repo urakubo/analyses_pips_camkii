@@ -1,9 +1,11 @@
 
 import numpy as np
 from ovito.pipeline import ModifierInterface
+from ovito.data import DataCollection
 #from ovito.pipeline import *
 #from ovito.qt_compat import QtCore
 import lib.utils as utils
+import lib.parameters as p
 
 
 class CenteringModifier(ModifierInterface):
@@ -40,6 +42,22 @@ def compute_particle_transparency(frame, data):
     transparency = np.ones((data.particles.count))*0.3
     data.particles_.create_property('Transparency', data=transparency)
 
+
+class FixBoundingbox(ModifierInterface):
+	def modify(self, data, frame, **kwargs):
+		# Bounding box
+		# https://ovito.org/manual/python/introduction/examples/modifiers/shrink_wrap_box.html
+		#   (x_max-x_min  0            0            x_min)
+		#   (0            y_max-y_min  0            y_min)
+		#   (0            0            z_max-z_min  z_min)
+		coords_min = np.array([0,0,0])
+		matrix = np.empty((3,4))
+		matrix[:,:3] = np.diag( p.space_np - coords_min )
+		matrix[:, 3] = coords_min
+
+		# Assign the cell matrix - or create whole new SimulationCell object in
+		# the DataCollection if there isn't one already.
+		data.create_cell(matrix, (False, False, False))
 
 '''
 line_vis = data_all.source.data.line.vis
