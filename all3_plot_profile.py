@@ -55,11 +55,6 @@ def make_a_figure( d ):
 		columns = {'CaMKII':2, 'GluN2B':3, 'PSD95':4,'STG':5}
 		axes1 = utils.plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp, pre_rotated=False )
 		axes.extend(axes1)
-		'''
-		columns = {'CaMKII':6, 'STG':7}
-		axes2 = utils.plot_watershed_region_from_a_direction(fig, num_rows, num_columns, row, columns, d, transp)
-		axes.extend(axes2)
-		'''
 		
 		yloc.append(loc0.y0)
 		for a in axes:
@@ -68,19 +63,6 @@ def make_a_figure( d ):
 			a.set_position([loc.x0, yloc[-1], panel_size, panel_size])
 	
 	panel_dx = 0.03
-	
-	
-	# Plot the volume of watershed basin
-	'''
-	ratio_volumes_watershed = {k: v*100 for k, v in d['ratio_volumes_watershed'].items()}
-	cols = [c.cmap_universal_ratio[k] for k in ratio_volumes_watershed.keys()]
-	ax = fig.add_subplot( num_rows, num_columns, 8 )
-	ax.bar(ratio_volumes_watershed.keys(), ratio_volumes_watershed.values(), width=0.5, color=cols) # , color=cols
-	ax.set_title('Volume of \n watershed basin')
-	ax.set_ylabel('/ total system volume (%)')
-	ax.set_ylim(0,3.0)
-	arrange_graph_bar(ax, panel_dx, yloc[0], panel_size/4, panel_size )
-	'''
 	
 	
 	# Plot concs in condensates
