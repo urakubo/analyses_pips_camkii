@@ -59,9 +59,9 @@ def logistic_regression(x,y):
 	y_pred = np.ravel(y_pred)
 	w = np.array(model.coef_).transpose()
 	
-	print("Efron's  R2: {:.4f}".format(  utils_fitting.efron_rsquare(y, y_pred) ) )
-	print("Count R2   : {:.4f}".format(  utils_fitting.count_rsquare(y, y_pred) ) )
-	print("Adjust count R2: {:.4f}".format(  utils_fitting.count_adjusted_rsquare(y, y_pred) ) )
+	print("Efron's  R2: {:.4f}".format(  efron_rsquare(y, y_pred) ) )
+	print("Count R2   : {:.4f}".format(  count_rsquare(y, y_pred) ) )
+	print("Adjust count R2: {:.4f}".format(  count_adjusted_rsquare(y, y_pred) ) )
 	
 	# https://datascience.oneoffcoder.com/psuedo-r-squared-logistic-regression.html
 	# https://bookdown.org/egarpor/SSS2-UC3M/logreg-deviance.html
