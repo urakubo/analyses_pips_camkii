@@ -44,6 +44,13 @@ class MatrixValencyLength():
 		self.pull_force_per_area = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
 		
 		
+		self.radiuses_condensate_matrix = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
+		for i, valency in enumerate(self.valencies):
+			for j, linker_length in enumerate(p.lengths):
+				prefix      = p.fnames_valency[valency]+'_'+p.fnames_length[linker_length]
+				self.radiuses_condensate_matrix[j,i] = self.radiuses_condensate[prefix]
+		
+		
 	def run_calc( self ):
 		
 		for i, valency in enumerate(self.valencies):
@@ -100,6 +107,14 @@ class MatrixValencyLength():
 		
 	def plot_figures( self ):
 		
+		title    = 'Radiuses'
+		filename = 'Radiuses'
+		colormap =  plt.colormaps['Greys'] #  plt.get_cmap plt.colormaps
+		levels   = np.linspace(0,36,35)
+		ax = self.prepare_plot(title)
+		cs, cb = utils.plot_a_panel(ax, self.radiuses_condensate_matrix, p.lengths, self.valencies, colormap, levels)
+		self.save_a_fig( filename )
+		
 		title    = 'Cos similarity'
 		filename = 'Cos_similarity'
 		colormap =  c.cmap_white_green_universal
@@ -118,7 +133,7 @@ class MatrixValencyLength():
 		
 		title    = 'Contraction force per area'
 		filename = 'Contraction_force_per_area'
-		colormap = plt.colormaps['Greys']
+		colormap = plt.colormaps['Greys'] #  plt.get_cmap plt.colormaps
 		levels   = np.linspace(0,0.6,10)
 		ax = self.prepare_plot(title)
 		cs, cb = utils.plot_a_panel(ax, self.pull_force_per_area, p.lengths, self.valencies, colormap, levels)

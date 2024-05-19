@@ -21,7 +21,7 @@ from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 import warnings
 
-from conc_dependence_calc_connectivity_plot_phase_diagram import \
+from conc_dependence2_calc_connectivity_plot_phase_diagram import \
 	HandleConnectivityPhaseDiagramConcDependence, \
 	HandleCondVolumePhaseDiagramConcDependence, \
 	PlotPhaseDiagram
@@ -71,34 +71,12 @@ def plot_fit_PIPS_partial_engulfment( fig, ax, title, ratios_connection ):
 	print(ratios_connection)
 	'''
 	
-	y0_label = 'Others'
 	pips = two_condensates * (partial_engulfment == 0)
-	
-	#ratios_connection = ratios_connection[two_condensates > 0]
-	#pips = pips[two_condensates > 0]
-	#y0_label = 'Partial \n engulfment'
 	
 	x = ratios_connection.reshape(-1, 1)
 	y = pips.astype('int').reshape(-1, 1)
 	
-	model = LogisticRegression(penalty='none', solver = 'lbfgs')
-	model.fit(x, y)
-	# Model parameters
-	print('w0: {:.4f}'.format( model.intercept_[0]) )
-	print('w1: {:.4f}'.format( model.coef_[0][0]) )
-	print('1/(1+exp[-(w0 + w1.x)])')
-	
-	y_pred = model.predict_proba(x)[:,1]
-	y = np.ravel(y)
-	y_pred = np.ravel(y_pred)
-	w = np.array(model.coef_).transpose()
-	
-	print("Efron's  R2: {:.4f}".format(  utils_fitting.efron_rsquare(y, y_pred) ) )
-	print("Count R2   : {:.4f}".format(  utils_fitting.count_rsquare(y, y_pred) ) )
-	print("Adjust count R2: {:.4f}".format(  utils_fitting.count_adjusted_rsquare(y, y_pred) ) )
-	
-	# https://datascience.oneoffcoder.com/psuedo-r-squared-logistic-regression.html
-	# https://bookdown.org/egarpor/SSS2-UC3M/logreg-deviance.html
+	model = utils_fitting.logistic_regression(x,y)
 	
 	species_vol = 'PIPS'
 	ax.set_xlabel(title)
@@ -115,9 +93,7 @@ def plot_fit_PIPS_partial_engulfment( fig, ax, title, ratios_connection ):
 	ax.set_ylim([-0.1,1.1])
 	ax.set_xlim([   0,xmax])
 	ax.set_yticks([0,1])
-	ax.set_yticklabels([y0_label,'PIPS'])
-	#ax.set_yticklabels(['Others','PIPS'])
-	
+	ax.set_yticklabels(['Others','PIPS'])
 	
 	
 def hill(x, a, b, c): # Hill sigmoidal equation from zunzun.com
