@@ -95,30 +95,10 @@ def plot_snapshots(data_all, dir_edited_data, dir_imgs, filename_edited, \
 	f_bleach = 0
 	for target_frame, target_time in zip(target_frames, time_steps):
 		print('Time frame: ', target_frame, ', Time: ', target_time)
-		# decode data
-		data   = data_all.compute(target_frame)
-		types, positions, ids_molecule = utils.decode_data(data)
-		bp 	= np.array( data.particles['bp'] ).astype('int')
-		
-		
-		# Get ids in the largest cluster
-		multi_graph = utils_graph.get_multi_graph(ids_molecule, types, bp, positions)
-		clusters = sorted(nx.connected_components(multi_graph), key=len, reverse=True)
-		g_largest_cluster = nx.MultiGraph( multi_graph.subgraph(clusters[0]) )
-		
-		ids_GluN2B = [v['ids_bead'][0].tolist() for n, v in g_largest_cluster.nodes.items() if v['species'] == 'GluN2B' ]
-		ids_CaMKII = [v['ids_bead'][0].tolist() for n, v in g_largest_cluster.nodes.items() if v['species'] == 'CaMKII' ]
-		ids_GluN2B = utils.flatten(ids_GluN2B)
-		ids_CaMKII = utils.flatten(ids_CaMKII)
-		
 
-		if target_molecule == 'CaMKII':
-			ids_bead_cluster = ids_CaMKII
-		elif target_molecule == 'GluN2B':
-			ids_bead_cluster = ids_GluN2B
-		else :
-			ids_bead_cluster = ids_GluN2B + ids_CaMKII
-		
+		#ids_bead_cluster = utils_ovito.get_beads_in_largest_cluster(data_all, target_frame)
+		ids_bead_cluster = utils_ovito.get_CaMKII_beads_in_largest_cluster(data_all, target_frame)
+	
 		# Photobleach
 		if (target_frame >= frame_photobleach) and (f_bleach == 0):
 			center    = utils.get_center_of_mass(types, positions)
