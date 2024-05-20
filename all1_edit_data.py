@@ -62,8 +62,8 @@ if __name__ == '__main__':
 	dir_lammpstrj    = 'CG_valency_length'
 	dir_edited_data  = 'CG_valency_length'
 	
-	filenames_input  = [filenames_input[7*5+2] , filenames_input[7*5+6]]
-	filenames_output = [filenames_output[7*5+2], filenames_output[7*5+6]]
+	#filenames_input  = [filenames_input[7*5+2] , filenames_input[7*5+6]]
+	#filenames_output = [filenames_output[7*5+2], filenames_output[7*5+6]]
 	
 	
 	# Shared part of initialization

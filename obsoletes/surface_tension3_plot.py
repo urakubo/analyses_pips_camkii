@@ -31,7 +31,7 @@ def arrange_graph_bar(ax, panel_size_x, panel_size_y):
 	ax.set_position([loc.x0, loc.y0, panel_size_x, panel_size_y])
 	ax.set_xlabel('Linker length')
 	
-def plot_graphs(ave_cos, pull_force, surface_tensions, pull_force_per_area):
+def plot_graphs(ave_cos, pull_force, pull_force_per_area):
 	
 	# Figure specification
 	num_columns = 10
@@ -56,12 +56,6 @@ def plot_graphs(ave_cos, pull_force, surface_tensions, pull_force_per_area):
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*1 )
 	ax.set_title('Contraction force')
 	ax.bar(*zip(*pull_force.items()), width=0.6, color='gray' ) # , color=colormap_conc_bargraph
-	arrange_graph_bar(ax, panel_size/5, panel_size)
-	
-	column = 6
-	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*1 )
-	ax.set_title('Surface tension')
-	ax.bar(*zip(*surface_tensions.items()), width=0.6, color='gray' ) # , color=colormap_conc_bargraph
 	arrange_graph_bar(ax, panel_size/5, panel_size)
 	
 	column = 7
@@ -203,14 +197,11 @@ def calc_contraction_force(angles, distance_to_hub, max_linker_length, radius_co
 	
 	ave_cos           = np.sum( np.cos(angles) ) / distance_to_hub.shape[0]
 	contraction_force = stretched_linkers_mult_cos
-	surface_tension   = stretched_linkers_mult_cos / (2*np.pi*radius_condensate)
 	contraction_force_per_area = stretched_linkers_mult_cos / (4*np.pi*radius_condensate*radius_condensate)
 	
-	return  ave_cos, contraction_force, surface_tension, contraction_force_per_area
+	return  ave_cos, contraction_force, contraction_force_per_area
 	
 	
-
-
 	
 if __name__ == '__main__':
 	
@@ -236,7 +227,6 @@ if __name__ == '__main__':
 	
 	
 	aves_cos = {}
-	surface_tensions = {}
 	pull_forces = {}
 	pull_forces_per_area = {}
 	for ii, prefix in enumerate( filenames ):
@@ -252,16 +242,15 @@ if __name__ == '__main__':
 		#plot_polar_scatter(angles, distances_to_hub, max_linker_length, dir_imgs, prefix)
 		#plot_polar_histogram(angles, distances_to_hub, max_linker_length, dir_imgs, prefix)
 		
-		ave_cos, contraction_force, surface_tension, contraction_force_per_area = \
+		ave_cos, contraction_force, contraction_force_per_area = \
 				calc_contraction_force(angles, distances_to_hub, max_linker_length, radius_condensate)
 		
-		surface_tensions[str(max_linker_length)] = surface_tension
 		aves_cos[str(max_linker_length)] = ave_cos
 		pull_forces[str(max_linker_length)] = contraction_force
 		pull_forces_per_area[str(max_linker_length)] = contraction_force_per_area
 		
 	# Plot bar graphs.
-	fig = plot_graphs(aves_cos, pull_forces, surface_tensions, pull_forces_per_area)
+	fig = plot_graphs(aves_cos, pull_forces, pull_forces_per_area)
 	fig.savefig( os.path.join(dir_imgs, 'Surface_tension.svg' ) )
 	fig.savefig( os.path.join(dir_imgs, 'Surface_tension.png' ) , dpi=150)
 	plt.show()

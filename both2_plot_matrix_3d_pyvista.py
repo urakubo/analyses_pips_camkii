@@ -42,9 +42,8 @@ def plot_valency_length_save_it(dir_data, dir_imgs, sub = False):
 		for j, ll in enumerate(sub_length):
 			# Load data
 			prefix = fnames_valency[v]+'_'+fnames_linker_length[ll]
-			suffix = 'sigma_{}'.format(sigma)
 			d      = utils.load(dir_edited_data, prefix, suffix)
-			print('Target: {}, sigma: {}'.format(prefix, sigma))
+			print('Target: {}'.format(prefix))
 			
 			# Specify row and column
 			row    = num_rows - i - 1
@@ -127,14 +126,16 @@ def plot_conc_dependence_save_it(dir_data, dir_imgs, sub = False):
 if __name__ == '__main__':
 	
 	# Valency length
-	'''
+	#'''
 	dir_target = 'valency_length'
 	func = plot_valency_length_save_it
-	'''
+	#'''
 	
+	'''
 	dir_target = 'conc_dependence_merged'
 	func       = plot_conc_dependence_save_it
-	sub        = True # False
+	'''
+	sub        = False # False
 	
 	dir_edited_data	= os.path.join('data4', dir_target)
 	dir_imgs = os.path.join('imgs4', dir_target, 'matrix_3d_pyvista')

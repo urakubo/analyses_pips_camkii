@@ -37,6 +37,7 @@ class MatrixValencyLength():
 		
 		self.ave_cos             = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
 		self.pull_force          = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
+		self.surface_tensions    = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
 		self.pull_force_per_area = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
 		
 		
@@ -62,11 +63,12 @@ class MatrixValencyLength():
 				
 				angles, distances_to_hub = calc_angle_and_distance_to_hub(d)
 				
-				ave_cos, contraction_force, contraction_force_per_area = \
+				ave_cos, contraction_force, surface_tension, contraction_force_per_area = \
 						calc_contraction_force(angles, distances_to_hub, max_linker_length, radius_condensate)
 				
 				self.ave_cos[j,i]    = ave_cos
 				self.pull_force[j,i] = contraction_force
+				self.surface_tensions[j,i] = surface_tension
 				self.pull_force_per_area[j,i] = contraction_force_per_area
 		
 		
@@ -85,6 +87,7 @@ class MatrixValencyLength():
 		d = {}
 		d['ave_cos']             = self.ave_cos
 		d['pull_force']          = self.pull_force
+		d['surface_tensions']    = self.surface_tensions
 		d['pull_force_per_area'] = self.pull_force_per_area
 		
 		prefix = 'Surface_tension'
@@ -99,6 +102,7 @@ class MatrixValencyLength():
 		
 		self.ave_cos             = d['ave_cos']
 		self.pull_force          = d['pull_force']
+		self.surface_tensions    = d['surface_tensions']
 		self.pull_force_per_area = d['pull_force_per_area']
 		
 	def plot_phase_diagrams( self ):
@@ -135,6 +139,16 @@ class MatrixValencyLength():
 		cs, cb = utils.plot_a_panel(ax, self.pull_force_per_area, p.lengths, self.valencies, colormap, levels)
 		self.save_a_fig( filename )
 		
+		title    = 'Surface tension'
+		filename = 'Surface_tension'
+		colormap = plt.colormaps['Greys'] #  plt.get_cmap plt.colormaps
+		levels   = np.linspace(0,25,8)
+		ax = self.prepare_plot(title)
+		ticks = [0, 5, 10, 15, 20, 25]
+		cs, cb = utils.plot_a_panel(ax, self.surface_tensions, p.lengths, self.valencies, colormap, levels, ticks=ticks)
+		self.save_a_fig( filename )
+		
+		
 		
 	def save_a_fig( self, filename ):
 		
@@ -148,14 +162,21 @@ class MatrixValencyLength():
 	def plot_logistic_regression( self ):
 		
 		
-		filename = 'logistic_regression'
-		x = self.pull_force_per_area[:,:4]
+		filename = 'logistic_regression_surface_tension'
+		x = self.surface_tensions
 		
-		filename = 'regression_cos_similarity'
-		x = self.ave_cos[:,:4]
+		#filename = 'regression_cos_similarity'
+		#x = self.ave_cos
 		
-		filename = 'regression_contraction_force'
-		x = self.pull_force[:,:4]
+		#filename = 'regression_contraction_force'
+		#x = self.pull_force
+		
+		x = np.fliplr(x)
+		
+		print('x')
+		print(x)		
+		
+		x = x[:,:4]
 		
 		# 0: Partial engulfment
 		# 1: PIPS
@@ -165,15 +186,15 @@ class MatrixValencyLength():
 		y = np.array( [\
 			[ 1, 1, 1, 0,  0, 0, 0], # 12
 			[ 1, 1, 1, 0,  0, 0, 0], # 10
-			[ 1, 1, 1, 0,  0, 0, 0], # 8
-			[ 1, 1, 1, 0,  0, 0, 0], # 6
+			[ 1, 1, 1, 1,  0, 0, 0], # 8
+			[ 1, 1, 1, 1,  0, 0, 0], # 6
 			]).T
-		'''
+		#'''
 		print('y')
 		print(y)
 		print('x')
 		print(x)
-		'''
+		#'''
 		
 		x = x.reshape(-1, 1)
 		y = y.reshape(-1, 1)
@@ -181,11 +202,15 @@ class MatrixValencyLength():
 		model = utils_fitting.logistic_regression(x,y)
 
 
-		self.fig  = plt.figure(figsize=(3.5, 3.5))
+		self.fig  = plt.figure(figsize=(2.0, 2.0))
 		self.fig.subplots_adjust(wspace=0.4,  hspace=0.4)
 		ax = self.fig.add_subplot( 1, 1, 1 )
-		ax.set_xlabel('Contraction force per area')
-		xmax = np.max(x)*1.1
+		ax.spines['right'].set_visible(False)
+		ax.spines['top'].set_visible(False)
+		ax.set_xlabel('Surface tension')
+		#xmax = np.max(x)*1.1
+		xmax = 30
+		ax.set_xticks([0,10,20,30])
 		xx = np.linspace(0.0,xmax,40).reshape(-1, 1)
 		ax.plot([0, xmax], [0,0], ':', color = (0.5,0.5,0.5))
 		ax.plot([0, xmax], [1,1], ':', color = (0.5,0.5,0.5))
@@ -194,7 +219,7 @@ class MatrixValencyLength():
 			color = 'k', \
 			markerfacecolor = 'k' )
 		ax.plot(xx, model.predict_proba(xx)[:,1], '-', color = (0.5,0.5,0.5))
-		ax.set_ylim([-0.1,1.1])
+		ax.set_ylim([-0.2,1.2])
 		ax.set_xlim([   0,xmax])
 		ax.set_yticks([0,1])
 		ax.set_yticklabels(['Partial \n engulfment','PIPS'])

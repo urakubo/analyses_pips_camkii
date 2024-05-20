@@ -22,8 +22,8 @@ class PlotValencyLength():
 		self.sigma = 2
 		
 		
-		self.valencies = range(0,14,2)
-		self.lengths   = range(7)
+		#self.valencies = range(2,14,2)
+		#self.lengths   = range(7)
 		self.dir_target= 'valency_length'
 		
 		
@@ -41,14 +41,14 @@ class PlotValencyLength():
 			for j, l in enumerate(self.lengths):
 				
 				# Load data
-				prefix    = p.fnames_valency[v]+'_'+p.fnames_length[l]
+				prefix    = str(v).zfill(2) + '_' + str(l).zfill(3) 
 				print('Target file: ', prefix)
 				d         = utils.load(self.dir_edited_data, prefix, self.suffix)
 				data[j,i] = self._modify_data(d)
 		
 		print('data ', data)
 		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, data, p.lengths, p.valencies, self.colormap, self.levels)
+		cs, cb = utils.plot_a_panel(ax, data, p.lengths, p.valencies, self.colormap, self.levels, ticks = self.ticks)
 		
 	def save( self ):
 		
@@ -74,7 +74,9 @@ class PhaseDiagram():
 		
 		self.dir_target = 'valency_length'
 		
-		self.valencies   = [12, 10, 8, 6, 4, 2, -0] # [4, 6, 8, 10, 12] 
+		
+		self.lengths   = [1, 2, 3, 4, 5, 6, 9]
+		self.valencies = [12, 10, 8, 6, 4, 2, -0] # [4, 6, 8, 10, 12] 
 		self.basename = 'phase_diagram_valency_length'
 		self.title    = 'Phase diagram'
 		# 1: PIPS
@@ -86,11 +88,11 @@ class PhaseDiagram():
 		self.phase_diagram = [\
 			[ 1, 1, 1, 2,  2, 2, 2], # 12
 			[ 1, 1, 1, 2,  2, 2, 2], # 10
-			[ 1, 1, 1, 2,  2, 2, 2], # 8
-			[ 1, 1, 1, 2,  2, 2, 2], # 6
-			[ 1, 1, 1, 2,  2, 2, 2], # 4
-			[ 1, 1, 1, 2,  2, 2, 2], # 2
-			[ 1, 1, 1, 2,  2, 2, 2], # 0
+			[ 1, 1, 1, 1,  2, 2, 2], # 8
+			[ 1, 1, 1, 1,  2, 2, 2], # 6
+			[ 1, 1, 1, 1,  2, 2, 2], # 4
+			[ 1, 1, 1, 1,  2, 2, 2], # 2
+			[ 1, 1, 1, 1,  2, 2, 2], # 0
 			]
 		
 		self.STG_only = [\
@@ -103,24 +105,34 @@ class PhaseDiagram():
 			[ 2, 2, 2, 2,  2, 2, 2], # 0
 			]
 		
+		self.phase_diagram = np.array(self.phase_diagram).T
+		self.STG_only	= np.array(self.STG_only).T
+		
+		#self.phase_diagram = np.flipud(self.phase_diagram)
+		#self.STG_only      = np.flipud(self.STG_only)
+		
+		
 	def plot( self ):
 		
-		phase_diagram = np.array(self.phase_diagram).T
 		levels1		= np.array([0.5, 1.5, 2.5, 3.5, 4.5])
 		colormap1	= c.cmap_phase_diagram2
 		
-		STG_only	= np.array(self.STG_only).T
-		STG_only    = np.fliplr(STG_only)
-		print(STG_only)
 		levels2		= [-0.5, 0.5, 1.5, 2.5]
 		colormap2	= c.cmap_phase_diagram3
 		
-		max_conc      = np.max(phase_diagram)
+		max_conc      = np.max(self.phase_diagram)
+		
+		print('phase_diagram.shape ', self.phase_diagram.shape)
+		print('STG_only.shape ',  self.STG_only.shape)
+		print('self.lengths ', self.lengths)
+		print('self.valencies ', self.valencies)
+		
+		
 		
 		ax = self.prepare_plot()
 		
-		cs, cb = utils.plot_a_panel(ax, phase_diagram, p.lengths, self.valencies, colormap1, levels1, draw_border = True)
-		utils.plot_a_panel_overlay(ax, STG_only, p.lengths, self.valencies, colormap2, levels2)
+		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.lengths, self.valencies, colormap1, levels1, draw_border = True)
+		utils.plot_a_panel_overlay(ax, self.STG_only, self.lengths, self.valencies, colormap2, levels2)
 		
 		
 class Connectivity():
@@ -135,16 +147,19 @@ class Connectivity():
 			self.basename = 'num_GluN2B_bound_to_one_CaMKII'
 			self.colormap =  c.cmap_white_green_universal
 			self.levels   = np.linspace(0,12,7)
+			self.ticks = [0, 4, 8, 12]
 		elif species == 'PSD95' and type_analysis == 'average':
 			self.title    = 'Number of STG bound to one PSD95'
 			self.basename = 'num_STG_bound_to_one_PSD95'
 			self.colormap = c.cmap_white_red_universal
 			self.levels   = np.linspace(0,3,6)
+			self.ticks = [0, 1, 2, 3]
 		elif species == 'PSD95' and type_analysis == 'ratio':
 			self.title    = 'Ratio of PSD95 bound to both GluN2B and STG'
 			self.basename = 'PSD95_bound_to_both_GluN2B_STG'
 			self.colormap =  plt.colormaps['Greys']
 			self.levels   = np.linspace(0,1.0,11)
+			self.ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
 		else:
 			raise ValueError("Not implemented, species: ", species, ", type_analysis: ", type_analysis)
 		
@@ -298,10 +313,11 @@ if __name__ == '__main__':
 	pl.plot()
 	pl.save()
 	
+	
 	'''
-	species, type_analysis = 'CaMKII', 'average'
+	#species, type_analysis = 'CaMKII', 'average'
 	#species, type_analysis = 'PSD95' , 'average'
-	#species, type_analysis = 'PSD95' , 'ratio'
+	species, type_analysis = 'PSD95' , 'ratio'
 	
 	pl = PlotConnectivityValencyLength(species, type_analysis)
 	pl.run()

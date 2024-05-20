@@ -922,7 +922,7 @@ def make_grid_using_RegularGridInterpolator(x, y, oZ, mX, mY):
 	
 	
 def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False, \
-	mx_min = 0.0, my_min = 1.0, mx_max = None, my_max = None ):
+	mx_min = 0.0, my_min = 1.0, mx_max = None, my_max = None, ticks=None ):
 	
 	# Observed data arrangement
 	oX, oY  = np.meshgrid(x, y)
@@ -956,17 +956,7 @@ def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False, \
 	ax.scatter(ox, oy, c=oz, cmap=colormap, marker='o', edgecolors='k', s=16, vmin=vmin, vmax=vmax)
 	
 	
-	# Overlay exception (not clean).
-	'''
-	oz_except = (oZ < 1)
-	mZ_except = make_grid_using_RegularGridInterpolator(x, y, oz_except, mX, mY)
-	mZ_except[mZ_except > 0.5] = 1.0
-	mZ_except[mZ_except <= 0.5] = np.nan
-	print('np.unique(mZ_except) ' , np.unique(mZ_except) )
-	cs = ax.contourf(mX, mY, mZ_except, vmin=0.3, vmax=0.4, cmap='binary' )
-	'''
 	#ax.set_facecolor("black")
-	
 	
 	ax.set_xlim( np.min(mx), np.max(mx) )
 	ax.set_ylim( np.min(my), np.max(my) )
@@ -974,10 +964,13 @@ def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False, \
 	ax.set_box_aspect(1)
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
+		
+	if ticks is None:
+		ticks=np.linspace(vmin, vmax, 4)
 	
 	divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
 	cax = divider.append_axes('right', '5%', pad='3%')
-	cb = plt.colorbar(cs, cax=cax, ticks=np.linspace(vmin, vmax, 4))
+	cb = plt.colorbar(cs, cax=cax, ticks=ticks)
 	#cb.ax.set_yticklabels(["{:.2f}".format(i) for i in cb.get_ticks()])
 	
 	return cs, cb

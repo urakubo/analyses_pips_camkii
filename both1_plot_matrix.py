@@ -166,6 +166,7 @@ class PlotConcMatrixValencyLength(PlotConc, MatrixValencyLength):
 		valencies = range(2,14,2)
 		lengths   = range(7)
 		dir_target= 'valency_length'
+		#dir_target= 'CG_valency_length'
 		
 		PlotConc.__init__(self, target )
 		MatrixValencyLength.__init__(self, valencies, lengths, dir_target)
@@ -195,7 +196,7 @@ if __name__ == '__main__':
 	# 'shared_PSD95', 'unshared_PSD95'
 	#'''
 	target = 'conc_CaMKII'
-	plot_concs = PlotConcMatrixConcDependence(target) # PlotConcMatrixConcDependence, PlotConcMatrixValencyLength
+	plot_concs = PlotConcMatrixValencyLength(target) # PlotConcMatrixConcDependence, PlotConcMatrixValencyLength
 	values = plot_concs.run()
 	plot_concs.save()
 	#'''

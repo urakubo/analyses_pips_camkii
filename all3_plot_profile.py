@@ -139,7 +139,7 @@ if __name__ == '__main__':
 	# Valency and linker length of CG
 	filenames_edited_data = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
 	dir_target  = 'CG_valency_length'
-	filenames_edited_data = [filenames_edited_data[7*5+2] , filenames_edited_data[7*5+6]]
+	# filenames_edited_data = [filenames_edited_data[7*5+2] , filenames_edited_data[7*5+6]]
 	
 	
 	# Shared init
