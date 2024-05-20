@@ -10,6 +10,7 @@ import lib.utils as utils
 import lib.utils_fitting as utils_fitting
 import lib.parameters as p
 import lib.colormap as c
+import lib.utils_fitting as utils_fitting
 
 
 from surface_tension3_plot import calc_angle_and_distance_to_hub, calc_contraction_force
@@ -102,6 +103,7 @@ class MatrixValencyLength():
 		self.pull_force_per_area = d['pull_force_per_area']
 		
 	def plot_phase_diagrams( self ):
+<<<<<<< Updated upstream
 		
 		title    = 'Radiuses'
 		filename = 'Radiuses'
@@ -110,6 +112,8 @@ class MatrixValencyLength():
 		ax = self.prepare_plot(title)
 		cs, cb = utils.plot_a_panel(ax, self.radiuses_condensate_matrix, p.lengths, self.valencies, colormap, levels)
 		self.save_a_fig( filename )
+=======
+>>>>>>> Stashed changes
 		
 		title    = 'Cos similarity'
 		filename = 'Cos_similarity'
@@ -145,17 +149,10 @@ class MatrixValencyLength():
 		#plt.close(fig=self.fig)
 		
 		
+<<<<<<< Updated upstream
 	def plot_logistic_regression( self ):
 		
-		
 		filename = 'logistic_regression'
-		x = self.pull_force_per_area[:,:4]
-		
-		filename = 'regression_cos_similarity'
-		x = self.ave_cos[:,:4]
-		
-		filename = 'regression_contraction_force'
-		x = self.pull_force[:,:4]
 		
 		# 0: Partial engulfment
 		# 1: PIPS
@@ -163,17 +160,42 @@ class MatrixValencyLength():
 		
 		# 1, 2, 3, 4, 5, 6, 9
 		y = np.array( [\
+=======
+		
+	def plot_logistic_regression( self ):
+		
+		filename = 'logistic_regression'
+		x = self.pull_force_per_area.T
+		
+		filename = 'regression_cos_similarity'
+		x = self.ave_cos.T
+		
+		filename = 'regression_contraction_force'
+		x = self.pull_force.T
+		
+		x = x[ :4, : ]
+		x = np.ravel( x ).reshape(-1, 1) 		
+		
+		# 1: PIPS
+		# 0: Partial engulfment
+		# 2: Others
+		
+		# 1, 2, 3, 4, 5, 6, 9
+		phase_diagram = [\
+>>>>>>> Stashed changes
 			[ 1, 1, 1, 0,  0, 0, 0], # 12
 			[ 1, 1, 1, 0,  0, 0, 0], # 10
 			[ 1, 1, 1, 0,  0, 0, 0], # 8
 			[ 1, 1, 1, 0,  0, 0, 0], # 6
+<<<<<<< Updated upstream
 			]).T
-		'''
+		x = self.pull_force_per_area[:,:4]
+		
 		print('y')
 		print(y)
 		print('x')
 		print(x)
-		'''
+		
 		
 		x = x.reshape(-1, 1)
 		y = y.reshape(-1, 1)
@@ -185,6 +207,25 @@ class MatrixValencyLength():
 		self.fig.subplots_adjust(wspace=0.4,  hspace=0.4)
 		ax = self.fig.add_subplot( 1, 1, 1 )
 		ax.set_xlabel('Contraction force per area')
+=======
+			[ 2, 2, 2, 2,  2, 2, 2], # 4
+			[ 2, 2, 2, 2,  2, 2, 2], # 2
+			]
+		phase_diagram = np.array(phase_diagram)
+		phase_diagram = phase_diagram[ phase_diagram < 2 ]
+		y = np.ravel( phase_diagram )
+		
+		
+		#x = ratios_connection.reshape(-1, 1)
+		#y = pips.astype('int').reshape(-1, 1)
+		
+		model = utils_fitting.logistic_regression(x,y)
+		
+		self.fig  = plt.figure(figsize=(3.5, 3.5))
+		self.fig.subplots_adjust(wspace=0.4,  hspace=0.6)
+		ax = self.fig.add_subplot( 1, 1, 1 )
+		
+>>>>>>> Stashed changes
 		xmax = np.max(x)*1.1
 		xx = np.linspace(0.0,xmax,40).reshape(-1, 1)
 		ax.plot([0, xmax], [0,0], ':', color = (0.5,0.5,0.5))
@@ -195,7 +236,11 @@ class MatrixValencyLength():
 			markerfacecolor = 'k' )
 		ax.plot(xx, model.predict_proba(xx)[:,1], '-', color = (0.5,0.5,0.5))
 		ax.set_ylim([-0.1,1.1])
+<<<<<<< Updated upstream
 		ax.set_xlim([   0,xmax])
+=======
+		ax.set_xlim([  0 ,xmax])
+>>>>>>> Stashed changes
 		ax.set_yticks([0,1])
 		ax.set_yticklabels(['Partial \n engulfment','PIPS'])
 		
@@ -209,4 +254,10 @@ if __name__ == '__main__':
 	#graph.save_data()
 	graph.load_data()
 	#graph.plot_phase_diagrams()
+<<<<<<< Updated upstream
 	graph.plot_logistic_regression()
+=======
+	
+	graph.plot_logistic_regression()
+	
+>>>>>>> Stashed changes

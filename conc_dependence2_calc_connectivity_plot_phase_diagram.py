@@ -106,7 +106,7 @@ class PlotConnectivity():
 		elif species == 'PSD95' and type_analysis == 'ratio':
 			self.title    = 'Ratio of PSD95 bound to both GluN2B and STG'
 			self.basename = 'PSD95_bound_to_both_GluN2B_STG'
-			self.colormap =  plt.colormaps['Greys']
+			self.colormap = plt.get_cmap('Greys') # plt.colormaps['Greys']
 			self.levels   = np.linspace(0,1.0,11)
 		else:
 			raise ValueError("Not implemented, species: ", species, ", type_analysis: ", type_analysis)
