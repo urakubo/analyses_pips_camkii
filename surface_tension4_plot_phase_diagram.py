@@ -1,20 +1,16 @@
 
 import os, sys, glob, pickle, pprint
 import numpy as np
-#import math
 
-#import matplotlib
 import matplotlib.pyplot as plt
-#from mpl_toolkits.mplot3d import Axes3D
-#from matplotlib import pyplot, patches
 
 import networkx as nx
 
 import lib.utils as utils
+import lib.utils_fitting as utils_fitting
 import lib.parameters as p
 import lib.colormap as c
 
-#import itertools
 
 from surface_tension3_plot import calc_angle_and_distance_to_hub, calc_contraction_force
 
@@ -72,8 +68,8 @@ class MatrixValencyLength():
 				self.ave_cos[j,i]    = ave_cos
 				self.pull_force[j,i] = contraction_force
 				self.pull_force_per_area[j,i] = contraction_force_per_area
-				
-				
+		
+		
 	def prepare_plot( self, title ):
 		# self.fig  = plt.figure(figsize=(5, 5))
 		self.fig  = plt.figure(figsize=(3.5, 3.5))
@@ -105,7 +101,7 @@ class MatrixValencyLength():
 		self.pull_force          = d['pull_force']
 		self.pull_force_per_area = d['pull_force_per_area']
 		
-	def plot_figures( self ):
+	def plot_phase_diagrams( self ):
 		
 		title    = 'Radiuses'
 		filename = 'Radiuses'
@@ -149,11 +145,61 @@ class MatrixValencyLength():
 		#plt.close(fig=self.fig)
 		
 		
+	def plot_logistic_regression( self ):
+		
+		filename = 'logistic_regression'
+		
+		# 0: Partial engulfment
+		# 1: PIPS
+		# 2: Others
+		
+		# 1, 2, 3, 4, 5, 6, 9
+		y = np.array( [\
+			[ 1, 1, 1, 0,  0, 0, 0], # 12
+			[ 1, 1, 1, 0,  0, 0, 0], # 10
+			[ 1, 1, 1, 0,  0, 0, 0], # 8
+			[ 1, 1, 1, 0,  0, 0, 0], # 6
+			]).T
+		x = self.pull_force_per_area[:,:4]
+		
+		print('y')
+		print(y)
+		print('x')
+		print(x)
+		
+		
+		x = x.reshape(-1, 1)
+		y = y.reshape(-1, 1)
+
+		model = utils_fitting.logistic_regression(x,y)
+
+
+		self.fig  = plt.figure(figsize=(3.5, 3.5))
+		self.fig.subplots_adjust(wspace=0.4,  hspace=0.4)
+		ax = self.fig.add_subplot( 1, 1, 1 )
+		ax.set_xlabel('Contraction force per area')
+		xmax = np.max(x)*1.1
+		xx = np.linspace(0.0,xmax,40).reshape(-1, 1)
+		ax.plot([0, xmax], [0,0], ':', color = (0.5,0.5,0.5))
+		ax.plot([0, xmax], [1,1], ':', color = (0.5,0.5,0.5))
+		ax.plot(x, y,'o', \
+			markersize = 4, \
+			color = 'k', \
+			markerfacecolor = 'k' )
+		ax.plot(xx, model.predict_proba(xx)[:,1], '-', color = (0.5,0.5,0.5))
+		ax.set_ylim([-0.1,1.1])
+		ax.set_xlim([   0,xmax])
+		ax.set_yticks([0,1])
+		ax.set_yticklabels(['Partial \n engulfment','PIPS'])
+		
+		self.save_a_fig( filename )
+		
+		
 if __name__ == '__main__':
 	
 	graph = MatrixValencyLength()
 	#graph.run_calc()
 	#graph.save_data()
 	graph.load_data()
-	graph.plot_figures()
-	
+	#graph.plot_phase_diagrams()
+	graph.plot_logistic_regression()

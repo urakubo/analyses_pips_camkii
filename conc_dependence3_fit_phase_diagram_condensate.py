@@ -73,6 +73,7 @@ def plot_fit_PIPS_partial_engulfment( fig, ax, title, ratios_connection ):
 	
 	pips = two_condensates * (partial_engulfment == 0)
 	
+	
 	x = ratios_connection.reshape(-1, 1)
 	y = pips.astype('int').reshape(-1, 1)
 	
