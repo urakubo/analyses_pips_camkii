@@ -125,6 +125,7 @@ class PlotProfiles(SpecDatasets):
 		
 		
 	def plot_a_dataset( self, filename ):
+		
 		# Load data
 		prefix = filename
 		suffix = 'sigma_2'
@@ -146,7 +147,7 @@ class PlotProfiles(SpecDatasets):
 if __name__ == '__main__':
 	
 	obj = PlotProfiles()
-	obj.valency_length() #  conc_dependence(), valency_length(), valency_length_CG(), boundary_conditions2()
+	obj.boundary_conditions2() #  conc_dependence(), valency_length(), valency_length_CG(), boundary_conditions2()
 	obj.run()
 	
 	

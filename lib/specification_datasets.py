@@ -52,8 +52,8 @@ class SpecDatasets():
 		
 	def boundary_conditions2( self ):
 		
-		self.filenames_edited = ['SPG1','SPG2','SPG3']
-		self.filenames_lammpstrj = [os.path.join('SPG', 'R{}_trj.lammpstrj'.format(i)) for i in [1,2,3]]
+		self.filenames_edited = ['SPG0','SPG1','SPG2','SPG3']
+		self.filenames_lammpstrj = [os.path.join('SPG', 'R{}_trj.lammpstrj'.format(i)) for i in [0,1,2,3]]
 		self.dir_target = 'boundary_conditions'
 		
 		
