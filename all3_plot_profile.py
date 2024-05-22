@@ -5,11 +5,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mpl_toolkits.axes_grid1
 
+from scipy import ndimage
+
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
+from lib.specification_datasets import SpecDatasets
 
-from scipy import ndimage
 
 
 plt.rcParams.update(p.rc_param)
@@ -104,65 +106,47 @@ def make_a_figure( d ):
 	return fig
 	
 	
-if __name__ == '__main__':
 	
-	# Datasets
-	
-	# Valency and linker length
-	'''
-	valencies = range(2,16,2)
-	lengths   = range(7)
-	filenames_edited_data = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in valencies for id_f in lengths ]
-	dir_target  = 'valency_length'
-	'''
-	
-	
-	# Conc dependence
-	'''
-	dir_target  = 'conc_dependence'
-	filenames_edited_data 	= [str(i).zfill(3) for i in range(81) ]
-	dir_target  = 'conc_dependence_0.33'
-	filenames_edited_data 	= [str(i).zfill(3) for i in range(9) ]
-	'''	
-	
-	dir_target  = 'conc_dependence_merged'
-	filenames_edited_data 	= [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in range(10) for glun2b in range(9)  ]
-	
-	
-	# Special conditions
-	'''
-	filenames_edited_data = ['CPG', 'SP', 'SPG','CG_000','CG_001','CG_002','CG_003'] 
-	dir_target  = 'special_conditions'
-	'''
-	
-	
-	# Valency and linker length of CG
-	filenames_edited_data = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
-	dir_target  = 'CG_valency_length'
-	# filenames_edited_data = [filenames_edited_data[7*5+2] , filenames_edited_data[7*5+6]]
-	
-	
-	# Shared init
-	dir_edited_data	= os.path.join('data4', dir_target)
-	dir_imgs = os.path.join('imgs4', dir_target,'profiles')
-	sigma = 2
-	os.makedirs(dir_imgs, exist_ok=True)
-	
-	
-	for filename in filenames_edited_data:
+class PlotProfiles(SpecDatasets):
+	def __init__( self ):
+		
+		pass
+		
+		
+	def run( self ):
+		
+		# Shared init
+		self.dir_edited_data	= os.path.join('data4', self.dir_target)
+		self.dir_imgs = os.path.join('imgs4', self.dir_target, 'profiles')
+		os.makedirs(self.dir_imgs, exist_ok=True)
+		
+		for filename in self.filenames_edited:
+			self.plot_a_dataset( filename )
+		
+		
+	def plot_a_dataset( self, filename ):
 		# Load data
 		prefix = filename
-		suffix = 'sigma_{}'.format(sigma)
-		print('Target: {}, sigma: {}'.format(filename, sigma))
-		d   = utils.load(dir_edited_data, prefix, suffix)
+		suffix = 'sigma_2'
+		print('Target: ', filename)
+		d   = utils.load(self.dir_edited_data, prefix, suffix)
 		
 		# Make figure
 		fig = make_a_figure(d)
 		
 		# Save figure
-		fig.savefig( os.path.join(dir_imgs, '{}_sigma_{}.svg'.format( filename, sigma ) ) )
-		fig.savefig( os.path.join(dir_imgs, '{}_sigma_{}.png'.format( filename, sigma ) ) , dpi=150)
+		fig.savefig( os.path.join(self.dir_imgs, '{}_sigma_2.svg'.format( filename ) ) )
+		fig.savefig( os.path.join(self.dir_imgs, '{}_sigma_2.png'.format( filename ) ) , dpi=150)
 		#plt.show()
 		plt.clf()
 		plt.close(fig=fig)
-
+	
+	
+	
+if __name__ == '__main__':
+	
+	obj = PlotProfiles()
+	obj.valency_length() #  conc_dependence(), valency_length(), valency_length_CG(), boundary_conditions2()
+	obj.run()
+	
+	

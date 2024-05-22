@@ -20,7 +20,7 @@ import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
 import lib.utils_ovito as utils_ovito
-import lib.utils_graph as utils_graph
+from lib.specification_datasets import SpecDatasets
 
 
 def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
@@ -29,11 +29,11 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 	data_all.modifiers.append( utils_ovito.FixBoundingbox() )
 	# Non boundary
 	cell_vis = data_all.source.data.cell.vis
-	cell_vis.render_cell = False
-	#cell_vis.line_width = 0.5
+	#cell_vis.render_cell = False
+	cell_vis.line_width = 0.5
 	##cell_vis.rendering_color = (1.0, 1.0, 1.0)
-
-
+	
+	
 	# Show particles only in the largest cluster.
 	'''
 	modifier_del     = utils_ovito.DeleteParticle()
@@ -43,13 +43,27 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 	'''
 	
 	
-	# Slice data
+	# Centering
 	'''
+	num_frames = data_all.source.num_frames
+	types, positions, ids_molecule = utils.decode_data(data_all.compute(num_frames))
+	center = utils.get_center_of_mass(types, positions)
+	for dim in [0,1,2]:
+		center[dim] += - p.space[dim] * (center[dim]  >=  p.space[dim]) + p.space[dim] * (center[dim]  <  0)
+	
+	modifier = utils_ovito.CenteringModifier()
+	modifier.center = center
+	data_all.modifiers.append(modifier)	
+	'''
+	
+	
+	# Slice data
+	#'''
 	modifier = SliceModifier()
 	modifier.normal   = (1.0, 0.0, 0.0)
 	modifier.distance = 60
 	data_all.modifiers.append(modifier)
-	'''
+	#'''
 	
 	
 	for k, v in p.molecules_without_all.items():
@@ -76,62 +90,43 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 
 	# Scale bar
 	# https://ovito.org/manual/python/introduction/examples/overlays/scale_bar.html
-
+	
+		
+class Plot3dOvito(SpecDatasets):
+	def __init__( self ):
+		
+		pass
+		
+		
+	def inspect( self ):
+		for i, (f_lammpstrj, f_edited) in enumerate( zip(self.filenames_lammpstrj, self.filenames_edited) ):
+			print('ID {}: {}, {}'.format(i, f_lammpstrj, f_edited))
+		
+		
+	def run( self, i ):
+		
+		##
+		dir_lammpstrj   = os.path.join('..'   , 'lammpstrj4', self.dir_target)
+		dir_imgs        = os.path.join('imgs4', self.dir_target, 'profiles_3d_ovito' )
+		os.makedirs(dir_imgs, exist_ok=True)
+		##
+		
+		
+		sampling_frame = utils.get_num_frames(dir_lammpstrj, self.filenames_lammpstrj[i])
+		data_all   = import_file(os.path.join(dir_lammpstrj, self.filenames_lammpstrj[i]), input_format= "lammps/dump" )
+		plot_snapshots(data_all, sampling_frame, dir_imgs, self.filenames_edited[i])
+		print('filename_input: ', self.filenames_lammpstrj[i])
+		print('sampling_frame: ', sampling_frame )
+		
+		
 if __name__ == '__main__':
 	
 	# I manually ran each one of them,
 	# because I do not know how to fully reset the ovito visualization system.
-	'''
-	i = 6
-	# Special conditions
-	filenames_output 	= ['CPG', 'SP', 'SPG', 'CG_000','CG_001','CG_002','CG_003']
-	filenames_lammpstrj = [os.path.join('CPG','R2_000.lammpstrj'), \
-						os.path.join('SP','R2_000.lammpstrj'), \
-						os.path.join('SPG','R2_000.lammpstrj'), \
-						os.path.join('binary_CG','R2_000.lammpstrj'), \
-						os.path.join('binary_CG','R2_001.lammpstrj'), \
-						os.path.join('binary_CG','R2_002.lammpstrj'), \
-						os.path.join('binary_CG','R2_003.lammpstrj') \
-						]
-	dir_target     = 'special_conditions'
-	dir_lammpstrj  = '.'
-	'''
 	
-	
-	## Conc dependence
-	'''
-	filenames_output    = [str(i).zfill(3) for i in range(81) ]
-	filenames_lammpstrj = ['R2_{}.lammpstrj'.format(f) for f in filenames_output ]
-	dir_lammpstrj    = 'conc_dependence'
-	dir_target       = 'conc_dependence'
-	i = 9*6+4
-	'''
-	
-	## CG valency dependence
-	#'''
-	subdirs    = ['val{}'.format(i) for i in range(2,14,2)]
-	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
-	filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
-	filenames_output    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
-	dir_lammpstrj = 'CG_valency_length'
-	dir_target    = 'CG_valency_length'
-	i = 7*5+2 # '12_002'
-	i = 7*5+6 # '12_006'
-	#'''
-	
-	
-	##
-	dir_lammpstrj   = os.path.join('..'   , 'lammpstrj4',dir_lammpstrj)
-	dir_imgs        = os.path.join('imgs4', dir_target, 'profiles_3d_ovito' )
-	os.makedirs(dir_imgs, exist_ok=True)
-	##
-	
-	
-	sampling_frame = utils.get_num_frames(dir_lammpstrj, filenames_lammpstrj[i])
-	data_all   = import_file(os.path.join(dir_lammpstrj, filenames_lammpstrj[i]), input_format= "lammps/dump" )
-	plot_snapshots(data_all, sampling_frame, dir_imgs, filenames_output[i])
-	print('filename_input: ', filenames_lammpstrj[i])
-	print('sampling_frame: ', sampling_frame )
-	
+	obj = Plot3dOvito()
+	obj.boundary_conditions2() #  conc_dependence(), valency_length(), valency_length_CG(), boundary_conditions2()
+	# obj.inspect()
+	obj.run(1)
 	
 	

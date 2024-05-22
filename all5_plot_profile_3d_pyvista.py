@@ -2,11 +2,11 @@
 import os, glob, pickle, pprint, copy
 import numpy as np
 
+import pyvista
+
 import lib.utils as utils
 import lib.utils_pyvista as utils_pyvista
-
-
-import pyvista
+from lib.specification_datasets import SpecDatasets
 
 
 
@@ -37,43 +37,41 @@ def save_a_plot(d, dir_img, prefix, suffix):
 	
 	#pl.show(interactive=True, auto_close=False) 
 	pl.show(interactive=False, auto_close=True) # off_screen = True
-	filename = os.path.join(dir_imgs, '{}_{}.png'.format(prefix, suffix))
+	filename = os.path.join(dir_img, '{}_{}.png'.format(prefix, suffix))
 	pl.screenshot(filename)
 	
+	
+class Plot3dPyvista(SpecDatasets):
+	def __init__( self ):
+		
+		pass
+		
+		
+	def run( self ):
+		
+		# Shared init
+		self.dir_edited_data	= os.path.join('data4', self.dir_target)
+		self.dir_imgs = os.path.join('imgs4', self.dir_target, 'profiles_3d_pyvista')
+		os.makedirs(self.dir_imgs, exist_ok=True)
+		
+		for filename in self.filenames_edited:
+			self.plot_a_dataset( filename )
+		
+		
+	def plot_a_dataset( self, filename ):
+		
+		# Load data
+		print('Target: ', filename)
+		prefix = filename
+		suffix = 'sigma_2'
+		d      = utils.load(self.dir_edited_data, prefix, suffix)
+		save_a_plot(d, self.dir_imgs, prefix, suffix)
 	
 	
 if __name__ == '__main__':
 	
-	# Conc dependence
-	'''
-	dir_target = 'conc_dependence'
-	filenames_edited_data 	= [str(i).zfill(3) for i in range(81) ]
-	'''
-	
-	dir_target  = 'conc_dependence_merged'
-	filenames_edited_data 	= [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in range(10) for glun2b in range(9)  ]
-	
-	
-	# Valency-length
-	'''
-	valencies = range(2,16,2)
-	lengths   = range(7)
-	filenames_edited_data = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in valencies for id_f in lengths ]
-	dir_target  = 'valency_length'
-	'''
-	
-	# 
-	dir_edited_data 		= os.path.join('data4', dir_target)
-	dir_imgs = os.path.join('imgs4', dir_target,'profiles_3d_pyvista')
-	os.makedirs(dir_imgs, exist_ok=True)
-	
-	sigma = 2
-	for filename in filenames_edited_data:
-		# Load data
-		prefix = filename
-		suffix = 'sigma_{}'.format(sigma)
-		d      = utils.load(dir_edited_data, prefix, suffix)	
-		print('Target: {}, sigma: {}'.format(filename, sigma))
-		save_a_plot(d, dir_imgs, prefix, suffix)
+	obj = Plot3dPyvista()
+	obj.conc_dependence_merged() #  conc_dependence(), valency_length(), valency_length_CG(), boundary_conditions2()
+	obj.run()
 	
 	

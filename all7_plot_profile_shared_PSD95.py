@@ -10,13 +10,14 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.axes_grid1
 
 
+from scipy import ndimage
+import networkx as nx
+
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
+from lib.specification_datasets import SpecDatasets
 
-from scipy import ndimage
-
-import networkx as nx
 
 
 plt.rcParams.update(p.rc_param)
@@ -105,33 +106,34 @@ def calc_concs_PSD95_shared_by_STG_GluN2B(dir_lammpstrj, filename_lammpstrj, ids
 		d['concs_in_grid_mesh'][m] = conc_in_grid_mesh
 	
 	return d
-	
-	
-if __name__ == '__main__':
-	
-	
-	
-	# Conc dependence
-	dir_target  = 'conc_dependence_merged'
-	filenames_edited_data 	= [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in range(10) for glun2b in range(9) ]
-	'''
-	filenames_edited_data = [str(i).zfill(3) for i in range(9) ]
-	dir_target  = 'conc_dependence_0.33'
-	'''
-	# Shared init
-	dir_edited_data	= os.path.join('data4', dir_target)
-	dir_imgs = os.path.join('imgs4', dir_target, 'profiles_shared_PSD95')
-	filename_suffix_edited = 'sigma_2'
-	filename_suffix_graph  = 'connectivity_graph'
-	os.makedirs(dir_imgs, exist_ok=True)
-	
-	
-	
-	
-	for filename in filenames_edited_data:
+
+
+
+class PlotProfilesSharedPSD95(SpecDatasets):
+	def __init__( self ):
+		
+		pass
+		
+		
+	def run( self ):
+		
+		# Shared init
+		self.dir_edited_data	= os.path.join('data4', self.dir_target)
+		self.dir_lammpstrj   = os.path.join('..', 'lammpstrj4', self.dir_target)
+		self.dir_imgs = os.path.join('imgs4', self.dir_target, 'profiles_shared_PSD95')
+		os.makedirs(self.dir_imgs, exist_ok=True)
+		print('Img dir: ', self.dir_imgs)
+		
+		for filename in self.filenames_edited:
+			self.plot_a_dataset( filename )
+		
+		
+	def plot_a_dataset( self, filename ):
 		
 		# Load graph
-		d_graph = utils.load(dir_edited_data, filename, filename_suffix_graph)
+		filename_suffix_edited = 'sigma_2'
+		filename_suffix_graph  = 'connectivity_graph'
+		d_graph = utils.load(self.dir_edited_data, filename, filename_suffix_graph)
 		
 		multi_graph         = d_graph['multi_graph']
 		dir_lammpstrj       = d_graph['dir_lammpstrj']
@@ -141,20 +143,17 @@ if __name__ == '__main__':
 		
 		# Calc the conc of shared PSD95
 		d = calc_concs_PSD95_shared_by_STG_GluN2B(\
-			dir_lammpstrj, \
+			self.dir_lammpstrj, \
 			filename_lammpstrj, \
 			ids_bead_shared_PSD)
 		
 		
 		# RDF
 		rdf, rdf_bins, rdf_sampling_frames = \
-			utils.get_rdfs( dir_lammpstrj, filename_lammpstrj, sampling_frame, multi_graph = multi_graph )
+			utils.get_rdfs( self.dir_lammpstrj, filename_lammpstrj, sampling_frame, multi_graph = multi_graph )
 		d['rdf_PSD95_bins'] = rdf_bins
 		d['rdf_PSD95_sampling_frames'] = rdf_sampling_frames
 		d['rdf_PSD95'] = rdf
-		
-		
-		print('Target: {}, suffix: {}'.format(filename, filename_suffix_edited))
 		
 		
 		# Make figure
@@ -162,12 +161,17 @@ if __name__ == '__main__':
 		
 		
 		# Save figure
-		print(dir_imgs)
-		fig.savefig( os.path.join(dir_imgs, filename+'.svg' ) )
-		fig.savefig( os.path.join(dir_imgs, filename+'.png' ) , dpi=150)
+		fig.savefig( os.path.join(self.dir_imgs, filename+'.svg' ) )
+		fig.savefig( os.path.join(self.dir_imgs, filename+'.png' ) , dpi=150)
 		#plt.show()
 		plt.clf()
 		plt.close(fig=fig)
-
+	
+	
+if __name__ == '__main__':
+	
+	obj = PlotProfilesSharedPSD95()
+	obj.valency_length() #  conc_dependence(), valency_length(), valency_length_CG(), boundary_conditions2()
+	obj.run()
 	
 	
