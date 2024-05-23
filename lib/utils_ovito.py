@@ -1,8 +1,9 @@
 
 import numpy as np
-from ovito.pipeline import ModifierInterface
-from ovito.data import DataCollection
 import networkx as nx
+
+from ovito.pipeline import ModifierInterface, Pipeline, StaticSource
+from ovito.data import DataCollection, ParticleType
 
 import lib.utils as utils
 import lib.parameters as p
@@ -102,6 +103,31 @@ class FixBoundingbox(ModifierInterface):
 		# Assign the cell matrix - or create whole new SimulationCell object in
 		# the DataCollection if there isn't one already.
 		data.create_cell(matrix, (False, False, False))
+
+
+def add_sphere_yellow(center, rm):
+	
+	print('center: ', center)
+	#loc_ = (120,120,120) #12_002 colony 2
+	#loc_ = (0,0,120) #12_006 colony 3
+	data_photobleach = DataCollection()
+	particles = data_photobleach.create_particles()
+	#pos = [(center[0]+120, center[1]+120+rm, center[2]+120)]
+	for dim in [0,1,2]:
+		if center[dim]  >=  p.space[dim]:
+			center[dim] -= p.space[dim]
+		elif center[dim]  <  0:
+			center[dim] += p.space[dim]
+	print('center: ', center)
+	pos = [(center[0], center[1]+rm, center[2])]
+	pos_prop  = particles.create_property('Position', data=pos)
+	type_prop = particles.create_property('Particle Type')
+	type_prop.types.append(ParticleType(id = 1, name = 'Photobleach', color = (1.0,1.0,0.0), radius=rm))
+	type_prop[0] = 1
+	particles.create_property('Transparency', data=0.6)
+	pipeline = Pipeline(source = StaticSource(data = data_photobleach))
+	return pipeline
+	
 
 '''
 line_vis = data_all.source.data.line.vis

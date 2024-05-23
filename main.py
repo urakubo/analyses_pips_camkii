@@ -7,6 +7,9 @@ from bin.all5_plot_profile_3d_pyvista import Plot3dPyvista
 from bin.all6_plot_profile_shared_PSD95 import PlotProfilesSharedPSD95
 from bin.all7_plot_video_3d_ovito import MakeOvitoVideo
 
+from bin.valency_length_CG3_plot_FRAP_video_3d_ovito import MakeOvitoVideoFRAP
+
+
 '''
 obj = EditData()
 obj.inhibitor() #  conc_dependence(), valency_length(), valency_length_CG(), inhibitor()
@@ -35,11 +38,23 @@ obj = PlotProfilesSharedPSD95()
 obj.valency_length() #  conc_dependence(), valency_length(), valency_length_CG(), boundary_conditions2()
 obj.run()
 
-'''
 
 obj = MakeOvitoVideo()
 obj.boundary_conditions2()
 obj.inspect()
 obj.run(3)
 obj.make_a_video(3)
+'''
+
+
+target_molecule = 'CaMKII' # 'CaMKII', 'GluN2B', 'Both'
+obj = MakeOvitoVideoFRAP()
+#obj.valency_length_small_colony2()
+#obj.inspect()
+obj.valency_length_small_colony3()
+i = 7*5+6 # val_12\R2_006
+i = 7*5+2 # val_12\R2_006
+obj.run(i, target_molecule)
+obj.make_a_video(i)
+
 

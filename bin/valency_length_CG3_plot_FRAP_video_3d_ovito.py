@@ -4,10 +4,6 @@ import os, sys, glob, pprint,itertools, shutil
 import numpy as np
 os.environ['OVITO_GUI_MODE'] = '1' # Request a session with OpenGL support
 
-import networkx as nx
-import matplotlib.pyplot as plt
-
-
 import subprocess as s
 
 
@@ -16,7 +12,7 @@ from ovito.modifiers import SliceModifier, SelectTypeModifier, AssignColorModifi
 from ovito.vis import Viewport, TextLabelOverlay, OpenGLRenderer
 from ovito.pipeline import Pipeline, StaticSource
 from ovito.qt_compat import QtCore
-from ovito.data import DataCollection, ParticleType
+from ovito.data import DataCollection
 
 
 import lib.utils as utils
@@ -25,6 +21,7 @@ import lib.colormap as c
 import lib.utils_graph as utils_graph
 import lib.utils_ovito as utils_ovito
 
+from specification_datasets import SpecDatasets
 
 
 rm = 15
@@ -35,38 +32,14 @@ def get_molecular_ids_in_unbleached_area(position):
 	return ids_unbleached_moleules
 	
 	
-def add_sphere_yellow(center):
 	
-	print('center: ', center)
-	#loc_ = (120,120,120) #12_002 colony 2
-	#loc_ = (0,0,120) #12_006 colony 3
-	data_photobleach = DataCollection()
-	particles = data_photobleach.create_particles()
-	#pos = [(center[0]+120, center[1]+120+rm, center[2]+120)]
-	for dim in [0,1,2]:
-		if center[dim]  >=  p.space[dim]:
-			center[dim] -= p.space[dim]
-		elif center[dim]  <  0:
-			center[dim] += p.space[dim]
-	print('center: ', center)
-	pos = [(center[0], center[1]+rm, center[2])]
-	pos_prop  = particles.create_property('Position', data=pos)
-	type_prop = particles.create_property('Particle Type')
-	type_prop.types.append(ParticleType(id = 1, name = 'Photobleach', color = (1.0,1.0,0.0), radius=rm))
-	type_prop[0] = 1
-	particles.create_property('Transparency', data=0.6)
-	pipeline = Pipeline(source = StaticSource(data = data_photobleach))
-	return pipeline
-	
-	
-def plot_snapshots(data_all, dir_edited_data, dir_imgs, filename_edited, \
+def plot_snapshots(data_all, dir_edited_data, dir_imgs, \
 		frame_num_after_photobleach  = 300, \
 		frame_num_before_photobleach = 10, \
 		num_skip_frames_for_sampling = 1, \
 		target_molecule = 'Both'
 		):
 	
-	# Create the data collection containing a Particles object:
 	
 	# Time frames
 	num_frames = data_all.source.num_frames
@@ -91,22 +64,31 @@ def plot_snapshots(data_all, dir_edited_data, dir_imgs, filename_edited, \
 	vp.camera_pos = (850, 60, 60)
 	vp.camera_dir = (-1, 0, 0)
 	
+	data_all.add_to_scene()	
+	
 	i        = 0
 	f_bleach = 0
 	for target_frame, target_time in zip(target_frames, time_steps):
 		print('Time frame: ', target_frame, ', Time: ', target_time)
+		
+		if target_molecule == 'Both':
+			ids_bead_cluster = utils_ovito.get_beads_in_largest_cluster(data_all, target_frame)
+		elif target_molecule == 'CaMKII':
+			ids_bead_cluster = utils_ovito.get_CaMKII_beads_in_largest_cluster(data_all, target_frame)
+		elif target_molecule == 'GluN2B':
+			ids_bead_cluster = utils_ovito.get_GluN2B_beads_in_largest_cluster(data_all, target_frame)
 
-		#ids_bead_cluster = utils_ovito.get_beads_in_largest_cluster(data_all, target_frame)
-		ids_bead_cluster = utils_ovito.get_CaMKII_beads_in_largest_cluster(data_all, target_frame)
-	
 		# Photobleach
 		if (target_frame >= frame_photobleach) and (f_bleach == 0):
+			data   = data_all.compute(target_frame)
+			types, positions, ids_molecule = utils.decode_data(data)
+			
 			center    = utils.get_center_of_mass(types, positions)
 			position_centered = utils.centering(positions, center)
 			unbleached_moleules     = get_molecular_ids_in_unbleached_area(position_centered)
 			ids_unbleached_moleules = set( np.flatnonzero(unbleached_moleules) )
 			
-			pipeline = add_sphere_yellow(center)
+			pipeline = utils_ovito.add_sphere_yellow(center, rm)
 			pipeline.add_to_scene()
 			print('Photo bleach')
 			f_bleach += 1
@@ -123,8 +105,8 @@ def plot_snapshots(data_all, dir_edited_data, dir_imgs, filename_edited, \
 		modifier_del.ids = ids_bead_cluster
 		data_all.modifiers.append(modifier_del)
 		
-		data   = data_all.compute()
-		data_all.add_to_scene()	
+		#data   = data_all.compute()
+		#data_all.add_to_scene()	
 		
 		
 		# Set time
@@ -134,7 +116,7 @@ def plot_snapshots(data_all, dir_edited_data, dir_imgs, filename_edited, \
 		timelabel.alignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom
 		vp.overlays.append(timelabel)
 		
-		filename = os.path.join(dir_imgs, filename_edited+'_{}.png'.format( str(i).zfill(4)) )
+		filename = os.path.join(dir_imgs, '{}.png'.format( str(i).zfill(4)) )
 		print( filename )
 		i += 1
 		vp.render_image(size=(800,800), filename=filename, background=(1,1,1),frame=target_frame, renderer=OpenGLRenderer())
@@ -144,77 +126,82 @@ def plot_snapshots(data_all, dir_edited_data, dir_imgs, filename_edited, \
 	return
 	
 	
+class MakeOvitoVideoFRAP(SpecDatasets):
+	
+	def __init__( self ):
+		
+		self.frame_num_after_photobleach  = 300
+		self.frame_num_before_photobleach = 10
+		self.num_skip_frames_for_sampling = 1
+		
+		
+	def inspect( self ):
+		for i, (f_lammpstrj, f_edited) in enumerate( zip(self.filenames_lammpstrj, self.filenames_edited) ):
+			print('ID {}: {}, {}'.format(i, f_lammpstrj, f_edited))
+		
+		
+	def run( self, i, target_molecule = 'CaMKII' ):
+		
+		print('\nID {}: {}, {}'.format(i, self.filenames_lammpstrj[i], self.filenames_edited[i]))
+		# Shared init
+		
+		self.dir_imgs         = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
+		os.makedirs(self.dir_imgs, exist_ok=True)
+		
+		# Load lammpstrj file.
+		data_all = import_file(os.path.join(self.dir_lammpstrj, self.filenames_lammpstrj[i]), input_format= "lammps/dump" )
+		
+		# Make images
+		plot_snapshots(data_all, self.dir_edited_data, self.dir_imgs, \
+			self.frame_num_after_photobleach,  
+			self.frame_num_before_photobleach, 
+			self.num_skip_frames_for_sampling, 
+			target_molecule = target_molecule
+			)
+		
+		
+	def make_a_video( self, i ):
+		
+		dir_videos    = os.path.join( self.dir_imgs_root, 'movies_FRAP' )
+		self.dir_imgs = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
+		os.makedirs(dir_videos, exist_ok=True)
+		
+		ffname = os.path.join( self.dir_imgs, '%04d.png' )
+		targ_name = os.path.join(dir_videos,'{}.mp4'.format( self.filenames_edited[i] ) )
+		com = ['ffmpeg','-r', '5', \
+			'-i', ffname,\
+			'-vf','scale=trunc(iw/2)*2:trunc(ih/2)*2',\
+			'-pix_fmt', 'yuv420p', targ_name, '-y']
+		print(' '.join(com))
+		s.call(com)
+	
+	
 	
 if __name__ == '__main__':
 	
 	
 	# Small colony 2
-	dir_target  = 'small_colony2'
-	frame_num_after_photobleach  = 300
-	frame_num_before_photobleach = 10
-	num_skip_frames_for_sampling = 1
+	obj = MakeOvitoVideoFRAP()
+	obj.valency_length_small_colony2()
+	obj.inspect()
 	i = 7*5+2 # val_12\R2_002
-	
-	#'''
-	# Small colony 3
-	dir_target  = 'small_colony3'
-	frame_num_after_photobleach  = 300
-	frame_num_before_photobleach = 10
-	num_skip_frames_for_sampling = 1
-	i = 7*5+6 # val_12\R2_006
-	#'''
-	
-	
-	dir_target  = 'small_colony3'
-	frame_num_after_photobleach  = 300
-	frame_num_before_photobleach = 10
-	num_skip_frames_for_sampling = 1
-	i = 7*5+2 # val_12\R2_006
-	
 	target_molecule = 'CaMKII' # 'CaMKII', 'GluN2B', 'Both'
 	
-	
-	# Shared init
-	subdirs    = ['val_{}'.format(i) for i in range(2,14,2)]
-	filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
-	filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
-	filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7)]
-	
-	filename_lammpstrj = filenames_lammpstrj[i]
-	filename_edited    = filenames_edited[i]
-	
-	dir_lammpstrj    = os.path.join('..','lammpstrj4', dir_target)
-	dir_edited_data  = os.path.join('data4', dir_target)
-	dir_imgs         = os.path.join('imgs4', dir_target, 'FRAP_imgs_for_movie',filename_edited+'_'+target_molecule)
-	dir_videos       = os.path.join('imgs4', dir_target, 'FRAP_movie')
-	
-	os.makedirs(dir_imgs, exist_ok=True)
-	os.makedirs(dir_videos, exist_ok=True)
+	obj.run(i, target_molecule)
+	obj.make_a_video(i)
 	
 	
-	# Load connect_graph.
-	data_all = import_file(os.path.join(dir_lammpstrj, filename_lammpstrj), input_format= "lammps/dump" )
+	'''
+	# Small colony 3
+	dir_target  = 'small_colony3'
+	i = 7*5+6 # val_12\R2_006
+	i = 7*5+2 # val_12\R2_006
 	
-	
-	# Make images
-	plot_snapshots(data_all, dir_edited_data, dir_imgs, filename_edited, \
-		frame_num_after_photobleach,  
-		frame_num_before_photobleach, 
-		num_skip_frames_for_sampling, 
-		target_molecule = target_molecule
-		)
-	
-	# Save a video
-	ffname = os.path.join(dir_imgs, '{}_%04d.png'.format(filename_edited))
-	targ_name = os.path.join(dir_videos,'{}.mp4'.format(filename_edited) )
-	com = ['ffmpeg','-r', '5', \
-		'-i', ffname,\
-		'-vf','scale=trunc(iw/2)*2:trunc(ih/2)*2',\
-		'-pix_fmt', 'yuv420p', targ_name, '-y']
-	print(' '.join(com))
-	s.call(com)
+	'''
 	
 	
 	
-	#if os.path.isdir(dir_imgs):
-	#	shutil.rmtree(dir_imgs)
+	
+#if os.path.isdir(dir_imgs):
+#	shutil.rmtree(dir_imgs)
+

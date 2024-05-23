@@ -117,7 +117,7 @@ class MakeOvitoVideo(SpecDatasets):
 		
 	def run( self, i ):
 		
-		print('ID: ', i)
+		print('\n ID {}: {}, {}'.format(i, self.filenames_lammpstrj[i], self.filenames_edited[i]))
 		# Shared init
 		
 		self.dir_imgs         = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )

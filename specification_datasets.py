@@ -15,6 +15,32 @@ class SpecDatasets():
 		self.dir_imgs_root    = os.path.join( 'imgs4', dir_target )
 		os.makedirs(self.dir_edited_data, exist_ok=True)
 		
+				
+	def valency_length_small_colony2( self ):
+		
+		valencies = range(2,14,2)
+		lengths   = range(7)
+		subdirs    = ['val_{}'.format(i) for i in valencies]
+		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in lengths]
+		self.filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
+		self.filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in valencies for id_f in lengths]
+		
+		dir_target       = 'small_colony2'
+		self._shared( dir_target )
+		
+		
+	def valency_length_small_colony3( self ):
+		
+		valencies = range(2,14,2)
+		lengths   = range(7)
+		subdirs    = ['val_{}'.format(i) for i in valencies]
+		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in lengths]
+		self.filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
+		self.filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in valencies for id_f in lengths]
+		
+		dir_target       = 'small_colony3'
+		self._shared( dir_target )
+		
 		
 	def valency_length( self ):
 		
