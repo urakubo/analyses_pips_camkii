@@ -6,7 +6,7 @@ import pyvista
 
 import lib.utils as utils
 import lib.utils_pyvista as utils_pyvista
-from lib.specification_datasets import SpecDatasets
+from specification_datasets import SpecDatasets
 
 
 
@@ -50,8 +50,7 @@ class Plot3dPyvista(SpecDatasets):
 	def run( self ):
 		
 		# Shared init
-		self.dir_edited_data	= os.path.join('data4', self.dir_target)
-		self.dir_imgs = os.path.join('imgs4', self.dir_target, 'profiles_3d_pyvista')
+		self.dir_imgs = os.path.join(self.dir_imgs_root, 'profiles_3d_pyvista' )
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		
 		for filename in self.filenames_edited:

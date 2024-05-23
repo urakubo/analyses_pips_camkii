@@ -10,7 +10,7 @@ from scipy import ndimage
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
-from lib.specification_datasets import SpecDatasets
+from specification_datasets import SpecDatasets
 
 
 
@@ -27,7 +27,7 @@ def arrange_graph_bar(ax, panel_dx, y0, panel_size_x, panel_size_y):
 	ax.set_position([loc.x0+panel_dx, y0, panel_size_x, panel_size_y])
 	
 	
-def make_a_figure( d ):
+def plot_a_figure( d ):
 	
 	# Parameters
 	#vmax       = 0.7
@@ -116,15 +116,15 @@ class PlotProfiles(SpecDatasets):
 	def run( self ):
 		
 		# Shared init
-		self.dir_edited_data	= os.path.join('data4', self.dir_target)
-		self.dir_imgs = os.path.join('imgs4', self.dir_target, 'profiles')
+		self.dir_imgs = os.path.join(self.dir_imgs_root, 'profiles')
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		
 		for filename in self.filenames_edited:
-			self.plot_a_dataset( filename )
+			fig = self.make_a_figure( filename )
+			self.save_a_figure( fig, filename )
 		
 		
-	def plot_a_dataset( self, filename ):
+	def make_a_figure( self, filename ):
 		
 		# Load data
 		prefix = filename
@@ -133,8 +133,10 @@ class PlotProfiles(SpecDatasets):
 		d   = utils.load(self.dir_edited_data, prefix, suffix)
 		
 		# Make figure
-		fig = make_a_figure(d)
+		fig = plot_a_figure(d)
 		
+		
+	def save_a_figure( self, fig, filename ):
 		# Save figure
 		fig.savefig( os.path.join(self.dir_imgs, '{}_sigma_2.svg'.format( filename ) ) )
 		fig.savefig( os.path.join(self.dir_imgs, '{}_sigma_2.png'.format( filename ) ) , dpi=150)
@@ -147,7 +149,7 @@ class PlotProfiles(SpecDatasets):
 if __name__ == '__main__':
 	
 	obj = PlotProfiles()
-	obj.boundary_conditions2() #  conc_dependence(), valency_length(), valency_length_CG(), boundary_conditions2()
+	obj.inhibitor()  #  conc_dependence(), valency_length(), valency_length_CG(), boundary_conditions2()
 	obj.run()
 	
 	

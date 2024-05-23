@@ -20,7 +20,7 @@ import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
 import lib.utils_ovito as utils_ovito
-from lib.specification_datasets import SpecDatasets
+from specification_datasets import SpecDatasets
 
 
 def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
@@ -105,15 +105,12 @@ class Plot3dOvito(SpecDatasets):
 		
 	def run( self, i ):
 		
-		##
-		dir_lammpstrj   = os.path.join('..'   , 'lammpstrj4', self.dir_target)
-		dir_imgs        = os.path.join('imgs4', self.dir_target, 'profiles_3d_ovito' )
+		dir_imgs = os.path.join(self.dir_imgs_root, 'profiles_3d_ovito' )
 		os.makedirs(dir_imgs, exist_ok=True)
-		##
 		
 		
-		sampling_frame = utils.get_num_frames(dir_lammpstrj, self.filenames_lammpstrj[i])
-		data_all   = import_file(os.path.join(dir_lammpstrj, self.filenames_lammpstrj[i]), input_format= "lammps/dump" )
+		sampling_frame = utils.get_num_frames(self.dir_lammpstrj, self.filenames_lammpstrj[i])
+		data_all   = import_file(os.path.join(self.dir_lammpstrj, self.filenames_lammpstrj[i]), input_format= "lammps/dump" )
 		plot_snapshots(data_all, sampling_frame, dir_imgs, self.filenames_edited[i])
 		print('filename_input: ', self.filenames_lammpstrj[i])
 		print('sampling_frame: ', sampling_frame )

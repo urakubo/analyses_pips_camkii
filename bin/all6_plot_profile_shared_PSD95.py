@@ -16,12 +16,11 @@ import networkx as nx
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
-from lib.specification_datasets import SpecDatasets
+from specification_datasets import SpecDatasets
 
 
 
 plt.rcParams.update(p.rc_param)
-		
 	
 	
 def arrange_graph_bar(ax, panel_dx, y0, panel_size_x, panel_size_y):
@@ -34,7 +33,7 @@ def arrange_graph_bar(ax, panel_dx, y0, panel_size_x, panel_size_y):
 	ax.set_position([loc.x0+panel_dx, y0, panel_size_x, panel_size_y])
 	
 	
-def make_a_figure( d ):
+def plot_a_figure( d ):
 	
 	# Parameters
 	vmax       = 0.7
@@ -106,9 +105,9 @@ def calc_concs_PSD95_shared_by_STG_GluN2B(dir_lammpstrj, filename_lammpstrj, ids
 		d['concs_in_grid_mesh'][m] = conc_in_grid_mesh
 	
 	return d
-
-
-
+	
+	
+	
 class PlotProfilesSharedPSD95(SpecDatasets):
 	def __init__( self ):
 		
@@ -118,17 +117,16 @@ class PlotProfilesSharedPSD95(SpecDatasets):
 	def run( self ):
 		
 		# Shared init
-		self.dir_edited_data	= os.path.join('data4', self.dir_target)
-		self.dir_lammpstrj   = os.path.join('..', 'lammpstrj4', self.dir_target)
-		self.dir_imgs = os.path.join('imgs4', self.dir_target, 'profiles_shared_PSD95')
+		self.dir_imgs = os.path.join(self.dir_imgs_root, 'profiles_shared_PSD95')
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		print('Img dir: ', self.dir_imgs)
 		
 		for filename in self.filenames_edited:
-			self.plot_a_dataset( filename )
+			fig = self.make_a_figure( filename )
+			self.save_a_figure( fig, filename )
 		
 		
-	def plot_a_dataset( self, filename ):
+	def make_a_figure( self, filename ):
 		
 		# Load graph
 		filename_suffix_edited = 'sigma_2'
@@ -157,17 +155,18 @@ class PlotProfilesSharedPSD95(SpecDatasets):
 		
 		
 		# Make figure
-		fig = make_a_figure(d)
+		return plot_a_figure(d)
 		
 		
+	def save_a_figure( self, fig, filename ):
 		# Save figure
 		fig.savefig( os.path.join(self.dir_imgs, filename+'.svg' ) )
 		fig.savefig( os.path.join(self.dir_imgs, filename+'.png' ) , dpi=150)
 		#plt.show()
 		plt.clf()
 		plt.close(fig=fig)
-	
-	
+		
+		
 if __name__ == '__main__':
 	
 	obj = PlotProfilesSharedPSD95()

@@ -5,7 +5,7 @@ import numpy as np
 
 import lib.utils as utils
 import lib.utils_graph as utils_graph
-from lib.specification_datasets import SpecDatasets
+from specification_datasets import SpecDatasets
 
 
 class EditConnectivityGraph(SpecDatasets):
@@ -14,10 +14,6 @@ class EditConnectivityGraph(SpecDatasets):
 		
 		
 	def run( self ):
-		
-		self.dir_lammpstrj    = os.path.join('..', 'lammpstrj4', self.dir_target)
-		self.dir_edited_data  = os.path.join('data4', self.dir_target)
-		os.makedirs(self.dir_edited_data, exist_ok=True)
 		
 		for filename_input, filename_output in zip(self.filenames_lammpstrj, self.filenames_edited):
 			self.edit_a_dataset( filename_input, filename_output )

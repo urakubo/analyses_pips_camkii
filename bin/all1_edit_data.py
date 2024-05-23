@@ -4,7 +4,7 @@ import numpy as np
 
 import lib.utils as utils
 import lib.parameters as p
-from lib.specification_datasets import SpecDatasets
+from specification_datasets import SpecDatasets
 
 
 
@@ -16,9 +16,6 @@ class EditData(SpecDatasets):
 		
 	def run( self ):
 		
-		self.dir_lammpstrj    = os.path.join('..', 'lammpstrj4', self.dir_target)
-		self.dir_edited_data  = os.path.join('data4',self.dir_target)
-		os.makedirs(self.dir_edited_data, exist_ok=True)
 		
 		for filename_input, filename_output in zip(self.filenames_lammpstrj, self.filenames_edited):
 			self.edit_a_dataset( filename_input, filename_output )
@@ -72,7 +69,7 @@ class EditData(SpecDatasets):
 if __name__ == '__main__':
 	
 	obj = EditData()
-	obj.boundary_conditions2() #  conc_dependence(), valency_length(), valency_length_CG()
+	obj.inhibitor() #  conc_dependence(), valency_length(), valency_length_CG(), inhibitor()
 	obj.run()
 	
 	
