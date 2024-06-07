@@ -71,7 +71,7 @@ class EditConnectivityGraph(SpecDatasets):
 		suffix = 'connectivity_graph'
 		utils.save(self.dir_edited_data, prefix, suffix, d)
 		
-
+	
 	
 if __name__ == '__main__':
 	

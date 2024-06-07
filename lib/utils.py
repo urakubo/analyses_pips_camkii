@@ -528,10 +528,10 @@ def get_rdfs( dir_input, filename_input, target_frame, center=None, multi_graph=
 			rdf_sampling_frames, center = center, multi_graph=multi_graph)
 	
 	return rdfs, p.rdf_bins, rdf_sampling_frames
-
-
+	
+	
 def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.molecules_without_all.keys() , ylim = (-0.006,0.66) ):
-	r = d['rdf_bins'][1:-1]
+	r = d['rdf_bins'][1:-1] / np.sqrt(3) ###
 	for k in target_molecules:
 		rdf_mean  = np.mean( d['rdf'][k][1:], axis = 1 )
 		rdf_std   = np.std(  d['rdf'][k][1:], axis = 1 )
@@ -555,11 +555,17 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.mole
 	if legend==True:
 		ax.legend(frameon=False)
 
+	'''
 	ax.set_xlabel('Distance from \n center-of-mass (l.u.)')
-	ax.set_ylabel('(beads / voxel)')
-	ax.set_xlim(0,40)
-	ax.set_ylim(*ylim)
 	ax.set_xticks(range(0,50,10))
+	ax.set_xlim(0,40)
+	'''
+	ax.set_ylabel('(beads / voxel)')
+	ax.set_xlabel('Distance from \n center-of-mass (l.s.)')
+	ax.set_xticks(range(0,25,5))
+	ax.set_xlim(0,23)
+	
+	ax.set_ylim(*ylim)
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
 
@@ -567,7 +573,7 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.mole
 
 
 def plot_a_rdf_PSD95( ax, d, legend=True , ylim = (-0.006,0.66) ):
-	r = d['rdf_PSD95_bins'][1:-1]
+	r = d['rdf_PSD95_bins'][1:-1] / np.sqrt(3) ###
 	target_molecules = ['CaMKII', 'GluN2B','PSD95', 'Shared PSD95', 'STG']
 	for k in target_molecules:
 		'''
@@ -585,12 +591,20 @@ def plot_a_rdf_PSD95( ax, d, legend=True , ylim = (-0.006,0.66) ):
 
 	if legend==True:
 		ax.legend(frameon=False)
-
+	
+	
+	'''
 	ax.set_xlabel('Distance from \n center-of-mass (l.u.)')
-	ax.set_ylabel('(beads / voxel)')
-	ax.set_xlim(0,40)
-	ax.set_ylim(*ylim)
 	ax.set_xticks(range(0,50,10))
+	ax.set_xlim(0,40)
+	'''
+	ax.set_xlabel('Distance from \n center-of-mass (l.s.)')
+	ax.set_xticks(range(0,25,5))
+	ax.set_xlim(0,23)
+	ax.set_ylabel('(beads / voxel)')
+	
+	ax.set_ylim(*ylim)
+
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
 
@@ -618,7 +632,7 @@ def plot_colorbar(ax, cs):
 	
 	
 def plot_scalebar(ax, col='k', linewidth=2):
-	ax.plot([5,15],[5,5], '-', color=col, linewidth=linewidth)
+	ax.plot([5,5+10*np.sqrt(3)],[5,5], '-', color=col, linewidth=linewidth) ###
 	return
 	
 	
@@ -640,7 +654,6 @@ def make_a_panel_of_CaMKII_STG_condenstates(d, transp, slice, pre_rotated=False 
 	col = [255, 241, 0] # Yellow
 	for k in range(3): panel[r_BOTH,k] = col[k]
 	return panel
-	
 	
 	
 def make_a_panel_of_CaMKII_All_condenstates(d, transp, slice, pre_rotated=False ):
@@ -784,7 +797,8 @@ def plot_concs_condensate_bar(ax,ref, d):
 	ax.set_ylim(0,1.0)
 	ax.set_ylabel('(beads / voxel)')
 	ax.tick_params(axis='x', rotation=45)
-
+	
+	
 def plot_binding_energy_bar(ax,d, type_energy, target_condensate, ymax):
 	# type_energy: 'energy_anisotropic', 'energy_anisotropic_self', 'energy_isotropic'
 	# target_condensate: 'CaMKII', 'STG'
@@ -828,7 +842,6 @@ def rotate(mesh_CaMKII, mesh_STG):
 	return rot_matrix
 	
 	
-	
 def select_plot(target, fig, num_rows, num_columns, row, column, d, title):
 	
 	scalebar = (row == 0) and (column == 1)
@@ -848,6 +861,10 @@ def select_plot(target, fig, num_rows, num_columns, row, column, d, title):
 		columns = {'CaMKII':column}
 		plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
 			title=title, colorbar=False, scalebar=scalebar, pre_rotated=True )
+	elif target == 'conc_unrotated_CaMKII':
+		columns = {'CaMKII':column}
+		plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \
+			title=title, colorbar=False, scalebar=scalebar, pre_rotated=False )
 	elif target == 'conc_PSD95':
 		columns = {'PSD95':column}
 		plot_concs_from_a_direction(fig, num_rows, num_columns, row, columns, d, \

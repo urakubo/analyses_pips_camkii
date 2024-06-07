@@ -141,14 +141,14 @@ class PlotProfilesSharedPSD95(SpecDatasets):
 		
 		# Calc the conc of shared PSD95
 		d = calc_concs_PSD95_shared_by_STG_GluN2B(\
-			self.dir_lammpstrj, \
+			dir_lammpstrj, \
 			filename_lammpstrj, \
 			ids_bead_shared_PSD)
 		
 		
 		# RDF
 		rdf, rdf_bins, rdf_sampling_frames = \
-			utils.get_rdfs( self.dir_lammpstrj, filename_lammpstrj, sampling_frame, multi_graph = multi_graph )
+			utils.get_rdfs( dir_lammpstrj, filename_lammpstrj, sampling_frame, multi_graph = multi_graph )
 		d['rdf_PSD95_bins'] = rdf_bins
 		d['rdf_PSD95_sampling_frames'] = rdf_sampling_frames
 		d['rdf_PSD95'] = rdf

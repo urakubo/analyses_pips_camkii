@@ -74,9 +74,10 @@ def plot_a_condensate_pyvista(d, pl, rotation=True):
 		x_length=utils.space[0], y_length=utils.space[1], z_length=utils.space[2])
 	pl.add_mesh(cube, color='black', style='wireframe')
 	'''
-	
-	pl.add_mesh(mesh_CaMKII, color='green', show_edges=False,  opacity=0.4)
-	pl.add_mesh(mesh_STG   , color='red', show_edges=False,  opacity=0.4)
+	if mesh_CaMKII is not None:
+		pl.add_mesh(mesh_CaMKII, color='green', show_edges=False,  opacity=0.4)
+	if mesh_STG is not None:
+		pl.add_mesh(mesh_STG   , color='red', show_edges=False,  opacity=0.4)
 	pl.set_background('white')
 	
 	
@@ -99,19 +100,25 @@ def plot_a_pre_rotated_condensate_pyvista(d, pl):
 	
 	
 def generate_mesh(volume, num_smoothing = 1, flipx = False, flipy = False, flipz = False):
-	v_march, f_march, normals, values = measure.marching_cubes(volume, 0.5, spacing=(1,1,1), gradient_direction='ascent')
-	center = np.array(p.space)/2
-	v_march = v_march - center
 	
-	if flipx == True:
-		v_march[:,0] = -v_march[:,0]
-	if flipy == True:
-		v_march[:,1] = -v_march[:,1]
-	if flipz == True:
-		v_march[:,2] = -v_march[:,2]
+	try:
+		v_march, f_march, normals, values = measure.marching_cubes(volume, 0.5, spacing=(1,1,1), gradient_direction='ascent')
+		center = np.array(p.space)/2
+		v_march = v_march - center
+		
+		if flipx == True:
+			v_march[:,0] = -v_march[:,0]
+		if flipy == True:
+			v_march[:,1] = -v_march[:,1]
+		if flipz == True:
+			v_march[:,2] = -v_march[:,2]
+		
+		mesh = trimesh.Trimesh(vertices=v_march, faces=f_march)
+		mesh = trimesh.smoothing.filter_humphrey(mesh, alpha = 1.0, beta=0.0, iterations=num_smoothing)
 	
-	mesh = trimesh.Trimesh(vertices=v_march, faces=f_march)
-	mesh = trimesh.smoothing.filter_humphrey(mesh, alpha = 1.0, beta=0.0, iterations=num_smoothing)
-	return mesh
+		return mesh
 	
+	except ValueError:
+		print('Mesh was not generated.')
+		return None
 	

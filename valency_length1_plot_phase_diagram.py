@@ -14,6 +14,17 @@ import lib.utils_graph as utils_graph
 
 plt.rcParams.update( p.rc_param )
 
+def prepare_plot():
+	#self.fig  = plt.figure(figsize=(5, 5))
+	#self.fig  = plt.figure(figsize=(4, 4))
+	fig  = plt.figure(figsize=(3.5, 3.5))
+	fig.subplots_adjust(wspace=0.4,  hspace=0.6)
+	ax = fig.add_subplot( 1, 1, 1 )
+	ax.set_title(self.title)
+	ax.set_xlabel('Linker length (l.u.)')
+	ax.set_ylabel('Valency')
+	return fig, ax
+
 
 class PlotValencyLength():
 	def __init__( self ):
@@ -58,16 +69,7 @@ class PlotValencyLength():
 		plt.clf()
 		plt.close(fig=self.fig)
 		
-	def prepare_plot( self ):
-		#self.fig  = plt.figure(figsize=(5, 5))
-		#self.fig  = plt.figure(figsize=(4, 4))
-		self.fig  = plt.figure(figsize=(3.5, 3.5))
-		self.fig.subplots_adjust(wspace=0.4,  hspace=0.6)
-		ax = self.fig.add_subplot( 1, 1, 1 )
-		ax.set_title(self.title)
-		ax.set_xlabel('Linker length (l.u.)')
-		ax.set_ylabel('Valency')
-		return ax
+
 		
 class PhaseDiagram():
 	def __init__( self ):
@@ -129,8 +131,7 @@ class PhaseDiagram():
 		
 		
 		
-		ax = self.prepare_plot()
-		
+		self.fig, ax = prepare_plot()
 		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.lengths, self.valencies, colormap1, levels1, draw_border = True)
 		utils.plot_a_panel_overlay(ax, self.STG_only, self.lengths, self.valencies, colormap2, levels2)
 		
@@ -212,7 +213,7 @@ class RelaxzationTimeForMixture():
 					data[j,i] = np.nan
 		
 		print('data ', data)
-		ax = self.prepare_plot()
+		self.fig, ax = prepare_plot()
 		cs, cb = utils.plot_a_panel_log(ax, data, self.lengths, self.valencies, self.colormap, self.levels)
 		
 		
@@ -275,7 +276,7 @@ class ModularityDensityClustering():
 					data[j,i] = np.nan
 		
 		print('data ', data)
-		ax = self.prepare_plot()
+		self.fig, ax = prepare_plot()
 		cs, cb = utils.plot_a_panel_log(ax, data, \
 			self.lengths, \
 			self.valencies, \
@@ -330,10 +331,10 @@ if __name__ == '__main__':
 	
 	
 	
-	'''	
+	#'''	
 	property = 'FRAP_GluN2B' # 'density', 'modularity', 'clustering', 'FRAP', 'FRAP_GluN2B'
 	pl = PlotPropertiesValencyLength(property)
 	pl.plot()
 	pl.save()
-	'''
+	#'''
 	

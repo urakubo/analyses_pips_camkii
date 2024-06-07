@@ -133,7 +133,7 @@ class PlotProfiles(SpecDatasets):
 		d   = utils.load(self.dir_edited_data, prefix, suffix)
 		
 		# Make figure
-		fig = plot_a_figure(d)
+		return plot_a_figure(d)
 		
 		
 	def save_a_figure( self, fig, filename ):

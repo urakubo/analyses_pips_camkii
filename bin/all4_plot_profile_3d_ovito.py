@@ -44,7 +44,7 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 	
 	
 	# Centering
-	'''
+	#'''
 	num_frames = data_all.source.num_frames
 	types, positions, ids_molecule = utils.decode_data(data_all.compute(num_frames))
 	center = utils.get_center_of_mass(types, positions)
@@ -54,7 +54,7 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 	modifier = utils_ovito.CenteringModifier()
 	modifier.center = center
 	data_all.modifiers.append(modifier)	
-	'''
+	#'''
 	
 	
 	# Slice data

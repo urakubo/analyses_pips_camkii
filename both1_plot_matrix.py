@@ -141,7 +141,7 @@ class PlotConc():
 		
 		if target not in ['region_condensates', \
 			'conc_CaMKII', 'conc_STG', 'conc_GluN2B', 'conc_PSD95', 'rdf', 'rdf_PSD95', 'concs_in_CaMKII', 'concs_in_STG',\
-			'unshared_PSD95', 'shared_PSD95']:
+			'unshared_PSD95', 'shared_PSD95','conc_unrotated_CaMKII']:
 			raise ValueError("Erronous augment 'target': ", target)
 		else:
 			self.target = target
@@ -165,8 +165,8 @@ class PlotConcMatrixValencyLength(PlotConc, MatrixValencyLength):
 		
 		valencies = range(2,14,2)
 		lengths   = range(7)
-		dir_target= 'valency_length'
-		#dir_target= 'CG_valency_length'
+		#dir_target= 'valency_length'
+		dir_target= 'CG_valency_length'
 		
 		PlotConc.__init__(self, target )
 		MatrixValencyLength.__init__(self, valencies, lengths, dir_target)
@@ -193,9 +193,9 @@ if __name__ == '__main__':
 	
 	# 'region_condensates', 'conc_CaMKII', 'conc_PSD95', 'conc_STG', 'conc_GluN2B', 'rdf',  'rdf_PSD95'
 	# 'concs_in_CaMKII', 'concs_in_STG',
-	# 'shared_PSD95', 'unshared_PSD95'
+	# 'shared_PSD95', 'unshared_PSD95', 'conc_unrotated_CaMKII'
 	#'''
-	target = 'conc_CaMKII'
+	target = 'conc_unrotated_CaMKII' # 'conc_CaMKII'
 	plot_concs = PlotConcMatrixValencyLength(target) # PlotConcMatrixConcDependence, PlotConcMatrixValencyLength
 	values = plot_concs.run()
 	plot_concs.save()

@@ -50,8 +50,8 @@ def plot_valency_length_save_it(dir_data, dir_imgs, sub = False):
 			column = j
 			
 			pl.subplot(row, column)
-			#utils.plot_a_condensate_pyvista(d, pl)
-			utils_pyvista.plot_a_pre_rotated_condensate_pyvista(d, pl)
+			#utils_pyvista.plot_a_pre_rotated_condensate_pyvista(d, pl)
+			utils_pyvista.plot_a_condensate_pyvista(d, pl, rotation=False)
 
 			pl.camera_position = [(150.0, 0.0, 0.0),\
 				 (7.0, -0.2, 2.5),\
@@ -68,8 +68,6 @@ def plot_valency_length_save_it(dir_data, dir_imgs, sub = False):
 
 	
 def plot_conc_dependence_save_it(dir_data, dir_imgs, sub = False): 
-	
-	
 	
 	#STGs    = [108,216,432,576,864,1728,2592,3456,4320,5184]
 	#GluN2Bs = [270,540,1080,2160,4320,6480,8640,12960,17280]
@@ -127,7 +125,8 @@ if __name__ == '__main__':
 	
 	# Valency length
 	#'''
-	dir_target = 'valency_length'
+	#dir_target = 'valency_length'
+	dir_target = 'CG_valency_length'
 	func = plot_valency_length_save_it
 	#'''
 	

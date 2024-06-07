@@ -12,13 +12,13 @@ import lib.parameters as p
 import lib.colormap as c
 import lib.utils_graph as utils_graph
 
-from both_main_plot_matrix import MatrixValencyLength
 
+from specification_datasets import SpecDatasets
+from lib.utils_matrix import MatrixValencyLength
 
 plt.rcParams.update(p.rc_param)
 
-	
-	
+
 class SingleValencyLength():
 	def __init__( self , target_molecule, length):
 		
@@ -166,14 +166,13 @@ class PlotFRAP():
 		return param[0], ax
 		
 		
-class PlotFRAPMatrixValencyLength(PlotFRAP, MatrixValencyLength):
-	def __init__( self, target_molecule = 'CaMKII', dir_target  = 'small_colony3' ):
+class PlotFRAPMatrixValencyLength(PlotFRAP, MatrixValencyLength, SpecDatasets):
+	def __init__( self, target_molecule = 'CaMKII' ):
 		
-		valencies = range(4,14,2)
-		lengths   = range(7)
+		PlotFRAP.__init__( self, target_molecule )
+		MatrixValencyLength.__init__( self )
+		SpecDatasets.__init__( self )
 		
-		PlotFRAP.__init__(self, target_molecule )
-		MatrixValencyLength.__init__(self, valencies, lengths, dir_target )
 		
 		
 class PlotFRAPSingleValencyLength(PlotFRAP, SingleValencyLength):
