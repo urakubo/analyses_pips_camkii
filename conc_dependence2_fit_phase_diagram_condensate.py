@@ -4,9 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-# import mpl_toolkits.axes_grid1
-# from scipy.interpolate import griddata, RegularGridInterpolator
-
 import lib.utils as utils
 import lib.utils_fitting as utils_fitting
 

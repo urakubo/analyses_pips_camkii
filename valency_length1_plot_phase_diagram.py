@@ -11,60 +11,51 @@ import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
 import lib.utils_graph as utils_graph
+from specification_datasets import SpecDatasets
 
 plt.rcParams.update( p.rc_param )
 
-def prepare_plot():
+def prepare_plot(title):
 	#self.fig  = plt.figure(figsize=(5, 5))
 	#self.fig  = plt.figure(figsize=(4, 4))
 	fig  = plt.figure(figsize=(3.5, 3.5))
 	fig.subplots_adjust(wspace=0.4,  hspace=0.6)
 	ax = fig.add_subplot( 1, 1, 1 )
-	ax.set_title(self.title)
+	ax.set_title(title)
 	ax.set_xlabel('Linker length (l.u.)')
 	ax.set_ylabel('Valency')
 	return fig, ax
 
 
-class PlotValencyLength():
+class PlotValencyLength( SpecDatasets ):
 	def __init__( self ):
 		
-		# Parameters
-		self.sigma = 2
+		pass
 		
+	def run( self ):
 		
-		#self.valencies = range(2,14,2)
-		#self.lengths   = range(7)
-		self.dir_target= 'valency_length'
-		
-		
-		self.dir_edited_data = os.path.join('data4', self.dir_target)
-		self.dir_imgs        = os.path.join('imgs4', self.dir_target, 'phase_diagram')
-		os.makedirs(self.dir_imgs, exist_ok=True)
 		self.num_rows		= len( self.valencies )
 		self.num_columns	= len( self.lengths )
 		
-		
-	def run( self ):
-		#
 		data = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
 		for i, v in enumerate(self.valencies):
 			for j, l in enumerate(self.lengths):
-				
 				# Load data
-				prefix    = str(v).zfill(2) + '_' + str(l).zfill(3) 
+				prefix    = self.filename_edited_matrix(v, l)
 				print('Target file: ', prefix)
 				d         = utils.load(self.dir_edited_data, prefix, self.suffix)
 				data[j,i] = self._modify_data(d)
 		
 		print('data ', data)
-		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, data, p.lengths, p.valencies, self.colormap, self.levels, ticks = self.ticks)
+		self.fig, ax = prepare_plot(self.title)
+		cs, cb = utils.plot_a_panel(ax, data, self.real_lengths, self.valencies, self.colormap, self.levels, ticks = self.ticks)
 		
 	def save( self ):
 		
-		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.svg' ) )
-		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.png' ) , dpi=150)
+		dir_imgs = os.path.join(self.dir_imgs_root, 'phase_diagram')
+		os.makedirs(dir_imgs, exist_ok=True)
+		self.fig.savefig( os.path.join( dir_imgs, self.basename + '.svg' ) )
+		self.fig.savefig( os.path.join( dir_imgs, self.basename + '.png' ) , dpi=150)
 		plt.show()
 		plt.clf()
 		plt.close(fig=self.fig)
@@ -74,11 +65,10 @@ class PlotValencyLength():
 class PhaseDiagram():
 	def __init__( self ):
 		
-		self.dir_target = 'valency_length'
+		# self.dir_target = 'valency_length'
 		
-		
-		self.lengths   = [1, 2, 3, 4, 5, 6, 9]
-		self.valencies = [12, 10, 8, 6, 4, 2, -0] # [4, 6, 8, 10, 12] 
+		self.p_lengths   = [1, 2, 3, 4, 5, 6, 9]
+		self.p_valencies = [12, 10, 8, 6, 4, 2, -0] # [4, 6, 8, 10, 12] 
 		self.basename = 'phase_diagram_valency_length'
 		self.title    = 'Phase diagram'
 		# 1: PIPS
@@ -126,22 +116,21 @@ class PhaseDiagram():
 		
 		print('phase_diagram.shape ', self.phase_diagram.shape)
 		print('STG_only.shape ',  self.STG_only.shape)
-		print('self.lengths ', self.lengths)
-		print('self.valencies ', self.valencies)
+		print('self.lengths ', self.p_lengths)
+		print('self.valencies ', self.p_valencies)
 		
 		
-		
-		self.fig, ax = prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.lengths, self.valencies, colormap1, levels1, draw_border = True)
-		utils.plot_a_panel_overlay(ax, self.STG_only, self.lengths, self.valencies, colormap2, levels2)
+		self.fig, ax = prepare_plot(self.title)
+		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.p_lengths, self.p_valencies, colormap1, levels1, draw_border = True)
+		utils.plot_a_panel_overlay(ax, self.STG_only, self.p_lengths, self.p_valencies, colormap2, levels2)
 		
 		
 class Connectivity():
 	def __init__( self, species, type_analysis ):
 		
-		self.dir_target = 'valency_length'
-		self.lengths   = p.lengths
-		self.valencies = p.valencies
+		#self.dir_target = 'valency_length'
+		#self.lengths    = p.lengths
+		#self.valencies  = p.valencies
 		
 		if species == 'CaMKII' and type_analysis == 'average':
 			self.title    = 'Number of GluN2B bound to one CaMKII'
@@ -187,9 +176,9 @@ class Connectivity():
 class RelaxzationTimeForMixture():
 	def __init__( self ):
 		
-		self.dir_target     = 'small_colony2'
-		self.lengths   = p.lengths2
-		self.valencies = p.valencies2
+		#self.dir_target = 'small_colony2'
+		#self.lengths    = p.lengths2
+		#self.valencies  = p.valencies2
 		
 		self.title    = 'Relaxzation time'
 		self.basename = 'relaxzation_time_for_mixture'
@@ -199,30 +188,37 @@ class RelaxzationTimeForMixture():
 		
 	def run_mixture( self ):
 		#
+		
+		valencies    = self.valencies_frap
+		lengths      = self.lengths_frap
+		real_lengths = self.real_lengths_frap
+		num_columns = len( lengths )
+		num_rows    = len( valencies )
+		
 		prefix = 'relaxzation_times'
 		suffix = 'matrix'
 		d    = utils.load(self.dir_edited_data, prefix, suffix)
-		data = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
-		for i, v in enumerate(self.valencies):
-			for j, l in enumerate(self.lengths):
+		data = np.zeros([num_columns, num_rows], dtype = 'float')
+		for i, v in enumerate( valencies ):
+			for j, l in enumerate( lengths ):
 				# Load data
-				prefix    = p.fnames_valency2[v]+'_'+p.fnames_length2[l]
+				prefix    = self.filename_edited_matrix(v,l)
 				print('Target file: ', prefix)
 				data[j,i] = np.log10( np.median(d[prefix]) )
 				if prefix in ['12_000', '10_000', '04_000', '04_001', '04_006']:
 					data[j,i] = np.nan
 		
 		print('data ', data)
-		self.fig, ax = prepare_plot()
-		cs, cb = utils.plot_a_panel_log(ax, data, self.lengths, self.valencies, self.colormap, self.levels)
+		self.fig, ax = prepare_plot(self.title)
+		cs, cb = utils.plot_a_panel_log(ax, data, real_lengths, valencies, self.colormap, self.levels)
 		
 		
 class ModularityDensityClustering():
 	def __init__( self, property ):
 		
-		self.dir_target     = 'small_colony2'
-		self.lengths   = p.lengths2
-		self.valencies = p.valencies2
+		#self.dir_target     = 'small_colony2'
+		#self.lengths   = p.lengths2
+		#self.valencies = p.valencies2
 		
 		if property == 'modularity':
 			self.title    = 'Modularity'
@@ -252,7 +248,7 @@ class ModularityDensityClustering():
 			self.levels   = np.linspace(-2,2.5,10)
 			self.ticks = [-2,-1, 0, 1, 2]
 		elif property == 'FRAP_GluN2B':
-			self.dir_target     = 'small_colony3'
+			# self.dir_target     = 'small_colony3'
 			self.title    = 'GluN2B FRAP'
 			self.prefix   = 'FRAP_GluN2B'
 			self.basename = 'FRAP_GluN2B'
@@ -262,24 +258,32 @@ class ModularityDensityClustering():
 		#
 	def plot( self ):
 		#
+		
+		valencies    = self.valencies_frap
+		lengths      = self.lengths_frap
+		real_lengths = self.real_lengths_frap
+		num_columns = len( lengths )
+		num_rows    = len( valencies )
+		
+		#
 		suffix = 'matrix'
 		self.d = utils.load(self.dir_edited_data, self.prefix, suffix)
 		#
-		data = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
-		for i, v in enumerate(self.valencies):
-			for j, l in enumerate(self.lengths):
+		data = np.zeros([num_columns, num_rows], dtype = 'float')
+		for i, v in enumerate(valencies):
+			for j, l in enumerate(lengths):
 				# Load data
-				prefix    = p.fnames_valency[v]+'_'+p.fnames_length[l]
+				prefix    = self.filename_edited_matrix(v,l)
 				print('Target file: ', prefix)
 				data[j,i] = self.d[prefix]
 				if prefix in ['04_000', '04_001', '04_006']:
 					data[j,i] = np.nan
 		
 		print('data ', data)
-		self.fig, ax = prepare_plot()
+		self.fig, ax = prepare_plot( self.title )
 		cs, cb = utils.plot_a_panel_log(ax, data, \
-			self.lengths, \
-			self.valencies, \
+			lengths, \
+			valencies, \
 			self.colormap, \
 			self.levels, \
 			ticks = self.ticks)
@@ -310,31 +314,43 @@ class PlotPropertiesValencyLength(ModularityDensityClustering, PlotValencyLength
 
 if __name__ == '__main__':
 	
+	
+	'''
 	pl = PlotPhaseDiagramValencyLength()
+	pl.valency_length() # Only for the save directory?
 	pl.plot()
 	pl.save()
 	
 	
-	'''
 	#species, type_analysis = 'CaMKII', 'average'
 	#species, type_analysis = 'PSD95' , 'average'
 	species, type_analysis = 'PSD95' , 'ratio'
-	
 	pl = PlotConnectivityValencyLength(species, type_analysis)
+	pl.valency_length()
 	pl.run()
 	pl.save()
 	
 	pl = PlotRelaxzationTimeForMixtureValencyLength()
+	pl.valency_length_small_colony2()
 	pl.run_mixture()
 	pl.save()
 	'''	
 	
 	
-	
+
 	#'''	
-	property = 'FRAP_GluN2B' # 'density', 'modularity', 'clustering', 'FRAP', 'FRAP_GluN2B'
+	property = 'modularity' # 'density', 'modularity', 'clustering', 'FRAP'
 	pl = PlotPropertiesValencyLength(property)
+	pl.valency_length_small_colony2()
 	pl.plot()
 	pl.save()
 	#'''
+	
+	'''
+	property = 'FRAP_GluN2B' # 'density', 'modularity', 'clustering', 'FRAP', 'FRAP_GluN2B'
+	pl = PlotPropertiesValencyLength(property)
+	pl.valency_length_small_colony3()
+	pl.plot()
+	pl.save()
+	'''
 	

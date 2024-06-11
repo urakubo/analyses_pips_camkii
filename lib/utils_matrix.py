@@ -23,7 +23,7 @@ class MatrixValencyLength():
 			self.lengths   = self.lengths_frap
 		
 		self.num_rows			= len( self.valencies )
-		self.num_columns			= len( self.lengths  )
+		self.num_columns		= len( self.lengths  )
 		
 		vals = {}
 		# vals = np.zeros([self.num_rows, self.num_columns])
@@ -48,7 +48,7 @@ class MatrixValencyLength():
 		return vals
 		
 	def save( self ):
-		# Shared init
+		
 		dir_imgs = os.path.join(self.dir_imgs_root, 'matrix')
 		os.makedirs(dir_imgs, exist_ok=True)
 		self.fig.savefig( os.path.join(dir_imgs, self.basename + '.svg' ) )

@@ -21,7 +21,6 @@ import lib.colormap as c
 from specification_datasets import SpecDatasets
 
 plt.rcParams.update(p.rc_param)
-plt.rcParams.update( {'font.size': 6} )
 	
 	
 def peak(x, c):
@@ -75,6 +74,7 @@ class HandleRDPCaMKII(SpecDatasets):
 		
 	def __init__( self ):
 		self.basename = 'radius_CaMKII'
+		plt.rcParams.update( {'font.size': 6} )
 		
 		
 	def run( self ):

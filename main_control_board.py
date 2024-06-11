@@ -1,4 +1,5 @@
 
+
 from bin.all1_edit_data import EditData
 from bin.all2_edit_connectivity_graph import EditConnectivityGraph
 from bin.all3_plot_profile import PlotProfiles
@@ -19,15 +20,20 @@ from bin.surface_tension1_calc_radius_CaMKII_condensate import HandleRDPCaMKII
 from bin.surface_tension2_plot import PlotSurfaceTension
 from bin.surface_tension3_plot_phase_diagram import PlotSurfaceTensionPhaseDiagramValencyLength
 
+from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import HandleConnectivityPhaseDiagramConcDependence, HandleCondVolumePhaseDiagramConcDependence, PlotPhaseDiagram
 
-obj = PlotSurfaceTensionPhaseDiagramValencyLength()
-obj.CG_valency_length()
-obj.reflect_spec()
-#graph.run_calc()
-#graph.save_data()
-obj.load_data()
-obj.plot_phase_diagrams()
-obj.plot_logistic_regression()
+
+
+species, type_analysis = 'CaMKII', 'average'
+#species, type_analysis = 'PSD95' , 'average'
+#species, type_analysis = 'PSD95' , 'ratio'
+# species, type_analysis = 'PSD95' , 'average_GluN2B'
+pl = HandleConnectivityPhaseDiagramConcDependence(species, type_analysis)
+pl.conc_dependence_merged()
+#pl.edit_data_save_them()
+pl.load_data()
+pl.plot_data()
+pl.save_plots()
 
 
 '''
@@ -181,6 +187,37 @@ i = 7*5+6 # val_12\R2_006
 i = 7*5+2 # val_12\R2_006
 obj.run(i, target_molecule)
 obj.make_a_video(i)
+
+
+
+pl = PlotPhaseDiagram()
+pl.conc_dependence_merged()
+pl.plot()
+pl.save_plots()
+
+
+
+species, type_analysis = 'CaMKII', 'average'
+#species, type_analysis = 'PSD95' , 'average'
+#species, type_analysis = 'PSD95' , 'ratio'
+# species, type_analysis = 'PSD95' , 'average_GluN2B'
+pl = HandleConnectivityPhaseDiagramConcDependence(species, type_analysis)
+pl.conc_dependence_merged()
+#pl.edit_data_save_them()
+pl.load_data()
+pl.plot_data()
+pl.save_plots()
+
+
+
+species = 'CaMKII' # 'CaMKII', 'STG'
+pl = HandleCondVolumePhaseDiagramConcDependence(species)
+pl.conc_dependence_merged()
+#pl.edit_data_save_them()
+pl.load_data()
+pl.plot_data()
+pl.save_plots()
+
 
 '''
 

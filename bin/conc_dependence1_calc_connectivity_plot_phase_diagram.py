@@ -4,11 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
+from skimage.measure import label
+
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
-
-from skimage.measure import label
+from specification_datasets import SpecDatasets
 
 plt.rcParams.update( p.rc_param )
 
@@ -16,22 +17,7 @@ plt.rcParams.update( p.rc_param )
 class PhaseDiagramConcDependence():
 	def __init__( self ):
 		
-		# Parameters
-		self.sigma = 2
-		dir_target = 'conc_dependence_merged'
-		self.dir_edited_data = os.path.join('data4',dir_target)
-		self.dir_imgs        = os.path.join('imgs4', dir_target,'phase_diagram')
-		
-		os.makedirs(self.dir_imgs, exist_ok=True)
-		
-		
-		self.STGs    = np.array( p.STGs ) * 1000
-		self.GluN2Bs = np.array( p.GluN2Bs ) * 1000
-		
-		self.num_rows		= len( p.GluN2Bs )
-		self.num_columns	= len( p.STGs )
-		
-		self.data = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
+		pass
 		
 		
 	def prepare_plot( self ):
@@ -46,45 +32,56 @@ class PhaseDiagramConcDependence():
 		
 		
 	def edit_data_save_them( self ):
-		#
-		for i, stg in enumerate(self.STGs):
-			for j, glun in enumerate(self.GluN2Bs):
+		
+		num_rows	= len( self.concs_glun2b )
+		num_columns	= len( self.concs_stg )
+		
+		self.data = np.zeros([num_columns, num_rows], dtype = 'float')
+		
+		for i, stg in enumerate(self.stgs):
+			for j, glun2b in enumerate(self.glun2bs):
 				# Load data
-				prefix = str(i).zfill(2)+'_'+str(j).zfill(2)
+				prefix = self.filename_edited_matrix(stg, glun2b)
 				print('Target file: ', prefix)
-				d           = utils.load(self.dir_edited_data, prefix, self.suffix)
-				self.data[i,j]   = self._modify_data(d)
+				d              = utils.load(self.dir_edited_data, prefix, self.suffix)
+				self.data[i,j] = self._modify_data(d)
 		
 		print('data ', self.data)
 		prefix = self.basename
 		suffix = 'data'
 		utils.save( self.dir_edited_data, prefix, suffix, self.data )
 		
+		
 	def load_data( self ):
 		prefix = self.basename
 		suffix = 'data'
 		self.data = utils.load( self.dir_edited_data, prefix, suffix  )
 		
+		
 	def plot_data( self ):
 		mx_min = 0
 		my_min = 0
-		mx_max = np.max(self.STGs[:-1]) * 1.05# None # 2.6
-		my_max = np.max(self.GluN2Bs) *1.05 # None # 10.1
+		mx_max = np.max(self.concs_stg[:-1]) * 1.05# None # 2.6
+		my_max = np.max(self.concs_glun2b)   * 1.05 # None # 10.1
 		
 		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, self.data, self.STGs, self.GluN2Bs, self.colormap, self.levels,\
+		cs, cb = utils.plot_a_panel(ax, self.data, self.concs_stg, self.concs_glun2b, self.colormap, self.levels,\
 			mx_min=mx_min, my_min=my_min, \
 			mx_max=mx_max, my_max=my_max \
 			)
 		
+		
 	def save_plots( self ):
-		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.svg' ) )
-		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.png' ) , dpi=150)
+		
+		dir_imgs = os.path.join(self.dir_imgs_root, 'phase_diagram')
+		os.makedirs(dir_imgs, exist_ok=True)
+		self.fig.savefig( os.path.join(dir_imgs, self.basename + '.svg' ) )
+		self.fig.savefig( os.path.join(dir_imgs, self.basename + '.png' ) , dpi=150)
 		plt.show()
 		plt.clf()
 		plt.close(fig=self.fig)
-
-
+		
+		
 class PlotConnectivity():
 	def __init__( self, species, type_analysis ):
 		
@@ -166,7 +163,7 @@ class PlotCondVolume():
 		return data
 		
 		
-class PlotPhaseDiagram( PhaseDiagramConcDependence ):
+class PlotPhaseDiagram( PhaseDiagramConcDependence, SpecDatasets ):
 	def __init__( self ):
 		
 		super().__init__()
@@ -271,37 +268,42 @@ class PlotPhaseDiagram( PhaseDiagramConcDependence ):
 			)
 		
 		
-class HandleConnectivityPhaseDiagramConcDependence(PlotConnectivity, PhaseDiagramConcDependence):
+class HandleConnectivityPhaseDiagramConcDependence(PlotConnectivity, PhaseDiagramConcDependence, SpecDatasets):
 	def __init__( self, species, type_analysis ):
 		PlotConnectivity.__init__(self, species, type_analysis )
 		PhaseDiagramConcDependence.__init__(self)
 		
-class HandleCondVolumePhaseDiagramConcDependence(PlotCondVolume, PhaseDiagramConcDependence):
+class HandleCondVolumePhaseDiagramConcDependence(PlotCondVolume, PhaseDiagramConcDependence, SpecDatasets):
 	def __init__( self, species ):
 		PlotCondVolume.__init__(self, species )
 		PhaseDiagramConcDependence.__init__(self)
 		
 if __name__ == '__main__':
 	
-	'''
+	#'''
 	pl = PlotPhaseDiagram()
+	pl.conc_dependence_merged()
 	pl.plot()
 	pl.save_plots()
-	'''
+	#'''
 	
+	'''
 	species, type_analysis = 'CaMKII', 'average'
 	#species, type_analysis = 'PSD95' , 'average'
 	#species, type_analysis = 'PSD95' , 'ratio'
 	# species, type_analysis = 'PSD95' , 'average_GluN2B'
 	pl = HandleConnectivityPhaseDiagramConcDependence(species, type_analysis)
+	pl.conc_dependence_merged()
 	#pl.edit_data_save_them()
 	pl.load_data()
 	pl.plot_data()
 	pl.save_plots()
-
+	'''
+	
 	'''
 	species = 'CaMKII' # 'CaMKII', 'STG'
 	pl = HandleCondVolumePhaseDiagramConcDependence(species)
+	pl.conc_dependence_merged()
 	#pl.edit_data_save_them()
 	pl.load_data()
 	pl.plot_data()

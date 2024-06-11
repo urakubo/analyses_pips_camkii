@@ -2,6 +2,9 @@
 import os, sys, glob, pickle, pprint
 import numpy as np
 
+import lib.parameters as p
+
+
 
 def set_frames_photobleach_colony2( valency, length ):
 	
@@ -61,6 +64,8 @@ class SpecDatasets():
 		
 		self.valencies = range(2,14,2)
 		self.lengths   = range(7)
+		self.real_lengths = [1,2,3,4,5,6,9]
+		
 		subdirs    = ['val_{}'.format(i) for i in self.valencies]
 		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in self.lengths]
 		self.filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
@@ -74,6 +79,8 @@ class SpecDatasets():
 		
 		self.valencies_frap = range(4,14,2)
 		self.lengths_frap   = range(7) # [1, 2, 3, 4, 5, 6, 9]
+		self.real_lengths_frap = [1,2,3,4,5,6,9]
+		
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony2
 		
 		
@@ -82,6 +89,8 @@ class SpecDatasets():
 		
 		self.valencies = range(2,14,2)
 		self.lengths   = range(7)
+		self.real_lengths = [1,2,3,4,5,6,9]
+		
 		subdirs    = ['val_{}'.format(i) for i in self.valencies]
 		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in self.lengths]
 		self.filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
@@ -95,14 +104,18 @@ class SpecDatasets():
 		
 		self.valencies_frap = range(4,14,2)
 		self.lengths_frap   = range(7) # [1, 2, 3, 4, 5, 6, 9]
+		self.real_lengths_frap = [1,2,3,4,5,6,9]
+		
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony3
 		
 		
 		
 	def valency_length( self ):
 		
-		self.valencies = range(2,16,2)
-		self.lengths   = range(7)
+		self.valencies    = range(2,14,2)
+		self.lengths      = range(7)
+		self.real_lengths = [1,2,3,4,5,6,9]
+		
 		subdirs    = ['val_{}'.format(i) for i in self.valencies]
 		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in self.lengths]
 		self.filenames_lammpstrj  = [ os.path.join(d, f) for d in subdirs for f in filenames]
@@ -220,16 +233,19 @@ class SpecDatasets():
 		
 		self.filename_edited_matrix    = lambda stg, glun2b: str(stg).zfill(2)+'_'+str(glun2b).zfill(2)
 		
-		# All
-		#STGs    = [108,216,432,576,864,1728,2592,3456,4320,5184]
-		#GluN2Bs = [270,540,1080,2160,4320,6480,8640,12960,17280]
-		#
-		# Subset
-		# self.stgs   [216, 576, 1728, 3456] 
-		# sub_glun2bs [540, 4320, 8640,17280]
+		
+		STGs    = [108,216,432,576,864,1728,2592,3456,4320,5184]
+		GluN2Bs = [270,540,1080,2160,4320,6480,8640,12960,17280]
+		volume  = np.prod(p.space_np)
+		self.concs_stg    = [ s / volume * 1000 for s in STGs    ]
+		self.concs_glun2b = [ n / volume * 1000 for n in GluN2Bs ]
+		
 		
 		self.sub_stgs    = [1, 3, 5, 7]
 		self.sub_glun2bs = [1, 4, 6, 8]
+		
+		# sub_stgs    [216, 576, 1728, 3456] 
+		# sub_glun2bs [540, 4320, 8640,17280]
 		
 		
 	def conc_dependence_merged_sub( self ):
