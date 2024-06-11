@@ -5,12 +5,51 @@ from bin.all3_plot_profile import PlotProfiles
 from bin.all4_plot_profile_3d_ovito import Plot3dOvito
 from bin.all5_plot_profile_3d_pyvista import Plot3dPyvista
 from bin.all6_plot_profile_shared_PSD95 import PlotProfilesSharedPSD95
-from bin.all7_plot_video_3d_ovito import MakeOvitoVideo
+from bin.all7_make_video_3d_ovito import MakeOvitoVideo
 
 from bin.valency_length_CG3_plot_FRAP_video_3d_ovito import MakeOvitoVideoFRAP
 from bin.valency_length_FRAP1_simulate import SimulatePhotobleach
 from bin.valency_length_FRAP2_fit_plot import PlotFRAPMatrixValencyLength, PlotFRAPSingleValencyLength
 
+
+from bin.both1_plot_matrix import PlotConcMatrixValencyLength, PlotConcMatrixConcDependence
+from bin.both2_plot_matrix_3d_pyvista import PlotMatrixValencyLengthPyvista, PlotMatrixConcPyvista
+
+
+'''
+
+sub = True
+obj = PlotMatrixValencyLengthPyvista()
+obj.CG_valency_length()
+obj.run(sub = sub)
+
+sub = True
+obj = PlotMatrixConcPyvista()
+obj.conc_dependence_merged()
+obj.run(sub = sub)
+
+
+
+# 'region_condensates', 'conc_CaMKII', 'conc_PSD95', 'conc_STG', 'conc_GluN2B', 'rdf',  'rdf_PSD95'
+# 'concs_in_CaMKII', 'concs_in_STG',
+# 'shared_PSD95', 'unshared_PSD95', 'conc_unrotated_CaMKII'
+
+target = 'conc_unrotated_CaMKII'
+obj = PlotConcMatrixConcDependence(target)
+obj.conc_dependence_merged()
+obj.run()
+obj.save()
+
+
+# 'region_condensates', 'conc_CaMKII', 'conc_PSD95', 'conc_STG', 'conc_GluN2B', 'rdf',  'rdf_PSD95'
+# 'concs_in_CaMKII', 'concs_in_STG',
+# 'shared_PSD95', 'unshared_PSD95', 'conc_unrotated_CaMKII'
+
+target = 'conc_unrotated_CaMKII'
+obj = PlotConcMatrixValencyLength(target)
+obj.CG_valency_length()
+obj.run()
+obj.save()
 
 
 centers  = [[0,0,0],[60,0,0],[0,60,0],[0,0,60],[60,60,0],[0,60,60],[60,0,60],[60,60,60]]
@@ -24,7 +63,6 @@ for center, suffix in zip(centers, suffixes):
 
 
 
-'''
 obj = SimulatePhotobleach()
 obj.C_valency_length_FRAP_Control()
 obj.center = [0,60,60]

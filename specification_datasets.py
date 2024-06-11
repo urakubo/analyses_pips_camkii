@@ -115,12 +115,23 @@ class SpecDatasets():
 		
 		
 	def CG_valency_length( self ):
-		subdirs    = ['val{}'.format(i) for i in range(2,14,2)]
-		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
+		
+		self.valencies = range(2,14,2)
+		self.lengths   = range(7)
+		
+		subdirs    = ['val{}'.format(i) for i in self.valencies]
+		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in self.lengths]
 		self.filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
-		self.filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(2,14,2) for id_f in range(7) ]
+		self.filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in self.valencies for id_f in self.lengths ]
 		dir_target = 'CG_valency_length'
 		self._shared4( dir_target )
+		
+		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
+		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
+		
+		# matrix pyvista
+		self.sub_valencies = [2, 4, 6, 8, 12] 
+		self.sub_lengths   = [1, 3, 4, 5, 6]
 		
 		
 	def CG_valency_length_only_local_move( self ):
@@ -187,9 +198,25 @@ class SpecDatasets():
 		
 	def conc_dependence_merged( self ):
 		
-		self.filenames_edited = [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in range(10) for glun2b in range(9) ]
+		self.stgs    = range(10)
+		self.glun2bs = range(9)
+		
+		self.filenames_edited = [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in self.stgs for glun2b in self.glun2bs ]
 		dir_target  = 'conc_dependence_merged'
 		self._shared4( dir_target )
+		
+		self.filename_edited_matrix    = lambda stg, glun2b: str(stg).zfill(2)+'_'+str(glun2b).zfill(2)
+		
+		# All
+		#STGs    = [108,216,432,576,864,1728,2592,3456,4320,5184]
+		#GluN2Bs = [270,540,1080,2160,4320,6480,8640,12960,17280]
+		#
+		# Subset
+		# self.stgs   [216, 576, 1728, 3456] 
+		# sub_glun2bs [540, 4320, 8640,17280]
+		
+		self.sub_stgs    = [1, 3, 5, 7]
+		self.sub_glun2bs = [1, 4, 6, 8]
 		
 		
 	def conc_dependence_merged_sub( self ):
@@ -244,6 +271,7 @@ class SpecDatasets():
 		self.filenames_lammpstrj = [os.path.join('SPG', 'R{}_trj.lammpstrj'.format(i)) for i in [0,1,2,3]]
 		dir_target = 'boundary_conditions'
 		self._shared4( dir_target )
+		
 		
 	def boundary_conditions3( self ):
 		
