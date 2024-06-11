@@ -18,7 +18,7 @@ from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 import warnings
 
-from conc_dependence2_calc_connectivity_plot_phase_diagram import \
+from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
 	HandleConnectivityPhaseDiagramConcDependence, \
 	HandleCondVolumePhaseDiagramConcDependence, \
 	PlotPhaseDiagram
