@@ -5,8 +5,6 @@ import math
 
 import matplotlib
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import pyplot, patches
 
 import networkx as nx
 
@@ -14,15 +12,7 @@ import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
 
-import pyvista
-import trimesh
 
-import itertools
-
-
-plt.rcParams.update(p.rc_param)
-	
-	
 def arrange_graph_bar(ax, panel_size_x, panel_size_y):
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
@@ -46,7 +36,7 @@ def plot_graphs(ave_cos, pull_force, surface_tensions, pull_force_per_area):
 	# Plot concs in condensates
 	column = 3
 	ax = fig.add_subplot( num_rows, num_columns, column+num_columns*1 )
-	ax.set_title('Cosine similarity')
+	ax.set_title('Average cosine')
 	ax.bar(*zip(*ave_cos.items()), width=0.6 , color='gray' ) # , color=colormap_conc_bargraph
 	ax.set_ylim([0,1.2*max(ave_cos.values())])
 	ax.set_ylabel('E[cos(theta)]')
@@ -115,6 +105,7 @@ def plot_polar_scatter(angles, distances_to_hub, max_legnth, dir_imgs, prefix):
 	
 def plot_polar_histogram(angles, distances_to_hub, max_linker_length, dir_imgs, prefix):
 	
+	
 	rbins = np.arange(0, max_linker_length+1, 1)
 	abins = np.linspace(0,2*np.pi, 30)
 	abins_s = np.hstack( [abins[1:], abins[0]] )
@@ -144,6 +135,8 @@ def plot_polar_histogram(angles, distances_to_hub, max_linker_length, dir_imgs, 
 	
 	
 def get_properties_beads_CaMKII(g_largest_cluster):
+	
+	
 	CaMKII_binding_site = {}
 	for id, v in g_largest_cluster.nodes.items():
 		if v['species'] == 'CaMKII':
@@ -209,59 +202,5 @@ def calc_contraction_force(angles, distance_to_hub, max_linker_length, radius_co
 	return  ave_cos, contraction_force, surface_tension, contraction_force_per_area
 	
 	
-
-
-	
-if __name__ == '__main__':
 	
 	
-	
-	# Valency length
-	filenames = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(4,14,2) for id_f in range(7) ]
-	dir_target  = 'CG_valency_length'
-	
-	filenames = [ '12_002', '12_006']
-
-	max_linker_lengths = {'_'+str(id_f).zfill(3): l for id_f, l in zip( range(7), [1,2,3,4,5,6,9]) }
-	max_linker_lengths = {str(id_d).zfill(2)+k: v for id_d in range(2,14,2) for k, v in max_linker_lengths.items() }
-	
-	radiuses_condensate = utils.load(os.path.join('data4', dir_target), 'radiuses', 'CaMKII')
-	
-	
-	# Shared part of initialization
-	dir_edited_data  = os.path.join('data4', dir_target)
-	os.makedirs(dir_edited_data, exist_ok=True)
-	dir_imgs = os.path.join('imgs4', dir_target,'surface_tension')
-	os.makedirs(dir_imgs, exist_ok=True)
-	
-	
-	aves_cos = {}
-	surface_tensions = {}
-	pull_forces = {}
-	pull_forces_per_area = {}
-	for ii, prefix in enumerate( filenames ):
-		print(prefix)
-		
-		# Load the graph of CaMKII condensate.
-		d = utils.load(dir_edited_data, prefix, 'connectivity_graph')
-		max_linker_length = max_linker_lengths[prefix]
-		radius_condensate = radiuses_condensate[prefix]
-		
-		angles, distances_to_hub = calc_angle_and_distance_to_hub(d)
-		
-		#plot_polar_scatter(angles, distances_to_hub, max_linker_length, dir_imgs, prefix)
-		#plot_polar_histogram(angles, distances_to_hub, max_linker_length, dir_imgs, prefix)
-		
-		ave_cos, contraction_force, surface_tension, contraction_force_per_area = \
-				calc_contraction_force(angles, distances_to_hub, max_linker_length, radius_condensate)
-		
-		surface_tensions[str(max_linker_length)] = surface_tension
-		aves_cos[str(max_linker_length)] = ave_cos
-		pull_forces[str(max_linker_length)] = contraction_force
-		pull_forces_per_area[str(max_linker_length)] = contraction_force_per_area
-		
-	# Plot bar graphs.
-	fig = plot_graphs(aves_cos, pull_forces, surface_tensions, pull_forces_per_area)
-	fig.savefig( os.path.join(dir_imgs, 'Surface_tension.svg' ) )
-	fig.savefig( os.path.join(dir_imgs, 'Surface_tension.png' ) , dpi=150)
-	plt.show()

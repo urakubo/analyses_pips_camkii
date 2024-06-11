@@ -119,7 +119,7 @@ class SpecDatasets():
 		self.valencies = range(2,14,2)
 		self.lengths   = range(7)
 		
-		subdirs    = ['val{}'.format(i) for i in self.valencies]
+		subdirs    = ['val_{}'.format(i) for i in self.valencies]
 		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in self.lengths]
 		self.filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
 		self.filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in self.valencies for id_f in self.lengths ]
@@ -129,9 +129,22 @@ class SpecDatasets():
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
+		# Plot surface tension.
+		self.real_lengths  = [1,2,3,4,5,6,9]
+		self.real_linker_length_from_filename = \
+			{self.filename_edited_matrix(v, l): real_length \
+				for v in self.valencies \
+				for l, real_length in zip(self.lengths, self.real_lengths) }
+		
 		# matrix pyvista
 		self.sub_valencies = [2, 4, 6, 8, 12] 
 		self.sub_lengths   = [1, 3, 4, 5, 6]
+		
+		
+		# matrix pyvista
+		self.surface_tension_valencies = range(4,14,2)
+		self.surface_tension_lengths   = range(7)
+		self.surface_tension_real_lengths  = [1,2,3,4,5,6,9]
 		
 		
 	def CG_valency_length_only_local_move( self ):

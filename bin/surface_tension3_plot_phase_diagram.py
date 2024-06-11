@@ -8,32 +8,32 @@ import networkx as nx
 
 import lib.utils as utils
 import lib.utils_fitting as utils_fitting
+import lib.utils_surface_tension as utils_surface_tension
 import lib.parameters as p
 import lib.colormap as c
 
-
-from surface_tension3_plot import calc_angle_and_distance_to_hub, calc_contraction_force
+from specification_datasets import SpecDatasets
 
 
 plt.rcParams.update(p.rc_param)
 	
 	
 	
-class MatrixValencyLength():
+class PlotSurfaceTensionPhaseDiagramValencyLength(SpecDatasets):
 	
 	def __init__( self ):
-		# Parameters
-		self.sigma = 2
-		dir_target = 'CG_valency_length'
-		self.dir_edited_data = os.path.join('data4', dir_target)
-		self.dir_imgs        = os.path.join('imgs4', dir_target, 'phase_diagram')
+		
+		pass
+		
+		
+	def reflect_spec( self ):
+		
+		self.dir_imgs = os.path.join(self.dir_imgs_root, 'phase_diagram')
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		
-		self.valencies = range(4,14,2)
-		self.num_rows		= len( self.valencies )
-		self.num_columns	= len( p.lengths )
 		
-		self.radiuses_condensate = utils.load(self.dir_edited_data, 'radiuses', 'CaMKII')
+		self.num_rows		= len( self.surface_tension_valencies )
+		self.num_columns	= len( self.surface_tension_lengths )
 		
 		self.ave_cos             = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
 		self.pull_force          = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
@@ -41,30 +41,31 @@ class MatrixValencyLength():
 		self.pull_force_per_area = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
 		
 		
-		self.radiuses_condensate_matrix = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
-		for i, valency in enumerate(self.valencies):
-			for j, linker_length in enumerate(p.lengths):
-				prefix      = p.fnames_valency[valency]+'_'+p.fnames_length[linker_length]
-				self.radiuses_condensate_matrix[j,i] = self.radiuses_condensate[prefix]
+		self.radii_condensate = utils.load(self.dir_edited_data, 'radiuses', 'CaMKII')
+		self.radii_condensate_matrix = np.zeros([self.num_columns, self.num_rows], dtype = 'float')
+		for i, v in enumerate( self.surface_tension_valencies ):
+			for j, l in enumerate( self.surface_tension_lengths ):
+				prefix = self.filename_edited_matrix(v, l)
+				self.radii_condensate_matrix[j,i] = self.radii_condensate[prefix]
 		
 		
 	def run_calc( self ):
 		
-		for i, valency in enumerate(self.valencies):
-			for j, max_linker_length in enumerate(p.lengths):
+		for i, v in enumerate( self.surface_tension_valencies ):
+			for j, l in enumerate(self.surface_tension_lengths ):
 				
-				# Load data
 				
-				prefix      = p.fnames_valency[valency]+'_'+p.fnames_length[max_linker_length]
-				print('Target file: ', prefix)
-				d           = utils.load(self.dir_edited_data, prefix, 'connectivity_graph')
+				filename_prefix    = self.filename_edited_matrix(v, l)
+				d                  = utils.load(self.dir_edited_data, filename_prefix, 'connectivity_graph')
+				real_linker_length = self.real_linker_length_from_filename[filename_prefix]
+				print('Target file: ', filename_prefix)
 				
-				radius_condensate = self.radiuses_condensate[prefix]
+				radiuse_condensate = self.radii_condensate[filename_prefix]
 				
-				angles, distances_to_hub = calc_angle_and_distance_to_hub(d)
+				angles, distances_to_hub = utils_surface_tension.calc_angle_and_distance_to_hub(d)
 				
 				ave_cos, contraction_force, surface_tension, contraction_force_per_area = \
-						calc_contraction_force(angles, distances_to_hub, max_linker_length, radius_condensate)
+						utils_surface_tension.calc_contraction_force(angles, distances_to_hub, real_linker_length, radiuse_condensate)
 				
 				self.ave_cos[j,i]    = ave_cos
 				self.pull_force[j,i] = contraction_force
@@ -107,20 +108,26 @@ class MatrixValencyLength():
 		
 	def plot_phase_diagrams( self ):
 		
-		title    = 'Radiuses'
-		filename = 'Radiuses'
+		title    = 'Radii'
+		filename = 'Radii'
 		colormap =  plt.colormaps['Greys'] #  plt.get_cmap plt.colormaps
 		levels   = np.linspace(0,36,35)
 		ax = self.prepare_plot(title)
-		cs, cb = utils.plot_a_panel(ax, self.radiuses_condensate_matrix, p.lengths, self.valencies, colormap, levels)
+		cs, cb = utils.plot_a_panel(ax, self.radii_condensate_matrix,\
+			self.surface_tension_real_lengths, \
+			self.surface_tension_valencies, \
+			colormap, levels)
 		self.save_a_fig( filename )
 		
-		title    = 'Cos similarity'
-		filename = 'Cos_similarity'
+		title    = 'Average_cos'
+		filename = 'Average_cos'
 		colormap =  c.cmap_white_green_universal
 		levels   = np.linspace(0,1,10)
 		ax = self.prepare_plot(title)
-		cs, cb = utils.plot_a_panel(ax, self.ave_cos, p.lengths, self.valencies, colormap, levels)
+		cs, cb = utils.plot_a_panel(ax, self.ave_cos, \
+			self.surface_tension_real_lengths, \
+			self.surface_tension_valencies, \
+			colormap, levels)
 		self.save_a_fig( filename )
 		
 		title    = 'Contraction force'
@@ -128,7 +135,10 @@ class MatrixValencyLength():
 		colormap = c.cmap_white_red_universal
 		levels   = np.linspace(0,3000,10)
 		ax = self.prepare_plot(title)
-		cs, cb = utils.plot_a_panel(ax, self.pull_force, p.lengths, self.valencies, colormap, levels)
+		cs, cb = utils.plot_a_panel(ax, self.pull_force, \
+			self.surface_tension_real_lengths, \
+			self.surface_tension_valencies, \
+			colormap, levels)
 		self.save_a_fig( filename )
 		
 		title    = 'Contraction force per area'
@@ -136,7 +146,10 @@ class MatrixValencyLength():
 		colormap = plt.colormaps['Greys'] #  plt.get_cmap plt.colormaps
 		levels   = np.linspace(0,0.6,10)
 		ax = self.prepare_plot(title)
-		cs, cb = utils.plot_a_panel(ax, self.pull_force_per_area, p.lengths, self.valencies, colormap, levels)
+		cs, cb = utils.plot_a_panel(ax, self.pull_force_per_area, \
+			self.surface_tension_real_lengths, \
+			self.surface_tension_valencies, \
+			colormap, levels)
 		self.save_a_fig( filename )
 		
 		title    = 'Surface tension'
@@ -145,7 +158,10 @@ class MatrixValencyLength():
 		levels   = np.linspace(0,25,8)
 		ax = self.prepare_plot(title)
 		ticks = [0, 5, 10, 15, 20, 25]
-		cs, cb = utils.plot_a_panel(ax, self.surface_tensions, p.lengths, self.valencies, colormap, levels, ticks=ticks)
+		cs, cb = utils.plot_a_panel(ax, self.surface_tensions, \
+			self.surface_tension_real_lengths, \
+			self.surface_tension_valencies, \
+			colormap, levels, ticks=ticks)
 		self.save_a_fig( filename )
 		
 		
@@ -229,9 +245,11 @@ class MatrixValencyLength():
 		
 if __name__ == '__main__':
 	
-	graph = MatrixValencyLength()
+	graph = PlotSurfaceTensionPhaseDiagramValencyLength()
+	graph.CG_valency_length()
+	graph.reflect_spec()
 	#graph.run_calc()
 	#graph.save_data()
 	graph.load_data()
-	#graph.plot_phase_diagrams()
+	graph.plot_phase_diagrams()
 	graph.plot_logistic_regression()

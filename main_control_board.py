@@ -15,8 +15,46 @@ from bin.valency_length_FRAP2_fit_plot import PlotFRAPMatrixValencyLength, PlotF
 from bin.both1_plot_matrix import PlotConcMatrixValencyLength, PlotConcMatrixConcDependence
 from bin.both2_plot_matrix_3d_pyvista import PlotMatrixValencyLengthPyvista, PlotMatrixConcPyvista
 
+from bin.surface_tension1_calc_radius_CaMKII_condensate import HandleRDPCaMKII
+from bin.surface_tension2_plot import PlotSurfaceTension
+from bin.surface_tension3_plot_phase_diagram import PlotSurfaceTensionPhaseDiagramValencyLength
+
+
+obj = PlotSurfaceTensionPhaseDiagramValencyLength()
+obj.CG_valency_length()
+obj.reflect_spec()
+#graph.run_calc()
+#graph.save_data()
+obj.load_data()
+obj.plot_phase_diagrams()
+obj.plot_logistic_regression()
+
 
 '''
+obj = PlotSurfaceTensionPhaseDiagramValencyLength()
+obj.CG_valency_length()
+obj.reflect_spec()
+#graph.run_calc()
+#graph.save_data()
+obj.load_data()
+obj.plot_phase_diagrams()
+obj.plot_logistic_regression()
+
+
+obj = PlotSurfaceTension()
+obj.CG_valency_length()
+obj.reflect_spec()
+# obj.inspect_targets()
+obj.multiple_run_plot()
+obj.show_polar_graphs()
+
+
+obj = HandleRDPCaMKII()
+obj.CG_valency_length()
+obj.run()
+obj.save_figs()
+obj.save_hmws()
+
 
 sub = True
 obj = PlotMatrixValencyLengthPyvista()

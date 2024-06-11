@@ -11,11 +11,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import mpl_toolkits.axes_grid1
 
+from scipy import ndimage
+
+
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
 
-from scipy import ndimage
+from specification_datasets import SpecDatasets
 
 plt.rcParams.update(p.rc_param)
 plt.rcParams.update( {'font.size': 6} )
@@ -68,48 +71,38 @@ def plot_bar(ax, data, color, ylim, ylegend, width=0.5):
 	ax.set_ylim(ylim)
 	
 
-class HandleRDFCaMKII():
+class HandleRDPCaMKII(SpecDatasets):
 		
 	def __init__( self ):
-		dir_target = 'CG_valency_length'
-		subdir     = 'radius_CaMKII'
 		self.basename = 'radius_CaMKII'
-		
-		self.dir_lammpstrj    = os.path.join('..', 'lammpstrj4', dir_target)
-		self.dir_edited_data  = os.path.join('data4', dir_target)
-		self.dir_imgs = os.path.join('imgs4', dir_target, subdir)
-		
-		os.makedirs(self.dir_edited_data, exist_ok=True)
-		os.makedirs(self.dir_imgs, exist_ok=True)
-		
-		self.valencies = range(2,14,2)
-		self.lengths   = range(7)
-		
-		self.num_rows	 = len( self.valencies )
-		self.num_columns = len( self.lengths   ) 
 		
 		
 	def run( self ):
-		self.fig, self.axes  =  plt.subplots(self.num_rows, self.num_columns, figsize=(10, 10), tight_layout=True)
+		
+		num_rows	= len( self.valencies )
+		num_columns = len( self.lengths   ) 
+		
+		self.fig, self.axes  =  plt.subplots(num_rows, num_columns, figsize=(10, 10), tight_layout=True)
 		self.hmws = {}
 		for i, v in enumerate(self.valencies):
 			for j, l in enumerate(self.lengths):
 				# Filename
-				filename_input = os.path.join('val{}'.format(v), 'R2_{}.lammpstrj'.format(str(l).zfill(3)) )
-				prefix = '{}_{}'.format(str(v).zfill(2), str(l).zfill(3))
+				filename_lammpstrj = self.filename_lammpstrj_matrix(v,l)
+				prefix = self.filename_edited_matrix(v,l)
 				suffix = 'sigma_2'
 				# d      = utils.load(dir_edited_data, prefix, suffix)
 				
 				# Load lammpstrj
-				print("\n"+filename_input)
-				sampling_frame = utils.get_num_frames(self.dir_lammpstrj, filename_input)
+				print("\n"+filename_lammpstrj)
+				sampling_frame = utils.get_num_frames(self.dir_lammpstrj, filename_lammpstrj)
 				rdf, rdf_bins  = \
-					utils.get_rdf_CaMKII(self.dir_lammpstrj, filename_input, sampling_frame )
+					utils.get_rdf_CaMKII(self.dir_lammpstrj, filename_lammpstrj, sampling_frame )
 				
 				# Make figure
-				row    = self.num_rows-i-1
+				row    = num_rows-i-1
 				column = j
 				self.hmws[prefix] = self.plot_a_graph(row, column, rdf, rdf_bins, prefix)
+		
 		
 		
 	def plot_a_graph(self, row, column, rdf, rdf_bins, title):
@@ -129,8 +122,12 @@ class HandleRDFCaMKII():
 		return hmw
 		
 	def save_figs( self ):
-		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.svg' ) )
-		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '.png' ), dpi=150 )
+		
+		# Shared init
+		dir_imgs = os.path.join(self.dir_imgs_root, 'matrix_radius_CaMKII')
+		os.makedirs(dir_imgs, exist_ok=True)
+		self.fig.savefig( os.path.join(dir_imgs, self.basename + '.svg' ) )
+		self.fig.savefig( os.path.join(dir_imgs, self.basename + '.png' ), dpi=150 )
 		plt.show()
 		plt.clf()
 		plt.close(fig=self.fig)
