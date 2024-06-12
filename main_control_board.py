@@ -25,6 +25,25 @@ from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import HandleConn
 from bin.valency_length1_plot_phase_diagram import PlotConnectivityValencyLength, PlotPhaseDiagramValencyLength, PlotRelaxzationTimeForMixtureValencyLength, PlotPropertiesValencyLength
 
 from bin.connectivity_make_video_ovito_modularity import MakeOvitoVideoModularity
+from bin.connectivity_calc1_graph_time_development import MakeConnectivityGraphTimeDev
+
+
+
+'''
+
+obj = MakeConnectivityGraphTimeDev()
+obj.valency_length_small_colony2()
+obj.inspect()
+
+# repeat_for_valency_length(filenames_lammpstrj, filenames_edited)
+
+i = 7*5+1 # val_12\R2_002
+i = 7*4+0 # val_10\R2_000
+i = 7*5+0 # val_12\R2_000
+i = 7*4+1 # val_10\R2_001
+#i = 7*3+0 # val_08\R2_000
+obj.repeat_for_time_development( i )
+#obj.repeat_for_valency_length()
 
 
 
@@ -35,10 +54,6 @@ obj.inspect()
 i = 7*5+6 # val_12\R2_006
 obj.run( i = i )
 obj.make_a_video( i )
-
-
-'''
-
 
 
 centers  = [[0,0,0],[60,0,0],[0,60,0],[0,0,60],[60,60,0],[0,60,60],[60,0,60],[60,60,60]]

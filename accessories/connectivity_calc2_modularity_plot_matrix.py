@@ -15,6 +15,7 @@ import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
 import lib.utils_graph as utils_graph
+from specification_datasets import SpecDatasets
 
 
 import matplotlib.pyplot as plt
@@ -188,12 +189,13 @@ def load_calc_modularity_density(dir_edited_data, prefix_load):
 	
 	return modul, tot_density, density, clust_coeff
 	
+	
 def load_calc_modularities_densities_save_them(dir_edited_data, prefixes_load):
-
+	
 	modulatiries = {}
 	densities    = {}
 	clust_coeffs = {}
-
+	
 	for prefix_load in prefixes_load:
 		modul, _, density, clust_coeff = \
 			load_calc_modularity_density(dir_edited_data, prefix_load)
@@ -218,51 +220,47 @@ def load_calc_modularities_densities_save_them(dir_edited_data, prefixes_load):
 
 
 if __name__ == '__main__':
-
+	
 	# Input file
+	t = SpecDatasets()
+	t.valency_length_small_colony2()
 	
-	dir_target    = 'small_colony2'
-	prefixes_load = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(4,14,2) for id_f in range(7)]	
+	dir_imgs = os.path.join(t.dir_imgs_root, 'connectivity_matrix_dendrogram')
+	os.makedirs(dir_imgs, exist_ok=True)
 	
-	
-	# Shared init
-	dir_edited_data  = os.path.join('data4', dir_target)
-	dir_imgs         = os.path.join('imgs4', dir_target, 'connectivity_matrix_dendrogram')
-	os.makedirs(dir_imgs, exist_ok=True)	
 	
 	#load_calc_modularities_densities_save_them(dir_edited_data, prefixes_load)
 	#repeat_for_valency_length(dir_edited_data, prefix_load)
-	
 	
 	
 	id_length_valency = 7*4+6 # val_12\R2_006
 	id_length_valency = 7*4+2 # val_12\R2_002
 	
 	
-	
-	prefix_load = prefixes_load[id_length_valency] # '0_'+
+	prefix_load = t.filenames_edited[id_length_valency]
 	suffix_load ='louvain'
 	#suffix_load ='greedy_modularity'
 	
-	load_and_plot_a_matrix( dir_imgs, dir_edited_data, prefix_load, suffix_load )
+	
+	load_and_plot_a_matrix( dir_imgs, t.dir_edited_data, prefix_load, suffix_load )
+	
 	
 	#plot_matrix_histogram_and_save_it( dir_imgs, dir_edited_data, prefix_load, suffix_load )
 	
+	
 	'''
-	modul, tot_density, density = load_calc_modularity_density(dir_edited_data, prefix_load)
+	modul, tot_density, density = load_calc_modularity_density(t.dir_edited_data, prefix_load)
 	print('prefix_load ', prefix_load)
 	print('tot_density ', tot_density)
 	print('density     ', density)
 	
 	
-	
 	#repeat_for_time_development(dir_edited_data, prefix_load)
-	
 	
 	
 	for prefix_load in prefixes_load:
 		print('prefix_load ', prefix_load)
-		repeat_for_time_development(dir_edited_data, prefix_load)
+		repeat_for_time_development(t.dir_edited_data, prefix_load)
 	'''
 	
 	

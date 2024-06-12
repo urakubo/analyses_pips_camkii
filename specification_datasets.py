@@ -312,3 +312,16 @@ class SpecDatasets():
 		
 		
 		
+		'''
+		# Small colony
+		subdirs    = ['CaMKII_432_GluN2Bc_8640', 'CaMKII_864_GluN2Bc_8640']
+		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in range(7)]
+		filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
+		filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in range(3) for id_f in range(7)]
+		dir_target  = 'small_colony'
+		i = 6 # 5
+		num_skip_frames_for_sampling = 1
+		i = 5 #
+		num_skip_frames_for_sampling = 3
+		'''
+
