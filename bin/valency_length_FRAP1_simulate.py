@@ -71,7 +71,7 @@ class SimulatePhotobleach(SpecDatasets):
 				print('Finished.\n')
 				
 				
-	def save_time_series( self, d, filename_edited):
+	def save_time_series( self, d, filename_edited ):
 		# Save the edited data
 		prefix = filename_edited
 		utils.save(self.dir_edited_data, prefix, self.suffix, d)

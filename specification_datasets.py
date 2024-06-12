@@ -216,8 +216,8 @@ class SpecDatasets():
 		
 	def conc_dependence_033( self ):
 		
-		self.filenames_lammpstrj = [str(i).zfill(3) for i in range(9) ]
-		self.filenames_edited    = ['R2_{}.lammpstrj'.format(f) for f in self.filenames_edited ]
+		self.filenames_edited = [str(i).zfill(3) for i in range(9) ]
+		self.filenames_lammpstrj  = ['R2_{}.lammpstrj'.format(f) for f in self.filenames_edited ]
 		dir_target          = 'conc_dependence_0.33'
 		self._shared4( dir_target )
 		
@@ -251,6 +251,14 @@ class SpecDatasets():
 	def conc_dependence_merged_sub( self ):
 		self.filenames_edited = [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in range(8,10) for glun2b in range(4,6) ]
 		dir_target  = 'conc_dependence_merged'
+		self._shared4( dir_target )
+		
+		
+	def CaMKII_blocked4( self ):
+		
+		self.filenames_edited = [str(i).zfill(3) for i in range(3) ]
+		self.filenames_lammpstrj  = ['R2_{}.lammpstrj'.format(f) for f in self.filenames_edited ]
+		dir_target = 'CaMKII_blocked'
 		self._shared4( dir_target )
 		
 		

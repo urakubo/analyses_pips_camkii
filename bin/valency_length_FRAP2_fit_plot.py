@@ -20,64 +20,54 @@ plt.rcParams.update(p.rc_param)
 
 
 class SingleValencyLength():
-	def __init__( self , target_molecule, length):
-		
-		# Input files
-		print(target_molecule , length)
-		#self.length   = 2
-		self.length   = length
-		self.valency = 12
-		if target_molecule == 'CaMKII' and self.length == 2:
-			self.dir_target  = 'small_colony2'
-			self.xlim        = [-1,8]
-			self.set_xticks  = [0,2,4,6,8]
-		elif target_molecule == 'GluN2B' and self.length == 2:
-			self.dir_target  = 'small_colony3'
-			self.xlim        = [-0.01,0.08]
-			self.set_xticks  = [0,0.04,0.08]
-		elif target_molecule in ['CaMKII','GluN2B'] and self.length == 6:
-			self.dir_target  = 'small_colony3'
-			self.xlim        = [-0.01,0.08]
-			self.set_xticks  = [0,0.04,0.08]
-		else:
-			print('Error!')
-		
+	def __init__( self ):
 		
 		self.num_rows = 1
 		self.num_columns = 1
 		
 		
-	def plot( self ):
+	def plot( self , valency = 12, length = 2 ):
 		
-		# Shared init
 		
-		self.filename_edited = str(self.valency).zfill(2)+'_'+str(self.length).zfill(3)
-		self.basename = self.filename_edited
-		self.suffix = 'FRAP'
+		if self.target_molecule_fit == 'CaMKII' and length == 2:
+			#self.dir_target  = 'small_colony2'
+			xlim        = [-1,8]
+			set_xticks  = [0,2,4,6,8]
+		elif self.target_molecule_fit == 'GluN2B' and length == 2:
+			#self.dir_target  = 'small_colony3'
+			xlim        = [-0.01,0.08]
+			set_xticks  = [0,0.04,0.08]
+		elif self.target_molecule_fit in ['CaMKII','GluN2B'] and length == 6:
+			#self.dir_target  = 'small_colony3'
+			xlim        = [-0.01,0.08]
+			set_xticks  = [0,0.04,0.08]
+		else:
+			print('Error!')
+			sys.exit()
 		
-		self.dir_edited_data = os.path.join('data4', self.dir_target)
-		self.dir_imgs        = os.path.join('imgs4', self.dir_target, 'FRAP')
-		os.makedirs(self.dir_imgs, exist_ok=True)
-				
-		d = utils.load(self.dir_edited_data, self.filename_edited, self.suffix)
 		
+		# Load data
+		prefix =  self.filename_edited_matrix(valency, length)
+		d = utils.load(self.dir_edited_data, prefix, self.suffix)
+		
+		# Plot
 		self.fig  = plt.figure(figsize=(1.3, 1.0))
-		
 		legend = True
 		row = 0
 		column = 1
 		value, ax = self.plot_a_graph(row, column, d, self.basename, legend)
-		
-		#
-		ax.set_xlim( self.xlim )
-		ax.set_xticks(self.set_xticks)
-		#
-		
+		ax.set_xlim( xlim )
+		ax.set_xticks(set_xticks)
 		ax.set_title('{},{:.4f}'.format( self.basename, value))
+		#
+		
 		
 	def save( self ):
-		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '_' + self.target_molecule_fit + '.svg' ) )
-		self.fig.savefig( os.path.join(self.dir_imgs, self.basename + '_' + self.target_molecule_fit + '.png' ), dpi=150 )
+	
+		dir_imgs = os.path.join(self.dir_imgs_root, 'FRAP')
+		os.makedirs(dir_imgs, exist_ok=True)
+		self.fig.savefig( os.path.join(dir_imgs, self.basename + '.svg' ) )
+		self.fig.savefig( os.path.join(dir_imgs, self.basename + '.png' ), dpi=150 )
 		plt.show()
 		plt.clf()
 		plt.close(fig=self.fig)
@@ -175,10 +165,10 @@ class PlotFRAPMatrixValencyLength(PlotFRAP, MatrixValencyLength, SpecDatasets):
 		
 		
 		
-class PlotFRAPSingleValencyLength(PlotFRAP, SingleValencyLength):
-	def __init__( self, target_molecule = 'CaMKII',length = '2'):
+class PlotFRAPSingleValencyLength(PlotFRAP, SingleValencyLength, SpecDatasets):
+	def __init__( self, target_molecule = 'CaMKII' ):
 		PlotFRAP.__init__(self, target_molecule )
-		SingleValencyLength.__init__(self, target_molecule , length)
+		SingleValencyLength.__init__(self)
 
 
 	

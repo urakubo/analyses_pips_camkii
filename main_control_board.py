@@ -20,14 +20,27 @@ from bin.surface_tension1_calc_radius_CaMKII_condensate import HandleRDPCaMKII
 from bin.surface_tension2_plot import PlotSurfaceTension
 from bin.surface_tension3_plot_phase_diagram import PlotSurfaceTensionPhaseDiagramValencyLength
 
-from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import HandleConnectivityPhaseDiagramConcDependence, HandleCondVolumePhaseDiagramConcDependence, PlotPhaseDiagramConcDependence
+from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
+	HandleConnectivityPhaseDiagramConcDependence, \
+	HandleCondVolumePhaseDiagramConcDependence, \
+	PlotPhaseDiagramConcDependence
 
-from bin.valency_length1_plot_phase_diagram import PlotConnectivityValencyLength, PlotPhaseDiagramValencyLength, PlotRelaxzationTimeForMixtureValencyLength, PlotPropertiesValencyLength
+from bin.valency_length1_plot_phase_diagram import \
+	PlotConnectivityValencyLength, \
+	PlotPhaseDiagramValencyLength, \
+	PlotRelaxzationTimeForMixtureValencyLength, \
+	PlotPropertiesValencyLength
 
 from bin.connectivity_make_video_ovito_modularity import MakeOvitoVideoModularity
 from bin.connectivity_calc1_graph_time_development import MakeConnectivityGraphTimeDev
 
 
+
+
+
+obj = PlotProfiles()
+obj.CaMKII_blocked4()
+obj.run()
 
 '''
 
