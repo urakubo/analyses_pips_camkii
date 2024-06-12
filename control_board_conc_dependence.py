@@ -9,9 +9,9 @@ from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
 	PlotPhaseDiagramConcDependence
 
 
-#species, type_analysis = 'CaMKII', 'average'
+species, type_analysis = 'CaMKII', 'average'
 #species, type_analysis = 'PSD95' , 'average'
-species, type_analysis = 'PSD95' , 'ratio'
+#species, type_analysis = 'PSD95' , 'ratio'
 #species, type_analysis = 'PSD95' , 'average_GluN2B'
 pl = HandleConnectivityPhaseDiagramConcDependence(species, type_analysis)
 pl.conc_dependence_merged()
@@ -46,6 +46,7 @@ obj = PlotConcMatrixConcDependence(target)
 obj.conc_dependence_merged()
 obj.run()
 obj.save()
+
 
 
 # 'region_condensates', 'conc_CaMKII', 'conc_PSD95', 'conc_STG', 'conc_GluN2B', 'rdf',  'rdf_PSD95'
