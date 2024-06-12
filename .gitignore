@@ -4,6 +4,7 @@
 *.svg
 *.pickle
 *.mp4
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

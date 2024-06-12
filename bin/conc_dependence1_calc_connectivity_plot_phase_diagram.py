@@ -163,7 +163,7 @@ class PlotCondVolume():
 		return data
 		
 		
-class PlotPhaseDiagram( PhaseDiagramConcDependence, SpecDatasets ):
+class PlotPhaseDiagramConcDependence( PhaseDiagramConcDependence, SpecDatasets ):
 	def __init__( self ):
 		
 		super().__init__()
@@ -281,7 +281,7 @@ class HandleCondVolumePhaseDiagramConcDependence(PlotCondVolume, PhaseDiagramCon
 if __name__ == '__main__':
 	
 	#'''
-	pl = PlotPhaseDiagram()
+	pl = PlotPhaseDiagramConcDependence()
 	pl.conc_dependence_merged()
 	pl.plot()
 	pl.save_plots()

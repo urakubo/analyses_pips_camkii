@@ -4,18 +4,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-# import mpl_toolkits.axes_grid1
-# from scipy.interpolate import griddata, RegularGridInterpolator
-
-import lib.utils as utils
-import lib.parameters as p
-import lib.colormap as c
-
 from skimage.measure import label
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import r2_score
 from scipy.optimize import curve_fit
 import warnings
+
+
+import lib.utils as utils
+import lib.parameters as p
+import lib.colormap as c
+from specification_datasets import SpecDatasets
 
 
 plt.rcParams.update( p.rc_param )
@@ -73,22 +72,24 @@ def save_plots( fig, dir_imgs, img_basename ):
 		
 if __name__ == '__main__':
 	
-	# Shared init
-	dir_target = 'small_colony2'
-	dir_edited_data = os.path.join('data4', dir_target)
-	suffix = 'matrix'
+	t = SpecDatasets()
+	t.valency_length_small_colony2()
 	
-	dir_imgs = os.path.join('imgs4', dir_target, 'fitting')
+	dir_imgs = os.path.join(t.dir_imgs_root, 'matrix')
 	os.makedirs(dir_imgs, exist_ok=True)
+	
+	
+	# Shared init
 	filename_img = 'FRAP_clustering_coefficient_fitting'
 	
 	# Load data: FRAP
 	prefix = 'FRAP_merged'
-	d_FRAP = utils.load(dir_edited_data, prefix, suffix)
+	suffix = 'matrix'
+	d_FRAP = utils.load(t.dir_edited_data, prefix, suffix)
 	
 	# Load data: Clustering coefficient.
 	prefix = 'average_clustering_coefficient'
-	d_cluster = utils.load(dir_edited_data, prefix, suffix)
+	d_cluster = utils.load(t.dir_edited_data, prefix, suffix)
 	
 	x = [d_FRAP[k] for k in d_FRAP.keys() if k not in ['04_000', '04_001', '04_006']]
 	y = [d_cluster[k] for k in d_FRAP.keys() if k not in ['04_000', '04_001', '04_006']]

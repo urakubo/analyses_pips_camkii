@@ -21,7 +21,7 @@ import warnings
 from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
 	HandleConnectivityPhaseDiagramConcDependence, \
 	HandleCondVolumePhaseDiagramConcDependence, \
-	PlotPhaseDiagram
+	PlotPhaseDiagramConcDependence
 
 
 plt.rcParams.update( p.rc_param )
@@ -50,7 +50,7 @@ def save_plots( fig, dir_imgs, basename ):
 	
 def plot_fit_PIPS_partial_engulfment( fig, ax, title, ratios_connection ):
 	
-	pl = PlotPhaseDiagram()
+	pl = PlotPhaseDiagramConcDependence()
 	two_condensates    = pl.phase_diagram_two_condensates
 	partial_engulfment = pl.phase_diagram_partial_engulfment
 	two_condensates    = np.fliplr(two_condensates)
@@ -140,13 +140,15 @@ def plot_fit_hill_volumes( fig, ax, title, numbers_connection, volumes, species_
 if __name__ == '__main__':
 	
 	#species, type_analysis, species_vol, xmax = 'CaMKII', 'average','CaMKII', 12
-	#species, type_analysis, species_vol, xmax = 'PSD95' , 'average', 'STG', 3
-	species, type_analysis = 'PSD95' , 'ratio'
+	species, type_analysis, species_vol, xmax = 'PSD95' , 'average', 'STG', 3
+	#species, type_analysis = 'PSD95' , 'ratio'
 	pl = HandleConnectivityPhaseDiagramConcDependence(species, type_analysis)
+	pl.conc_dependence_merged()
 	pl.load_data()
+	
 	numbers_ratios_connection = pl.data	
+	dir_imgs = os.path.join(pl.dir_imgs_root, 'phase_diagram')
 	title    = pl.title
-	dir_imgs = pl.dir_imgs
 	basename = 'fit_' + species + '_' + type_analysis
 	
 	
@@ -156,6 +158,7 @@ if __name__ == '__main__':
 		plot_fit_PIPS_partial_engulfment(fig, ax, title, numbers_ratios_connection )
 	else:
 		pl = HandleCondVolumePhaseDiagramConcDependence(species_vol)
+		pl.conc_dependence_merged()
 		pl.load_data()
 		volumes = pl.data
 		plot_fit_hill_volumes(fig, ax, title, numbers_ratios_connection, volumes, species_vol, xmax )

@@ -20,23 +20,70 @@ from bin.surface_tension1_calc_radius_CaMKII_condensate import HandleRDPCaMKII
 from bin.surface_tension2_plot import PlotSurfaceTension
 from bin.surface_tension3_plot_phase_diagram import PlotSurfaceTensionPhaseDiagramValencyLength
 
-from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import HandleConnectivityPhaseDiagramConcDependence, HandleCondVolumePhaseDiagramConcDependence, PlotPhaseDiagram
+from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import HandleConnectivityPhaseDiagramConcDependence, HandleCondVolumePhaseDiagramConcDependence, PlotPhaseDiagramConcDependence
+
+from bin.valency_length1_plot_phase_diagram import PlotConnectivityValencyLength, PlotPhaseDiagramValencyLength, PlotRelaxzationTimeForMixtureValencyLength, PlotPropertiesValencyLength
 
 
-
-species, type_analysis = 'CaMKII', 'average'
+#species, type_analysis = 'CaMKII', 'average'
 #species, type_analysis = 'PSD95' , 'average'
-#species, type_analysis = 'PSD95' , 'ratio'
-# species, type_analysis = 'PSD95' , 'average_GluN2B'
-pl = HandleConnectivityPhaseDiagramConcDependence(species, type_analysis)
-pl.conc_dependence_merged()
-#pl.edit_data_save_them()
-pl.load_data()
-pl.plot_data()
-pl.save_plots()
+species, type_analysis = 'PSD95' , 'ratio'
+pl = PlotConnectivityValencyLength(species, type_analysis)
+pl.valency_length()
+pl.run()
+pl.save()
 
 
 '''
+
+
+
+centers  = [[0,0,0],[60,0,0],[0,60,0],[0,0,60],[60,60,0],[0,60,60],[60,0,60],[60,60,60]]
+suffixes = ['FRAP{}'.format(i) for i in range(8)]
+for center, suffix in zip(centers, suffixes):
+	obj = SimulatePhotobleach()
+	obj.C_valency_length_FRAP_Control()
+	obj.center = center
+	obj.suffix = suffix
+	obj.repeat_runs()
+
+
+
+
+pl = PlotPhaseDiagramValencyLength()
+pl.valency_length() # Only for the save directory?
+pl.plot()
+pl.save()
+
+
+#species, type_analysis = 'CaMKII', 'average'
+#species, type_analysis = 'PSD95' , 'average'
+species, type_analysis = 'PSD95' , 'ratio'
+pl = PlotConnectivityValencyLength(species, type_analysis)
+pl.valency_length()
+pl.run()
+pl.save()
+
+pl = PlotRelaxzationTimeForMixtureValencyLength()
+pl.valency_length_small_colony2()
+pl.run_mixture()
+pl.save()
+
+
+property = 'modularity' # 'density', 'modularity', 'clustering', 'FRAP'
+pl = PlotPropertiesValencyLength(property)
+pl.valency_length_small_colony2()
+pl.plot()
+pl.save()
+
+
+property = 'FRAP_GluN2B' # 'density', 'modularity', 'clustering', 'FRAP', 'FRAP_GluN2B'
+pl = PlotPropertiesValencyLength(property)
+pl.valency_length_small_colony3()
+pl.plot()
+pl.save()
+
+
 obj = PlotSurfaceTensionPhaseDiagramValencyLength()
 obj.CG_valency_length()
 obj.reflect_spec()
@@ -190,7 +237,7 @@ obj.make_a_video(i)
 
 
 
-pl = PlotPhaseDiagram()
+pl = PlotPhaseDiagramConcDependence()
 pl.conc_dependence_merged()
 pl.plot()
 pl.save_plots()
