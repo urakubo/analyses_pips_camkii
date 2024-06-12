@@ -1,5 +1,0 @@
-R2_000  Spatial constraint, 10000 steps  
-R2_001  3.2T to 1.0 T , 10000 steps
-R2_003 SPG steady state and CaMKII inactivated, 1.0 T 
-R2_004 CaMKII activated and the temperature increased o 1.2 T
-R2_005 1.2 T, Long simulation to get the PIPS, this is still running, 
