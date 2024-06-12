@@ -5,14 +5,15 @@ import random
 from scipy.spatial.transform import Rotation as R
 
 import networkx as nx
+import pyvista as pv
+import trimesh
 
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
 import lib.utils_pyvista as utils_pyvista
+from specification_datasets import SpecDatasets
 
-import pyvista as pv
-import trimesh
 
 rng = np.random.default_rng(seed=13)
 sphere = pv.Sphere(radius=0.3, phi_resolution=10, theta_resolution=10)
@@ -114,29 +115,29 @@ def pickup_CaMKII_samples(g_largest_cluster, num_samples, random, rot):
 if __name__ == '__main__':
 	
 	## Target file definition
-	num_samples = 30
-	dir_target      = 'CG_valency_length'
 	
+	num_samples = 30
 	prefix, random_seed = '12_002', 1
 	prefix, random_seed = '12_006', 0
 	#prefix, random_seed = '12_005', 2
 	
 	
-	## Shared init
-	dir_edited_data = os.path.join('data4', dir_target)
-	dir_imgs        = os.path.join('imgs4', dir_target,'surface_tension_prof')
+	t = SpecDatasets()
+	t.CG_valency_length()
+	
+	dir_imgs = os.path.join(t.dir_imgs_root,'surface_tension_prof')
 	os.makedirs(dir_imgs, exist_ok=True)
 	print(prefix)
 	
 	
 	## Load radius
-	radiuses = utils.load(dir_edited_data, 'radiuses', 'CaMKII')
+	radiuses = utils.load(t.dir_edited_data, 'radiuses', 'CaMKII')
 	radius   = radiuses[prefix]
 	
 	
 	## Load graph
 	suffix = 'connectivity_graph'
-	d = utils.load(dir_edited_data, prefix, suffix)
+	d = utils.load(t.dir_edited_data, prefix, suffix)
 	multi_graph = d['multi_graph']
 	cond_CaMKII = d['condensate_CaMKII']['condensate_CaMKII_in_grid_mesh']
 	

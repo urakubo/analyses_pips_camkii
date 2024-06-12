@@ -24,14 +24,17 @@ from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import HandleConn
 
 from bin.valency_length1_plot_phase_diagram import PlotConnectivityValencyLength, PlotPhaseDiagramValencyLength, PlotRelaxzationTimeForMixtureValencyLength, PlotPropertiesValencyLength
 
+from bin.connectivity_make_video_ovito_modularity import MakeOvitoVideoModularity
 
-#species, type_analysis = 'CaMKII', 'average'
-#species, type_analysis = 'PSD95' , 'average'
-species, type_analysis = 'PSD95' , 'ratio'
-pl = PlotConnectivityValencyLength(species, type_analysis)
-pl.valency_length()
-pl.run()
-pl.save()
+
+
+obj = MakeOvitoVideoModularity()
+obj.valency_length_small_colony2()
+obj.inspect()
+#i = 7*5+2 # val_12\R2_002
+i = 7*5+6 # val_12\R2_006
+obj.run( i = i )
+obj.make_a_video( i )
 
 
 '''
