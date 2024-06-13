@@ -21,33 +21,24 @@ from ovito.data import DataCollection, ParticleType
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
-import lib.utils_graph as utils_graph
 import lib.utils_ovito as utils_ovito
 from specification_datasets import SpecDatasets
 
 
 
 def plot_snapshots(data_all, dir_imgs, \
-		frame_num_before_time_zero = 0, \
-		num_skip_frames_for_sampling = 1 \
-		):
+				center, \
+				i_frame, \
+				accum_mc_steps, \
+				num_skip_frames_for_sampling):
 	
 	
-	# Time frames
-	num_frames = data_all.source.num_frames
-	print( 'num_frames : ', num_frames )
+	num_frames      = data_all.source.num_frames
+	target_frames   = list( range(0, num_frames, num_skip_frames_for_sampling) )
+	target_times    = np.array([data_all.compute(t).attributes['Timestep'] / 1e9 for t in target_frames]) + accum_mc_steps / 1e9
 	
-	
-	target_frames     = list( range(0, num_frames, num_skip_frames_for_sampling) )
-	frame_time_zero   = frame_num_before_time_zero
-	
-	
-	time_time_zero  = data_all.compute(frame_time_zero).attributes['Timestep'] / 1e9
-	target_times    = np.array([data_all.compute(t).attributes['Timestep'] for t in target_frames])/ 1e9 - time_time_zero
-	
-	
-	#print( 'target_frames' )
-	#print( target_frames )
+	print( 'target_times' )
+	print( target_times )
 	
 	# label colors
 	for k, v in p.molecules_without_all.items():
@@ -56,11 +47,6 @@ def plot_snapshots(data_all, dir_imgs, \
 	
 	
 	# Centering
-	types, positions, ids_molecule = utils.decode_data(data_all.compute(0)) # num_frames
-	center = utils.get_center_of_mass(types, positions)
-	for dim in [0,1,2]:
-		center[dim] += - p.space[dim] * (center[dim]  >=  p.space[dim]) + p.space[dim] * (center[dim]  <  0)
-	
 	modifier = utils_ovito.CenteringModifier()
 	modifier.center = center
 	data_all.modifiers.append(modifier)
@@ -82,9 +68,8 @@ def plot_snapshots(data_all, dir_imgs, \
 	#data   = data_all.compute()
 	data_all.add_to_scene()
 	
-	i = 0
 	for target_frame, target_time in zip(target_frames, target_times):
-		print('Time frame: ', target_frame, ', Time: ', target_time)
+		print('Time frame: {}, Time: {}, Save ID: {}'.format(target_frame, target_time, i_frame) )
 		
 		# Set time
 		timelabel = TextLabelOverlay( text = 'Time: {:.0f} G MC steps'.format(target_time),\
@@ -93,53 +78,100 @@ def plot_snapshots(data_all, dir_imgs, \
 		timelabel.alignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom
 		vp.overlays.append(timelabel)
 		
-		filename = os.path.join(dir_imgs, '{}.png'.format( str(i).zfill(4)) )
+		filename = os.path.join(dir_imgs, '{}.png'.format( str(i_frame).zfill(4)) )
 		print( filename )
-		i += 1
 		vp.render_image(size=(800,800), filename=filename, background=(1,1,1),frame=target_frame, renderer=OpenGLRenderer())
 		vp.overlays.remove(timelabel)
-	return
+		i_frame += 1
+	
+	data_all.remove_from_scene()
+	return i_frame
 	
 	
-class MakeOvitoVideo(SpecDatasets):
+	
+class MakeOvitoConnectedVideo(SpecDatasets):
 		
 	def __init__( self ):
 		
-		self.frame_num_before_time_zero = 0
-		self.num_skip_frames_for_sampling = 5
+		self.frame_time_zero = 935 #936
+		self.num_skip_frames_for_sampling = 5 # 5
 		
 		
 	def inspect( self ):
+		
 		for i, (f_lammpstrj, f_edited) in enumerate( zip(self.filenames_lammpstrj, self.filenames_edited) ):
 			print('ID {}: {}, {}'.format(i, f_lammpstrj, f_edited))
 		print('')
 		
-	def run( self, i ):
-		print('ID {}: {}, {}'.format(i, self.filenames_lammpstrj[i], self.filenames_edited[i]))
-		# Shared init
 		
-		dir_imgs         = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
+	def make_connected_snapshots( self, ids_target ):
+		
+		if not isinstance(ids_target, (list, tuple, range, set, frozenset)):
+			print('Use list, tuple, range, set, or frozenset.')
+			return
+		
+		self.folder_name = 'connected'
+		dir_imgs         = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.folder_name ) )
 		os.makedirs(dir_imgs, exist_ok=True)
 		
-		# Load lammpstrj file.
-		data_all = import_file(os.path.join(self.dir_lammpstrj, self.filenames_lammpstrj[i]), input_format= "lammps/dump" )
+		accum_frames    = 0
+		accum_mc_steps  = 0
+		accums_frames   = []
+		accums_mc_steps = []
 		
-		# Make images
-		plot_snapshots(data_all, dir_imgs, \
-			self.frame_num_before_time_zero, 
-			self.num_skip_frames_for_sampling
-			)
+		# Calculate accumulated time for connection.
+		print('Frame id for time zero and for centering: ', self.frame_time_zero)
+		done_centering = False
+		
+		for i in ids_target:
+			num_frames, mc_steps = utils.get_num_frames_mc_steps(self.dir_lammpstrj, self.filenames_lammpstrj[i])
+			accums_frames.append( accum_frames )
+			accums_mc_steps.append( accum_mc_steps )
+			accum_frames   += num_frames
+			accum_mc_steps += mc_steps
+			
+			print('ID {}, {}: frames {}, mc_steps {}, accum frames {}, accum mc_steps {}'.format(\
+				i, self.filenames_lammpstrj[i], \
+				num_frames, mc_steps, accum_frames, accum_mc_steps ) )
+			
+			# Centering 
+			if (done_centering == False) & ( accum_frames > self.frame_time_zero ):
+				done_centering  = True
+				frame_centering = self.frame_time_zero - accums_frames[-1]
+				types, positions,ids_molecule, mc_step = \
+					utils.load_lammpstrj( self.dir_lammpstrj, self.filenames_lammpstrj[i], frame_centering )
+				accum_mc_steps_centering = mc_step + accums_mc_steps[-1]
+				
+				center = utils.get_center_of_mass(types, positions)
+				for dim in [0,1,2]:
+					center[dim] += - p.space[dim] * (center[dim]  >=  p.space[dim]) + p.space[dim] * (center[dim]  <  0)
+				print('Centering:')
+				print('ID {}, {}: frames {}, mc_steps {}, accum frames {}, accum mc_steps {}'.format(\
+					i, self.filenames_lammpstrj[i], \
+					frame_centering,  mc_step, self.frame_time_zero, accum_mc_steps_centering) )
+			
+			
+		accums_mc_steps = [a - accum_mc_steps_centering for a in accums_mc_steps]
+		
+		# Repeat run.
+		i_frame = 0
+		for i, accum_mc_steps  in zip(ids_target, accums_mc_steps):
+			data_all = import_file(os.path.join(self.dir_lammpstrj, self.filenames_lammpstrj[i]), input_format= "lammps/dump" )
+			i_frame = plot_snapshots(data_all, dir_imgs, \
+					center, \
+					i_frame, \
+					accum_mc_steps, \
+					self.num_skip_frames_for_sampling)
 		
 		
-	def make_a_video( self, i ):
-		
+	def make_a_video( self ):
 		#
 		dir_videos    = os.path.join( self.dir_imgs_root, 'movies' )
-		dir_imgs = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
+		dir_imgs = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.folder_name ) )
 		os.makedirs(dir_videos, exist_ok=True)
 		
 		ffname = os.path.join( dir_imgs, '%04d.png' )
-		targ_name = os.path.join(dir_videos,'{}.mp4'.format( self.filenames_edited[i] ) )
+		targ_name = os.path.join(dir_videos,'{}.mp4'.format( self.folder_name ) )
 		com = ['ffmpeg','-r', '5', \
 			'-i', ffname,\
 			'-vf','scale=trunc(iw/2)*2:trunc(ih/2)*2',\
@@ -150,26 +182,28 @@ class MakeOvitoVideo(SpecDatasets):
 		
 if __name__ == '__main__':
 	
-	obj = MakeOvitoVideo()
+	'''
+	obj =  MakeOvitoConnectedVideo()
 	obj.CaMKII_blocked4() 
 	obj.inspect()
-	i = 0
-	obj.run(i)
-	obj.make_a_video(i)
+	ids_target = [0,1,2]
+	obj.make_connected_snapshots(ids_target)
+	obj.make_a_video()
+	'''
 	
-	# obj.boundary_conditions5()	i =13 # 10,11,12,13
+	obj =  MakeOvitoConnectedVideo()
+	obj.boundary_conditions5()
+	obj.inspect()
+	ids_target = [11,12,13]
+	obj.make_connected_snapshots(ids_target)
+	obj.make_a_video()	
 	
-	# Target: SPG
-	#filename_lammpstrj = 'PIPS_activated_trj.lammpstrj'
-	#filename_video     = 'PIPS'
-	#dir_lammpstrj_sub  = 'SPG'
-	#dir_target         = 'boundary_conditions'
 	
-	
-	# R2_000  Spatial constraint, 10000 steps  
-	# R2_001  3.2T to 1.0 T , 10000 steps
+	## R2_000  Spatial constraint, 10000 steps  
+	## R2_001  3.2T to 1.0 T , 10000 steps
 	# R2_003 SPG steady state and CaMKII inactivated, 1.0 T 
 	# R2_004 CaMKII activated and the temperature increased o 1.2 T
 	# R2_005 1.2 T, Long simulation to get the PIPS, this is still running, 
+	
 	
 	

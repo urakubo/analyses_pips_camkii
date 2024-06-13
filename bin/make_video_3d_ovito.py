@@ -98,6 +98,8 @@ def plot_snapshots(data_all, dir_imgs, \
 		i += 1
 		vp.render_image(size=(800,800), filename=filename, background=(1,1,1),frame=target_frame, renderer=OpenGLRenderer())
 		vp.overlays.remove(timelabel)
+	
+	data_all.remove_from_scene()
 	return
 	
 	
@@ -121,7 +123,7 @@ class MakeOvitoVideo(SpecDatasets):
 		# Shared init
 		
 		dir_imgs         = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
-		os.makedirs(self.dir_imgs, exist_ok=True)
+		os.makedirs(dir_imgs, exist_ok=True)
 		
 		# Load lammpstrj file.
 		data_all = import_file(os.path.join(self.dir_lammpstrj, self.filenames_lammpstrj[i]), input_format= "lammps/dump" )

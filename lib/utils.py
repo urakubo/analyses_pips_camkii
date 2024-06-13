@@ -47,6 +47,13 @@ def get_num_frames(dir_data, filename_data):
 	return num_frames
 	
 	
+def get_num_frames_mc_steps(dir_data, filename_data):
+	data_all   = import_file(os.path.join(dir_data, filename_data), input_format= "lammps/dump" )
+	num_frames = data_all.source.num_frames
+	mc_steps   = data_all.compute(num_frames).attributes['Timestep']
+	return num_frames, mc_steps
+	
+	
 def load_data(dir_data, filename_data, id_frame):
 	print('Load data.')
 	data_all            = import_file(os.path.join(dir_data, filename_data), input_format= "lammps/dump" )
@@ -60,10 +67,10 @@ def load_lammpstrj(dir_data, filename_data, id_frame):
 	data_all            = import_file(os.path.join(dir_data, filename_data), input_format= "lammps/dump" )
 	data_target_frame   = data_all.compute(id_frame)
 	types, positions, ids_molecule = decode_data(data_target_frame)
-	time_stamp 			= data_all.compute(id_frame).attributes['Timestep']
+	mc_steps 			= data_all.compute(id_frame).attributes['Timestep']
 	# data_target_frame.particles['bp']
 	
-	return types, positions, ids_molecule, time_stamp
+	return types, positions, ids_molecule, mc_steps
 	
 	
 def load_lammpstrj_binding_partners(dir_data, filename_data, id_frame):
