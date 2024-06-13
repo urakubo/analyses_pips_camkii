@@ -52,6 +52,12 @@ def get_STG_beads_in_largest_cluster(data_all, time_frame):
 
 
 
+class CenteringEachFrameModifier(ModifierInterface):
+	def modify(self, data, frame, **kwargs):
+		positions = data.particles.positions
+		center    = utils.get_center_of_mass_simple(positions)
+		data.particles_.positions_ = utils.centering_lattice_space(positions, center)
+		
 	
 class CenteringModifier(ModifierInterface):
 	def modify(self, data, frame, **kwargs):

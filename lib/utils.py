@@ -360,6 +360,36 @@ def watershed_segmentation( d ):
 	
 ############### Centering
 
+def get_center_of_mass_simple(positions):
+	
+	# print('position_ref: ', position_ref)
+	x = (positions[:,0] / p.space[0]) * 2 * np.pi
+	y = (positions[:,1] / p.space[1]) * 2 * np.pi
+	z = (positions[:,2] / p.space[2]) * 2 * np.pi
+	x0, x1 = np.cos(x), np.sin(x)
+	y0, y1 = np.cos(y), np.sin(y)
+	z0, z1 = np.cos(z), np.sin(z)
+
+	x0, x1 = np.mean(x0), np.mean(x1)
+	y0, y1 = np.mean(y0), np.mean(y1)
+	z0, z1 = np.mean(z0), np.mean(z1)
+
+	theta_x = np.arctan2(x1, x0)
+	theta_y = np.arctan2(y1, y0)
+	theta_z = np.arctan2(z1, z0)
+
+	center_of_mass = np.array( [theta_x * p.space[0], theta_y * p.space[1] , theta_z * p.space[2] ] ) + np.pi
+	center_of_mass /= (2 * np.pi)
+
+	for dim in [0,1,2]:
+		center_of_mass[dim] += \
+						- p.space[dim] * (center_of_mass[dim]  >=  p.space[dim]) \
+						+ p.space[dim] * (center_of_mass[dim]  <  0)
+
+	return center_of_mass
+	
+
+
 def get_center_of_mass(types_, positions_, reference_molecule_for_centering = p.reference_molecule_for_centering):
 	
 	types = [True if t in p.molecules_with_all[reference_molecule_for_centering]['id'] else False for t in types_ ]
