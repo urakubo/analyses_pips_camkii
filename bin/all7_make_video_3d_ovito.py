@@ -117,18 +117,19 @@ class MakeOvitoVideo(SpecDatasets):
 			print('ID {}: {}, {}'.format(i, f_lammpstrj, f_edited))
 		print('')
 		
-	def run( self, i ):
-		print('ID {}: {}, {}'.format(i, self.filenames_lammpstrj[i], self.filenames_edited[i]))
-		# Shared init
 		
-		self.dir_imgs         = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
-		os.makedirs(self.dir_imgs, exist_ok=True)
+	def run( self, i ):
+		
+		print('ID {}: {}, {}'.format(i, self.filenames_lammpstrj[i], self.filenames_edited[i]))
+		
+		dir_imgs = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
+		os.makedirs(dir_imgs, exist_ok=True)
 		
 		# Load lammpstrj file.
 		data_all = import_file(os.path.join(self.dir_lammpstrj, self.filenames_lammpstrj[i]), input_format= "lammps/dump" )
 		
 		# Make images
-		plot_snapshots(data_all, self.dir_imgs, \
+		plot_snapshots(data_all, dir_imgs, \
 			self.frame_num_before_time_zero, 
 			self.num_skip_frames_for_sampling
 			)
@@ -136,12 +137,11 @@ class MakeOvitoVideo(SpecDatasets):
 		
 	def make_a_video( self, i ):
 		
-		#
-		dir_videos    = os.path.join( self.dir_imgs_root, 'movies' )
-		self.dir_imgs = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
+		dir_videos = os.path.join( self.dir_imgs_root, 'movies' )
+		dir_imgs   = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
 		os.makedirs(dir_videos, exist_ok=True)
 		
-		ffname = os.path.join( self.dir_imgs, '%04d.png' )
+		ffname = os.path.join( dir_imgs, '%04d.png' )
 		targ_name = os.path.join(dir_videos,'{}.mp4'.format( self.filenames_edited[i] ) )
 		com = ['ffmpeg','-r', '5', \
 			'-i', ffname,\
