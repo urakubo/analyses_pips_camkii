@@ -79,7 +79,7 @@ def plot_snapshots(data_all, dir_imgs, \
 	vp.camera_pos = (850, 60, 60)
 	vp.camera_dir = (-1, 0, 0)
 	
-	#data   = data_all.compute()
+	
 	data_all.add_to_scene()
 	
 	i = 0
@@ -98,6 +98,9 @@ def plot_snapshots(data_all, dir_imgs, \
 		i += 1
 		vp.render_image(size=(800,800), filename=filename, background=(1,1,1),frame=target_frame, renderer=OpenGLRenderer())
 		vp.overlays.remove(timelabel)
+	
+	data_all.remove_from_scene()
+	
 	return
 	
 	
