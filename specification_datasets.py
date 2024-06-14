@@ -110,7 +110,7 @@ class SpecDatasets():
 		
 		
 		
-	def valency_length( self ):
+	def valency_length( self, sub = False ):
 		
 		self.valencies    = range(2,14,2)
 		self.lengths      = range(7)
@@ -123,11 +123,20 @@ class SpecDatasets():
 		dir_target       = 'valency_length'
 		self._shared4( dir_target )
 		
-		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
+		self.filename_edited_matrix      = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
+		self.filename_edited_matrix_true = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
 		
-	def CG_valency_length( self ):
+		# matrix pyvista
+		if sub == True:
+			self.valencies = [2, 4, 6, 8, 12] 
+			self.lengths      = [0, 2, 3, 4, 5]
+			self.real_lengths = [1, 3, 4, 5, 6]
+		self.sub = sub
+		
+		
+	def CG_valency_length( self, sub = False  ):
 		
 		self.valencies = range(2,14,2)
 		self.lengths   = range(7)
@@ -142,22 +151,24 @@ class SpecDatasets():
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
-		# Plot surface tension.
+		# Surface tension.
 		self.real_lengths  = [1,2,3,4,5,6,9]
 		self.real_linker_length_from_filename = \
 			{self.filename_edited_matrix(v, l): real_length \
 				for v in self.valencies \
 				for l, real_length in zip(self.lengths, self.real_lengths) }
 		
-		# matrix pyvista
-		self.sub_valencies = [2, 4, 6, 8, 12] 
-		self.sub_lengths   = [1, 3, 4, 5, 6]
-		
-		
-		# matrix pyvista
 		self.surface_tension_valencies = range(4,14,2)
 		self.surface_tension_lengths   = range(7)
 		self.surface_tension_real_lengths  = [1,2,3,4,5,6,9]
+		
+		# matrix pyvista
+		if sub == True:
+			self.valencies = [2, 4, 6, 8, 12] 
+			self.lengths      = [0, 2, 3, 4, 5]
+			self.real_lengths = [1, 3, 4, 5, 6]
+		self.sub = sub
+		
 		
 		
 	def CG_valency_length_only_local_move( self ):
@@ -222,7 +233,7 @@ class SpecDatasets():
 		self._shared4( dir_target )
 		
 		
-	def conc_dependence_merged( self ):
+	def conc_dependence_merged( self, sub = False ):
 		
 		self.stgs    = range(10)
 		self.glun2bs = range(9)
@@ -231,7 +242,8 @@ class SpecDatasets():
 		dir_target  = 'conc_dependence_merged'
 		self._shared4( dir_target )
 		
-		self.filename_edited_matrix    = lambda stg, glun2b: str(stg).zfill(2)+'_'+str(glun2b).zfill(2)
+		self.filename_edited_matrix      = lambda stg, : str(stg).zfill(2)+'_'+str(glun2b).zfill(2)
+		self.filename_edited_matrix_true = lambda glun2b, stg: str(stg).zfill(2)+'_'+str(glun2b).zfill(2)
 		
 		
 		STGs    = [108,216,432,576,864,1728,2592,3456,4320,5184]
@@ -240,10 +252,10 @@ class SpecDatasets():
 		self.concs_stg    = [ s / volume * 1000 for s in STGs    ]
 		self.concs_glun2b = [ n / volume * 1000 for n in GluN2Bs ]
 		
-		
-		self.sub_stgs    = [1, 3, 5, 7]
-		self.sub_glun2bs = [1, 4, 6, 8]
-		
+		if sub == True:
+			self.stgs    = [1, 3, 5, 7]
+			self.glun2bs = [1, 4, 6, 8]
+		self.sub = sub
 		# sub_stgs    [216, 576, 1728, 3456] 
 		# sub_glun2bs [540, 4320, 8640,17280]
 		

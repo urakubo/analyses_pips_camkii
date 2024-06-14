@@ -1,7 +1,7 @@
 
 
 from bin.both1_plot_matrix import PlotConcMatrixValencyLength, PlotConcMatrixConcDependence
-from bin.both2_plot_matrix_3d_pyvista import PlotMatrixValencyLengthPyvista, PlotMatrixConcPyvista
+from bin.both2_plot_matrix_3d_pyvista import PlotMatrixPyvista
 
 from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
 	HandleConnectivityPhaseDiagramConcDependence, \
@@ -9,21 +9,15 @@ from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
 	PlotPhaseDiagramConcDependence
 
 
-species, type_analysis = 'CaMKII', 'average'
-#species, type_analysis = 'PSD95' , 'average'
-#species, type_analysis = 'PSD95' , 'ratio'
-#species, type_analysis = 'PSD95' , 'average_GluN2B'
-pl = HandleConnectivityPhaseDiagramConcDependence(species, type_analysis)
-pl.conc_dependence_merged()
-#pl.edit_data_save_them()
-pl.load_data()
-pl.plot_data()
-pl.save_plots()
-
-
+sub = True
+obj = PlotMatrixPyvista()
+obj.valency_length(sub = sub)
+#obj.conc_dependence_merged(sub = sub)
+obj.run()
 
 
 '''
+
 
 sub = True
 obj = PlotMatrixValencyLengthPyvista()
