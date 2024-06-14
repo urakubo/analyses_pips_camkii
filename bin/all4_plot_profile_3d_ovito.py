@@ -44,17 +44,8 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 	
 	
 	# Centering
-	#'''
-	num_frames = data_all.source.num_frames
-	types, positions, ids_molecule = utils.decode_data(data_all.compute(num_frames))
-	center = utils.get_center_of_mass(types, positions)
-	for dim in [0,1,2]:
-		center[dim] += - p.space[dim] * (center[dim]  >=  p.space[dim]) + p.space[dim] * (center[dim]  <  0)
-	
-	modifier = utils_ovito.CenteringModifier()
-	modifier.center = center
-	data_all.modifiers.append(modifier)	
-	#'''
+	modifier = utils_ovito.CenteringEachFrameModifier()
+	data_all.modifiers.append(modifier)
 	
 	
 	# Slice data
@@ -81,9 +72,11 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 	vp.camera_pos = (60+dist, 60+dist, 60+dist)
 	vp.camera_dir = (-1, -1, -1)
 	'''
+	
 	data_all.add_to_scene()
 	filename = os.path.join(dir_imgs, filename_output+'_{}.png'.format( str(time_frame).zfill(4)) )
 	vp.render_image(size=(800,800), filename=filename, background=(1,1,1),frame=time_frame, renderer=OpenGLRenderer())
+	data_all.remove_from_scene()
 	
 	return
 

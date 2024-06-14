@@ -58,13 +58,22 @@ class CenteringEachFrameModifier(ModifierInterface):
 		center    = utils.get_center_of_mass_simple(positions)
 		data.particles_.positions_ = utils.centering_lattice_space(positions, center)
 		
-	
+		
 class CenteringModifier(ModifierInterface):
 	def modify(self, data, frame, **kwargs):
 		positions = data.particles.positions
 		data.particles_.positions_ = utils.centering_lattice_space(positions, self.center)
-		
-		
+	
+	'''
+	# How to use
+	num_frames = data_all.source.num_frames
+	types, positions, ids_molecule = utils.decode_data(data_all.compute(num_frames))
+	center = utils.get_center_of_mass(types, positions)
+	for dim in [0,1,2]:
+		center[dim] += - p.space[dim] * (center[dim]  >=  p.space[dim]) + p.space[dim] * (center[dim]  <  0)
+	'''
+	
+	
 def delete_particle(frame, data, ids):
 	transparency = np.ones((data.particles.count), dtype='int')
 	transparency[ids] = 0

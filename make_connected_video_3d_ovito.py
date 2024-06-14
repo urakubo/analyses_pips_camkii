@@ -51,7 +51,6 @@ def plot_snapshots(data_all, dir_imgs, \
 	modifier.center = center
 	data_all.modifiers.append(modifier)
 	'''
-	
 	modifier = utils_ovito.CenteringEachFrameModifier()
 	data_all.modifiers.append(modifier)
 	
