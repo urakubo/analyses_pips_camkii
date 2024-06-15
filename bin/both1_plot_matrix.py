@@ -18,9 +18,9 @@ class PlotConnectivity():
 	def __init__( self, species, type_analysis ):
 		
 		if species not in p.molecules_without_all.keys():
-			raise ValueError("Erronous augment 'species': ", species)
+			raise ValueError("Erronous argument 'species': ", species)
 		elif type_analysis not in ['average','distribution', 'CaMKII', 'PSD95', 'ratio']:
-			raise ValueError("Erronous augment 'type_analysis': ", type_analysis)
+			raise ValueError("Erronous argument 'type_analysis': ", type_analysis)
 		else:
 			self.species = species
 			self.type_analysis = type_analysis
@@ -56,7 +56,7 @@ class PlotConc():
 		if target not in ['region_condensates', \
 			'conc_CaMKII', 'conc_STG', 'conc_GluN2B', 'conc_PSD95', 'rdf', 'rdf_PSD95', 'concs_in_CaMKII', 'concs_in_STG',\
 			'unshared_PSD95', 'shared_PSD95','conc_unrotated_CaMKII']:
-			raise ValueError("Erronous augment 'target': ", target)
+			raise ValueError("Erronous argument 'target': ", target)
 		else:
 			self.target = target
 		sigma = 2
@@ -66,9 +66,8 @@ class PlotConc():
 	def plot_a_graph( self, row, column, d, title, legend = None ):
 		val = utils.select_plot(self.target, self.fig, self.num_rows, self.num_columns, row, column, d, title)
 		return val, None
-		
-		
-		
+	
+	
 class PlotConcMatrix(PlotConc, Matrix, SpecDatasets):
 	def __init__( self, target ):
 		PlotConc.__init__(self, target)

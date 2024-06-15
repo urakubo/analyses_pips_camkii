@@ -28,7 +28,8 @@ class Matrix():
 			rows	= self.glun2bs
 			columns	= self.stgs 
 			figsize = (10, 10)
-			
+		else:
+			ValueError("Neither conc_dependence nor valnency_length."
 		
 		
 		self.fig  = plt.figure(figsize=figsize, tight_layout=True)
