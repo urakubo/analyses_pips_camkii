@@ -1,6 +1,6 @@
 
 
-from bin.both1_plot_matrix import PlotConcMatrixValencyLength, PlotConcMatrixConcDependence
+from bin.both1_plot_matrix import PlotConcMatrix, PlotConnectivityMatrix
 from bin.both2_plot_matrix_3d_pyvista import PlotMatrixPyvista
 
 from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
@@ -9,11 +9,17 @@ from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
 	PlotPhaseDiagramConcDependence
 
 
-sub = True
-obj = PlotMatrixPyvista()
-obj.valency_length(sub = sub)
-#obj.conc_dependence_merged(sub = sub)
-obj.run()
+
+species       = 'CaMKII' # 'STG','GluN2B', 'PSD95','CaMKII'
+type_analysis = 'distribution'
+# 'average' and 'distribution' for all,
+# species: 'GluN2B', type_analysis 'CaMKII' or 'PSD95'
+# species: 'PSD95' , type_analysis 'ratio'
+
+obj = PlotConnectivityMatrix(species, type_analysis)
+obj.valency_length()
+values = obj.run()
+obj.save()
 
 
 '''
@@ -21,7 +27,7 @@ obj.run()
 
 sub = True
 obj = PlotMatrixValencyLengthPyvista()
-obj.CG_valency_length()
+obj.valency_length()
 obj.run(sub = sub)
 
 sub = True
@@ -35,23 +41,13 @@ obj.run(sub = sub)
 # 'concs_in_CaMKII', 'concs_in_STG',
 # 'shared_PSD95', 'unshared_PSD95', 'conc_unrotated_CaMKII'
 
-target = 'conc_unrotated_CaMKII'
-obj = PlotConcMatrixConcDependence(target)
+target = 'conc_CaMKII'
+obj = PlotConcMatrix(target)
+#obj.valency_length()
 obj.conc_dependence_merged()
 obj.run()
 obj.save()
 
-
-
-# 'region_condensates', 'conc_CaMKII', 'conc_PSD95', 'conc_STG', 'conc_GluN2B', 'rdf',  'rdf_PSD95'
-# 'concs_in_CaMKII', 'concs_in_STG',
-# 'shared_PSD95', 'unshared_PSD95', 'conc_unrotated_CaMKII'
-
-target = 'conc_unrotated_CaMKII'
-obj = PlotConcMatrixValencyLength(target)
-obj.CG_valency_length()
-obj.run()
-obj.save()
 
 
 pl = PlotPhaseDiagramConcDependence()

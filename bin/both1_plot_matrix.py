@@ -11,7 +11,7 @@ import lib.colormap as c
 plt.rcParams.update(p.rc_param)
 
 from specification_datasets import SpecDatasets
-from lib.utils_matrix import MatrixValencyLength, MatrixConcDependence
+from lib.utils_matrix import MatrixValencyLength, MatrixConcDependence, Matrix
 	
 	
 class PlotConnectivity():
@@ -45,7 +45,7 @@ class PlotConnectivity():
 		ax.spines['top'].set_visible(False)
 		ax.set_ylim(0,self.ymax[self.species][self.type_analysis])
 		ax.set_ylabel('(Number)')
-		if  type_analysis in ['distribution', 'CaMKII', 'PSD95'] :
+		if  self.type_analysis in ['distribution', 'CaMKII', 'PSD95'] :
 			ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
 		return True, ax
 		
@@ -69,26 +69,16 @@ class PlotConc():
 		
 		
 		
-class PlotConcMatrixConcDependence(PlotConc, MatrixConcDependence, SpecDatasets):
+class PlotConcMatrix(PlotConc, Matrix, SpecDatasets):
 	def __init__( self, target ):
 		PlotConc.__init__(self, target)
-		MatrixConcDependence.__init__(self)
-	
-class PlotConcMatrixValencyLength(PlotConc, MatrixValencyLength, SpecDatasets):
-	def __init__( self, target ):
-		PlotConc.__init__(self, target )
-		MatrixValencyLength.__init__(self)
+		Matrix.__init__(self)
 	
 	
-class PlotConnectivityMatrixConcDependence(PlotConnectivity, MatrixConcDependence, SpecDatasets):
+class PlotConnectivityMatrix(PlotConnectivity, Matrix, SpecDatasets):
 	def __init__( self, species, type_analysis ):
 		PlotConnectivity.__init__(self, species, type_analysis )
-		MatrixConcDependence.__init__(self)
-		
-class PlotConnectivityMatrixValencyLength(PlotConnectivity, MatrixValencyLength, SpecDatasets):
-	def __init__( self, species, type_analysis ):
-		PlotConnectivity.__init__(self, species, type_analysis )
-		MatrixValencyLength.__init__(self)
+		Matrix.__init__(self)
 	
 	
 if __name__ == '__main__':
@@ -99,7 +89,7 @@ if __name__ == '__main__':
 	# 'shared_PSD95', 'unshared_PSD95', 'conc_unrotated_CaMKII'
 	#'''
 	target = 'conc_unrotated_CaMKII' # 'conc_CaMKII'
-	plot_concs = PlotConcMatrixValencyLength(target) # PlotConcMatrixConcDependence, PlotConcMatrixValencyLength
+	plot_concs = PlotConcMatrix(target) # PlotConcMatrixConcDependence, PlotConcMatrixValencyLength
 	values = plot_concs.run()
 	plot_concs.save()
 	#'''
@@ -111,7 +101,7 @@ if __name__ == '__main__':
 	# species: 'GluN2B', type_analysis 'CaMKII' or 'PSD95'
 	# species: 'PSD95' , type_analysis 'ratio'
 
-	connectivity = PlotConnectivityMatrixValencyLength(species, type_analysis)
+	connectivity = PlotConnectivityMatrix(species, type_analysis)
 	values = connectivity.run()
 	connectivity.save()	
 	'''

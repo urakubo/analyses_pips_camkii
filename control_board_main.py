@@ -13,7 +13,7 @@ from bin.valency_length_FRAP1_simulate import SimulatePhotobleach
 from bin.valency_length_FRAP2_fit_plot import PlotFRAPMatrixValencyLength, PlotFRAPSingleValencyLength
 
 
-from bin.both1_plot_matrix import PlotConcMatrixValencyLength, PlotConcMatrixConcDependence
+from bin.both1_plot_matrix import PlotConcMatrix, PlotConnectivityMatrix
 from bin.both2_plot_matrix_3d_pyvista import PlotMatrixPyvista
 
 from bin.surface_tension1_calc_radius_CaMKII_condensate import HandleRDPCaMKII
@@ -35,6 +35,36 @@ from bin.connectivity_make_video_ovito_modularity import MakeOvitoVideoModularit
 from bin.connectivity_calc1_graph_time_development import MakeConnectivityGraphTimeDev
 
 
+obj = PlotFRAPMatrixValencyLength( target_molecule = 'CaMKII' ) # CaMKII, GluN2B
+obj.CG_valency_length_only_local_move(frap = True)
+#obj.valency_length_small_colony3()
+obj.run()
+obj.save()
+
+
+'''
+
+
+
+obj = SimulatePhotobleach()
+obj.C_valency_length_FRAP_Control()
+obj.center = [0,60,60]
+obj.suffix = 'FRAP2'
+obj.repeat_runs()
+
+obj = PlotFRAPMatrixValencyLength()
+obj.C_valency_length_FRAP_Control(frap= True)
+obj.run()
+obj.save()
+
+obj = PlotFRAPMatrixValencyLength( target_molecule = 'CaMKII' ) # CaMKII, GluN2B
+obj.CG_valency_length_only_local_move(frap = True)
+#obj.valency_length_small_colony3()
+obj.run()
+obj.save()
+
+
+
 
 
 
@@ -42,7 +72,6 @@ obj = PlotProfiles()
 obj.CaMKII_blocked4()
 obj.run()
 
-'''
 
 obj = MakeConnectivityGraphTimeDev()
 obj.valency_length_small_colony2()
@@ -77,7 +106,6 @@ for center, suffix in zip(centers, suffixes):
 	obj.center = center
 	obj.suffix = suffix
 	obj.repeat_runs()
-
 
 
 
@@ -157,21 +185,26 @@ obj.run()
 # 'shared_PSD95', 'unshared_PSD95', 'conc_unrotated_CaMKII'
 
 target = 'conc_unrotated_CaMKII'
-obj = PlotConcMatrixConcDependence(target)
+obj = PlotConcMatrix(target)
 obj.conc_dependence_merged()
+#obj.valency_length()
 obj.run()
 obj.save()
 
 
-# 'region_condensates', 'conc_CaMKII', 'conc_PSD95', 'conc_STG', 'conc_GluN2B', 'rdf',  'rdf_PSD95'
-# 'concs_in_CaMKII', 'concs_in_STG',
-# 'shared_PSD95', 'unshared_PSD95', 'conc_unrotated_CaMKII'
 
-target = 'conc_unrotated_CaMKII'
-obj = PlotConcMatrixValencyLength(target)
-obj.CG_valency_length()
-obj.run()
+species       = 'CaMKII' # 'STG','GluN2B', 'PSD95','CaMKII'
+type_analysis = 'distribution'
+# 'average' and 'distribution' for all,
+# species: 'GluN2B', type_analysis 'CaMKII' or 'PSD95'
+# species: 'PSD95' , type_analysis 'ratio'
+
+obj = PlotConnectivityMatrix(species, type_analysis)
+obj.valency_length()
+values = obj.run()
 obj.save()
+
+
 
 
 centers  = [[0,0,0],[60,0,0],[0,60,0],[0,0,60],[60,60,0],[0,60,60],[60,0,60],[60,60,60]]
@@ -187,40 +220,12 @@ for center, suffix in zip(centers, suffixes):
 
 obj = SimulatePhotobleach()
 obj.C_valency_length_FRAP_Control()
-obj.center = [0,60,60]
-obj.suffix = 'FRAP2'
-obj.repeat_runs()
-
-
-obj = PlotFRAPMatrixValencyLength()
-obj.C_valency_length_FRAP_Control()
-obj.run(frap= True)
-obj.save()
-
-obj = PlotFRAPMatrixValencyLength()
-obj.CG_valency_length_only_local_move()
-#obj.valency_length_small_colony3()
-obj.run(frap= True)
-obj.save()
-
-
-
-obj = SimulatePhotobleach()
-obj.C_valency_length_FRAP_Control()
 obj.repeat_runs()
 
 obj = SimulatePhotobleach()
 obj.CG_valency_length_only_local_move()
 #obj.valency_length_small_colony3()
 obj.repeat_runs()
-
-
-obj = PlotFRAPMatrixValencyLength( target_molecule = 'CaMKII' ) # CaMKII, GluN2B
-obj.CG_valency_length_only_local_move()
-#obj.valency_length_small_colony3()
-obj.run(frap = True)
-obj.save()
-
 
 obj = EditData()
 obj.CG_valency_length() #  conc_dependence(), valency_length(), valency_length_CG(), inhibitor()

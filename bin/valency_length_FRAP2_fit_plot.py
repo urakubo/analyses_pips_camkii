@@ -14,7 +14,7 @@ import lib.utils_graph as utils_graph
 
 
 from specification_datasets import SpecDatasets
-from lib.utils_matrix import MatrixValencyLength
+from lib.utils_matrix import Matrix
 
 plt.rcParams.update(p.rc_param)
 
@@ -156,11 +156,11 @@ class PlotFRAP():
 		return param[0], ax
 		
 		
-class PlotFRAPMatrixValencyLength(PlotFRAP, MatrixValencyLength, SpecDatasets):
+class PlotFRAPMatrixValencyLength(PlotFRAP, Matrix, SpecDatasets):
 	def __init__( self, target_molecule = 'CaMKII' ):
 		
 		PlotFRAP.__init__( self, target_molecule )
-		MatrixValencyLength.__init__( self )
+		Matrix.__init__( self )
 		SpecDatasets.__init__( self )
 		
 		

@@ -60,7 +60,7 @@ class SpecDatasets():
 		return os.path.join(subdir, filename)
 		
 		
-	def valency_length_small_colony2( self ):
+	def valency_length_small_colony2( self, frap=False ):
 		
 		self.valencies = range(2,14,2)
 		self.lengths   = range(7)
@@ -77,15 +77,16 @@ class SpecDatasets():
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
-		self.valencies_frap = range(4,14,2)
-		self.lengths_frap   = range(7) # [1, 2, 3, 4, 5, 6, 9]
-		self.real_lengths_frap = [1,2,3,4,5,6,9]
+		if frap==True:
+			self.valencies    = range(4,14,2)
+			self.lengths      = range(7) # [1, 2, 3, 4, 5, 6, 9]
+			self.real_lengths = [1,2,3,4,5,6,9]
 		
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony2
 		
 		
 		
-	def valency_length_small_colony3( self ):
+	def valency_length_small_colony3( self, frap=False ):
 		
 		self.valencies = range(2,14,2)
 		self.lengths   = range(7)
@@ -102,9 +103,10 @@ class SpecDatasets():
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
-		self.valencies_frap = range(4,14,2)
-		self.lengths_frap   = range(7) # [1, 2, 3, 4, 5, 6, 9]
-		self.real_lengths_frap = [1,2,3,4,5,6,9]
+		if frap==True:
+			self.valencies    = range(4,14,2)
+			self.lengths      = range(7) # [1, 2, 3, 4, 5, 6, 9]
+			self.real_lengths = [1,2,3,4,5,6,9]
 		
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony3
 		
@@ -124,7 +126,6 @@ class SpecDatasets():
 		self._shared4( dir_target )
 		
 		self.filename_edited_matrix      = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
-		self.filename_edited_matrix_true = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
 		
@@ -171,7 +172,7 @@ class SpecDatasets():
 		
 		
 		
-	def CG_valency_length_only_local_move( self ):
+	def CG_valency_length_only_local_move( self, frap = False ):
 		
 		self.valencies = range(2,16,2)
 		self.lengths   = range(7)
@@ -185,12 +186,14 @@ class SpecDatasets():
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
-		self.valencies_frap = range(4,14,2)
-		self.lengths_frap   = range(7) # [1, 2, 3, 4, 5, 6, 9]
+		
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony2
+		if frap == True:
+			self.valencies = range(4,14,2)
+			self.lengths   = range(7) # [1, 2, 3, 4, 5, 6, 9]
 		
 		
-	def C_valency_length_FRAP_Control( self ):
+	def C_valency_length_FRAP_Control( self, frap = False ):
 		
 		self.valencies = range(2,16,2)
 		self.lengths   = range(7)
@@ -203,10 +206,11 @@ class SpecDatasets():
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
-		
-		self.valencies_frap = range(4,14,2)
-		self.lengths_frap   = range(7) # [1, 2, 3, 4, 5, 6, 9]
+
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony2
+		if  frap == True:
+			self.valencies = range(4,14,2)
+			self.lengths   = range(7) # [1, 2, 3, 4, 5, 6, 9]
 		
 		
 	def conc_dependence( self ):
@@ -242,8 +246,7 @@ class SpecDatasets():
 		dir_target  = 'conc_dependence_merged'
 		self._shared4( dir_target )
 		
-		self.filename_edited_matrix      = lambda stg, : str(stg).zfill(2)+'_'+str(glun2b).zfill(2)
-		self.filename_edited_matrix_true = lambda glun2b, stg: str(stg).zfill(2)+'_'+str(glun2b).zfill(2)
+		self.filename_edited_matrix = lambda glun2b, stg: str(stg).zfill(2)+'_'+str(glun2b).zfill(2)
 		
 		
 		STGs    = [108,216,432,576,864,1728,2592,3456,4320,5184]

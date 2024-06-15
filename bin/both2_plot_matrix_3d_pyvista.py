@@ -41,7 +41,7 @@ class PlotMatrixPyvista(SpecDatasets):
 		for i, column in enumerate( columns ):
 			for j, row in enumerate( rows ):
 				# Load data
-				filename_edited_prefix = self.filename_edited_matrix_true(row, column)
+				filename_edited_prefix = self.filename_edited_matrix(row, column)
 				d      = utils.load(self.dir_edited_data, filename_edited_prefix, suffix)
 				print('Target: ', filename_edited_prefix)
 				pl.subplot(num_rows-j-1, i)
