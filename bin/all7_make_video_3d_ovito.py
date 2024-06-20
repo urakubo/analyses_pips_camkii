@@ -21,7 +21,6 @@ from ovito.data import DataCollection, ParticleType
 import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
-import lib.utils_graph as utils_graph
 import lib.utils_ovito as utils_ovito
 from specification_datasets import SpecDatasets
 

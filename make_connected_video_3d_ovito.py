@@ -99,8 +99,8 @@ class MakeOvitoConnectedVideo(SpecDatasets):
 		
 	def __init__( self ):
 		
-		self.frame_time_zero = 100 # 0, 935
-		self.num_skip_frames_for_sampling = 5 # 5
+		self.frame_time_zero = 100
+		self.num_skip_frames_for_sampling = 5
 		
 		
 	def inspect( self ):

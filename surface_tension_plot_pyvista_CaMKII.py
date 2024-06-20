@@ -16,7 +16,7 @@ from specification_datasets import SpecDatasets
 
 
 rng = np.random.default_rng(seed=13)
-sphere = pv.Sphere(radius=0.3, phi_resolution=10, theta_resolution=10)
+sphere = pv.Sphere(radius=0.5, phi_resolution=10, theta_resolution=10)
 line   = pv.Line()
 
 
@@ -90,8 +90,10 @@ def pickup_CaMKII_samples(g_largest_cluster, num_samples, random_seed, rot):
 		x = np.abs( pos[0,0] )
 		y = np.abs( pos[0,1] )
 		z = np.abs( pos[0,2] )
+		r = np.sqrt(x*x + y*y + z*z)
 		xx = pos[1:,0]
-		if (abs(x) > 1): # abs(xx[0]) < 2
+		# if (abs(r) < 15): # if (abs(x) > 1):
+		if (abs(r) > 18) or (abs(r) < 10) or (abs(x) > 1):
 			i += 1
 			continue
 		else:
@@ -112,64 +114,77 @@ def pickup_CaMKII_samples(g_largest_cluster, num_samples, random_seed, rot):
 	return locs_hub_bead, locs_binding_beads, vertices, lines
 	
 	
+	
+class PlotPyvistaCaMKII(SpecDatasets):
+	def __init__( self ):
+		
+		pass
+		
+	def plot_save( self, prefix = '12_006', random_seed = 0, num_samples = 10 ):
+		
+		dir_imgs = os.path.join(self.dir_imgs_root,'surface_tension_prof')
+		os.makedirs(dir_imgs, exist_ok=True)
+		print(prefix)
+		
+		
+		## Load radius
+		radiuses = utils.load(self.dir_edited_data, 'radiuses', 'CaMKII')
+		radius   = radiuses[prefix]
+		
+		
+		## Load graph
+		suffix = 'connectivity_graph'
+		d = utils.load(self.dir_edited_data, prefix, suffix)
+		multi_graph = d['multi_graph']
+		cond_CaMKII = d['condensate_CaMKII']['condensate_CaMKII_in_grid_mesh']
+		
+		
+		## Pickup the largest cluster
+		nodes_clusters = sorted(nx.connected_components(multi_graph), key=len, reverse=True)
+		g_largest_cluster = nx.MultiGraph( multi_graph.subgraph(nodes_clusters[0]) )
+		
+		
+		## Rotation
+		r1 = R.from_euler('x', 80, degrees=True)
+		r2 = R.from_euler('z', 10, degrees=True)
+		rot = r2 * r1		
+		
+		
+		## Pickup CaMKII samples
+		locs_hub_bead, locs_binding_beads, vertices, lines = \
+			pickup_CaMKII_samples(g_largest_cluster, num_samples, random_seed, rot)
+		
+		
+		'''
+		print('locs_hub_bead.shape     ', locs_hub_bead.shape )
+		print('locs_binding_beads.shape ', locs_binding_beads.shape )
+		print('vertices.shape     ', vertices.shape )
+		print('lines.shape ', lines.shape )
+		'''
+		
+		
+		## Plot and save
+		
+		pl = plot_3D_pvista_cond_CaMKII(radius, locs_hub_bead, locs_binding_beads, vertices, lines, rot )
+		
+		filename = os.path.join(dir_imgs, '{}_.png'.format(prefix))
+		pl.show(interactive=True, auto_close=False)
+		pl.screenshot(filename)
+		
+		
+		
 if __name__ == '__main__':
 	
 	## Target file definition
 	
-	num_samples = 30
-	prefix, random_seed = '12_002', 1
+	num_samples = 7
+	#prefix, random_seed = '12_002', 1
 	prefix, random_seed = '12_006', 0
-	#prefix, random_seed = '12_005', 2
+	#prefix, random_seed = '12_005', 0
 	
 	
-	t = SpecDatasets()
-	t.CG_valency_length()
-	
-	dir_imgs = os.path.join(t.dir_imgs_root,'surface_tension_prof')
-	os.makedirs(dir_imgs, exist_ok=True)
-	print(prefix)
-	
-	
-	## Load radius
-	radiuses = utils.load(t.dir_edited_data, 'radiuses', 'CaMKII')
-	radius   = radiuses[prefix]
-	
-	
-	## Load graph
-	suffix = 'connectivity_graph'
-	d = utils.load(t.dir_edited_data, prefix, suffix)
-	multi_graph = d['multi_graph']
-	cond_CaMKII = d['condensate_CaMKII']['condensate_CaMKII_in_grid_mesh']
-	
-	
-	## Pickup the largest cluster
-	nodes_clusters = sorted(nx.connected_components(multi_graph), key=len, reverse=True)
-	g_largest_cluster = nx.MultiGraph( multi_graph.subgraph(nodes_clusters[0]) )
-	
-	
-	## Rotation
-	r1 = R.from_euler('x', 80, degrees=True)
-	r2 = R.from_euler('z', 10, degrees=True)
-	rot = r2 * r1
-	
-	
-	## Pickup CaMKII samples
-	locs_hub_bead, locs_binding_beads, vertices, lines = \
-		pickup_CaMKII_samples(g_largest_cluster, num_samples, random, rot)
-	
-	'''
-	print('locs_hub_bead.shape     ', locs_hub_bead.shape )
-	print('locs_binding_beads.shape ', locs_binding_beads.shape )
-	print('vertices.shape     ', vertices.shape )
-	print('lines.shape ', lines.shape )
-	'''
-	
-	## Plot and save
-	
-	pl = plot_3D_pvista_cond_CaMKII(radius, locs_hub_bead, locs_binding_beads, vertices, lines, rot )
-	
-	filename = os.path.join(dir_imgs, '{}_.png'.format(prefix))
-	pl.show(interactive=False, auto_close=True)
-	pl.screenshot(filename)
+	obj = PlotPyvistaCaMKII()
+	obj.CG_valency_length()
+	obj.plot_save( prefix = prefix, random_seed = random_seed, num_samples = num_samples )
 	
 	
