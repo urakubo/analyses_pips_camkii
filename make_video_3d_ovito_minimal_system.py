@@ -4,8 +4,6 @@ import os, sys, glob, pprint,itertools, shutil
 import numpy as np
 os.environ['OVITO_GUI_MODE'] = '1' # Request a session with OpenGL support
 
-#import networkx as nx
-#import matplotlib.pyplot as plt
 
 import subprocess as s
 
@@ -22,7 +20,6 @@ import lib.utils as utils
 import lib.parameters as p
 import lib.colormap as c
 import lib.utils_ovito as utils_ovito
-from specification_datasets import SpecDatasets
 
 
 
@@ -45,17 +42,14 @@ def plot_snapshots(data_all, dir_imgs, \
 	target_times    = np.array([data_all.compute(t).attributes['Timestep'] for t in target_frames])/ 1e9 - time_time_zero
 	
 	
-	#print( 'target_frames' )
-	#print( target_frames )
-	
 	# label colors
 	for k, v in p.molecules_without_all.items():
 		data_all.modifiers.append(SelectTypeModifier(types=set(v['id'])))
 		data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio[k] ))
 	
 	
-	# Centering
-	types, positions, ids_molecule = utils.decode_data(data_all.compute(num_frames))
+	# Centering at the specified frame
+	types, positions, ids_molecule = utils.decode_data(data_all.compute( frame_time_zero ))
 	center = utils.get_center_of_mass(types, positions)
 	for dim in [0,1,2]:
 		center[dim] += - p.space[dim] * (center[dim]  >=  p.space[dim]) + p.space[dim] * (center[dim]  <  0)
@@ -64,6 +58,11 @@ def plot_snapshots(data_all, dir_imgs, \
 	modifier.center = center
 	data_all.modifiers.append(modifier)
 	
+	'''
+	# Centering at each frame
+	modifier = utils_ovito.CenteringEachFrameModifier()
+	data_all.modifiers.append(modifier)
+	'''
 	
 	# Slice data
 	modifier = SliceModifier()
@@ -85,11 +84,11 @@ def plot_snapshots(data_all, dir_imgs, \
 	for target_frame, target_time in zip(target_frames, target_times):
 		print('Time frame: ', target_frame, ', Time: ', target_time)
 		
-		# Set time
 		timelabel = TextLabelOverlay( text = 'Time: {:.0f} G MC steps'.format(target_time),\
 			font_size = 0.03, \
-			text_color = (0,0,0) )
-		timelabel.alignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom
+			text_color = (0,0,0), \
+			alignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom
+			 )
 		vp.overlays.append(timelabel)
 		
 		filename = os.path.join(dir_imgs, '{}.png'.format( str(i).zfill(4)) )
@@ -103,29 +102,28 @@ def plot_snapshots(data_all, dir_imgs, \
 	return
 	
 	
-class MakeOvitoVideo(SpecDatasets):
+class MakeOvitoVideo():
 		
 	def __init__( self ):
 		
 		self.frame_num_before_time_zero = 0
 		self.num_skip_frames_for_sampling = 5
 		
+		self.dir_lammpstrj      = ''
+		self.filename_lammpstrj = ''
+		self.filename_edited    = ''
+		self.dir_imgs_root      = ''
 		
-	def inspect( self ):
-		for i, (f_lammpstrj, f_edited) in enumerate( zip(self.filenames_lammpstrj, self.filenames_edited) ):
-			print('ID {}: {}, {}'.format(i, f_lammpstrj, f_edited))
-		print('')
 		
+	def run( self ):
 		
-	def run( self, i ):
+		print('{}, {}'.format( self.filename_lammpstrj, self.filename_edited))
 		
-		print('ID {}: {}, {}'.format(i, self.filenames_lammpstrj[i], self.filenames_edited[i]))
-		
-		dir_imgs = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
+		dir_imgs = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filename_edited ) )
 		os.makedirs(dir_imgs, exist_ok=True)
 		
 		# Load lammpstrj file.
-		data_all = import_file(os.path.join(self.dir_lammpstrj, self.filenames_lammpstrj[i]), input_format= "lammps/dump" )
+		data_all = import_file(os.path.join(self.dir_lammpstrj, self.filename_lammpstrj), input_format= "lammps/dump" )
 		
 		# Make images
 		plot_snapshots(data_all, dir_imgs, \
@@ -134,14 +132,14 @@ class MakeOvitoVideo(SpecDatasets):
 			)
 		
 		
-	def make_a_video( self, i ):
+	def make_a_video( self ):
 		
 		dir_videos = os.path.join( self.dir_imgs_root, 'movies' )
-		dir_imgs   = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
+		dir_imgs   = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filename_edited ) )
 		os.makedirs(dir_videos, exist_ok=True)
 		
 		ffname = os.path.join( dir_imgs, '%04d.png' )
-		targ_name = os.path.join(dir_videos,'{}.mp4'.format( self.filenames_edited[i] ) )
+		targ_name = os.path.join(dir_videos,'{}.mp4'.format( self.filename_edited ) )
 		com = ['ffmpeg','-r', '5', \
 			'-i', ffname,\
 			'-vf','scale=trunc(iw/2)*2:trunc(ih/2)*2',\
@@ -152,12 +150,18 @@ class MakeOvitoVideo(SpecDatasets):
 		
 if __name__ == '__main__':
 	
+	
 	obj = MakeOvitoVideo()
-	obj.boundary_conditions5() #  self.filenames_lammpstrj, self.filenames_edited
-	obj.inspect()
-	i =13 # 10,11,12,13
-	obj.run(i)
-	obj.make_a_video(i)
+	
+	dir_target = 'boundary_conditions'
+	obj.dir_lammpstrj      = os.path.join( '..', 'lammpstrj4', dir_target, 'SPG' )
+	obj.filename_lammpstrj = 'R2_trj.lammpstrj'
+	obj.dir_imgs_root      = os.path.join( 'imgs4', dir_target )
+	obj.filename_edited    = 'SPG'
+	
+	
+	obj.run()
+	obj.make_a_video()
 	
 	# Target: SPG
 	#filename_lammpstrj = 'PIPS_activated_trj.lammpstrj'
@@ -165,11 +169,5 @@ if __name__ == '__main__':
 	#dir_lammpstrj_sub  = 'SPG'
 	#dir_target         = 'boundary_conditions'
 	
-	
-	# R2_000  Spatial constraint, 10000 steps  
-	# R2_001  3.2T to 1.0 T , 10000 steps
-	# R2_003 SPG steady state and CaMKII inactivated, 1.0 T 
-	# R2_004 CaMKII activated and the temperature increased o 1.2 T
-	# R2_005 1.2 T, Long simulation to get the PIPS, this is still running, 
 	
 	

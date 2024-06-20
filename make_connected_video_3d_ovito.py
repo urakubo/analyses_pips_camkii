@@ -32,6 +32,7 @@ def plot_snapshots(data_all, dir_imgs, \
 				accum_mc_steps, \
 				num_skip_frames_for_sampling):
 	
+	# Get sampling frames and times
 	num_frames      = data_all.source.num_frames
 	target_frames   = list( range(0, num_frames, num_skip_frames_for_sampling) )
 	target_times    = np.array([data_all.compute(t).attributes['Timestep'] / 1e9 for t in target_frames]) + accum_mc_steps / 1e9
@@ -155,8 +156,8 @@ class MakeOvitoConnectedVideo(SpecDatasets):
 				print('ID {}, {}: frames {}, mc_steps {}, accum frames {}, accum mc_steps {}'.format(\
 					i, self.filenames_lammpstrj[i], \
 					frame_centering,  mc_step, self.frame_time_zero, accum_mc_steps_centering) )
-			
-			
+		
+		
 		accums_mc_steps = [a - accum_mc_steps_centering for a in accums_mc_steps]
 		
 		# Repeat run.
