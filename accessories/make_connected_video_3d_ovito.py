@@ -32,7 +32,7 @@ def plot_snapshots(data_all, dir_imgs, \
 				accum_mc_steps, \
 				num_skip_frames_for_sampling):
 	
-	
+	# Get sampling frames and times
 	num_frames      = data_all.source.num_frames
 	target_frames   = list( range(0, num_frames, num_skip_frames_for_sampling) )
 	target_times    = np.array([data_all.compute(t).attributes['Timestep'] / 1e9 for t in target_frames]) + accum_mc_steps / 1e9
@@ -47,35 +47,42 @@ def plot_snapshots(data_all, dir_imgs, \
 	
 	
 	# Centering
+	'''
 	modifier = utils_ovito.CenteringModifier()
 	modifier.center = center
+	data_all.modifiers.append(modifier)
+	'''
+	modifier = utils_ovito.CenteringEachFrameModifier()
 	data_all.modifiers.append(modifier)
 	
 	
 	# Slice data
 	modifier = SliceModifier()
-	modifier.normal   = (1.0, 0.0, 0.0)
+	modifier.normal   = (1.0, 0.0, 0.0)	# (0.0, 1.0, 0.0)
 	modifier.distance = 60
 	data_all.modifiers.append(modifier)
 	
-	
 	vp = Viewport()
 	vp.type = Viewport.Type.Perspective
-	vp.fov = np.radians(10.0) # math.radians
-	vp.camera_pos = (850, 60, 60)
-	vp.camera_dir = (-1, 0, 0)
+	vp.fov = np.radians(10.0)
+	vp.camera_pos = (850, 60, 60)		# (60, 850, 60)
+	vp.camera_dir = (-1, 0, 0)			# (0, -1, 0)
+
 	
-	#data   = data_all.compute()
 	data_all.add_to_scene()
 	
 	for target_frame, target_time in zip(target_frames, target_times):
 		print('Time frame: {}, Time: {}, Save ID: {}'.format(target_frame, target_time, i_frame) )
 		
 		# Set time
-		timelabel = TextLabelOverlay( text = 'Time: {:.0f} G MC steps'.format(target_time),\
-			font_size = 0.03, \
-			text_color = (0,0,0) )
-		timelabel.alignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom
+		timelabel = TextLabelOverlay(
+			text = 'Time after the activation of CaMKII: {:.1f} G MC steps'.format(target_time),\
+			font_size = 0.025 ,\
+			text_color = (0,0,0) ,\
+			alignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom ,\
+			offset_x = 0.08 ,\
+			offset_y = 0.005
+			)
 		vp.overlays.append(timelabel)
 		
 		filename = os.path.join(dir_imgs, '{}.png'.format( str(i_frame).zfill(4)) )
@@ -93,8 +100,8 @@ class MakeOvitoConnectedVideo(SpecDatasets):
 		
 	def __init__( self ):
 		
-		self.frame_time_zero = 935 #936
-		self.num_skip_frames_for_sampling = 5 # 5
+		self.frame_time_zero = 100
+		self.num_skip_frames_for_sampling = 5
 		
 		
 	def inspect( self ):
@@ -149,8 +156,8 @@ class MakeOvitoConnectedVideo(SpecDatasets):
 				print('ID {}, {}: frames {}, mc_steps {}, accum frames {}, accum mc_steps {}'.format(\
 					i, self.filenames_lammpstrj[i], \
 					frame_centering,  mc_step, self.frame_time_zero, accum_mc_steps_centering) )
-			
-			
+		
+		
 		accums_mc_steps = [a - accum_mc_steps_centering for a in accums_mc_steps]
 		
 		# Repeat run.
