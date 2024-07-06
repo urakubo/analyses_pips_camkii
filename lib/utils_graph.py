@@ -120,12 +120,15 @@ def draw_adjacency_matrix(ax, G, node_order=None, partitions=None, color=None):
 	# The rest is just if you have sorted nodes by a partition and want to
 	# highlight the module boundaries
 	#ax = pyplot.gca()
-
+	print('Patches drawing')
 	if partitions is not None and not isinstance(color, (list, tuple)):
 		for p in partitions:
 			_draw_a_patch(ax, p, color)
 	elif partitions is not None and isinstance(color, (list, tuple)):
+		if (partitions[0][0] == 0) and (partitions[0][1] == 0):
+			partitions = partitions[1:]
 		for p, c in zip(partitions, color) :
+			## print('patch {}, {}, color: '.format(p[0], p[1], c) )
 			_draw_a_patch(ax, p, c)
 
 def _position_communities(g, partition, **kwargs):

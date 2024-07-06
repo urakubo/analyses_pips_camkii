@@ -77,28 +77,99 @@ class SingleValencyLength():
 def func_exponential_recovery(x, tau, a, b):
 	return a*(-np.exp(-x/tau)/b + 1)
 	
+def get_boundanry(dir_edited_data, target_molecule_fit, title):
+	dir_target = os.path.split(dir_edited_data)[-1]
+	print('dir_target ', dir_target)
+			
+	if dir_target == 'CG_valency_length_only_local_move':
+		if ('006' in title):
+			min_a  , max_a   = 60, 100
+			min_b  , max_b   = 1, 1.5
+			max_tau,min_tau = 0.5,0.001
+			p0 = [0.1, 70, 1]
+		elif ('005' in title)or ('004' in title):
+			min_a  , max_a   = 60, 100
+			min_b  , max_b   = 1, 1.8
+			max_tau,min_tau = 0.5,0.001
+			p0 = [0.1, 70, 1]
+		else:
+			min_a  , max_a   = 60, 100
+			min_b  , max_b   = 1, 1.5
+			max_tau,min_tau = 10,0.001
+			p0 = [0.1, 70, 1]
+	
+	elif dir_target == 'CG_valency_length_only_local_move_fine_sampling':
+		
+		
+		if ('_006' in title):
+			min_a  , max_a   = 60, 80
+			min_b  , max_b   = 1, 1.5
+			max_tau,min_tau = 0.005,0.0
+			p0 = [0.001, 70, 1]
+		elif ('_005' in title):
+			min_a  , max_a   = 40, 60
+			min_b  , max_b   = 1, 1.5
+			max_tau,min_tau = 0.005,0.0
+			p0 = [0.001, 60, 1]
+		elif ('04_' in title):
+			min_a  , max_a   = 40, 80
+			min_b  , max_b   = 1.0, 2.0
+			max_tau,min_tau = 0.01,0.0
+			p0 = [0.001, 70, 2.0]
+		elif ('06_' in title):
+			min_a  , max_a   = 40, 80
+			min_b  , max_b   = 1.0, 1.5
+			max_tau,min_tau = 0.1,0.0
+			p0 = [0.001, 70, 1.0]
+		else:
+			min_a  , max_a   = 40, 100
+			min_b  , max_b   = 1, 1.5
+			max_tau,min_tau = 1.0,0.001
+			p0 = [0.5, 70, 1]
+	elif dir_target == 'C_valency_length_FRAP_Control':
+		min_a  , max_a   = 60, 100
+		min_b  , max_b   = 1, 2
+		if title in ['12_000','10_000','08_000']:
+			max_tau, min_tau = 400, 0.01
+			p0 = [100, 70, 2]
+		elif ('006' in title) or ('005' in title)or ('004' in title):
+			max_tau,min_tau = 0.5,0.001
+			p0 = [0.1, 70, 2]
+		else:
+			max_tau,min_tau = 10,0.001
+			p0 = [5, 70, 2]
+	elif dir_target == 'C_valency_length_FRAP_Control_fine_sampling':
+		min_a  , max_a   = 60, 100
+		min_b  , max_b   = 1, 2
+		if ('000' in title) or ('001' in title) or ('002' in title):
+			max_tau, min_tau = 400, 0.001
+			p0 = [100, 70, 2]
+		elif ('003' in title):
+			max_tau,min_tau = 0.05,0.0
+			p0 = [0.0001, 70, 1]
+		elif ('006' in title) or ('005' in title)or ('004' in title):
+			max_tau,min_tau = 0.05,0.0
+			p0 = [0.0001, 70, 1]
+		else:
+			max_tau,min_tau = 0.01,0.0
+			p0 = [0.001, 70, 1]
+	else:
+		sys.exit("No fit constraints for ", dir_target)
+	pmin = (min_tau, min_a, min_b)
+	pmax = (max_tau, max_a, max_b)
+	return p0, pmin, pmax
+	
+	
 class PlotFRAP():
 	
 	def exponential_fitting( self, title, density, time_frame ):
 		density_for_fit    = density[time_frame > 0]
 		time_frame_for_fit = time_frame[time_frame > 0]
 		
-		min_a  , max_a   = 60, 100
-		min_b  , max_b   = 1, 10
-		if title in ['12_000','12_001','10_000','08_000']:
-			max_tau, min_tau = 400, 0.01
-			p0 = [100, 70, 2]
-		elif ('006' in title) or ('005' in title)or ('004' in title):
-			max_tau,min_tau = 0.5,0.01
-			min_b  , max_b   = 1, 5
-			p0 = [0.1, 70, 2]
-		else:
-			max_tau,min_tau = 10,0.01
-			p0 = [5, 70, 2]
-
+		p0, pmin, pmax = get_boundanry(self.dir_edited_data, self.target_molecule_fit, title)
 		pp, cov = curve_fit(func_exponential_recovery, time_frame_for_fit, density_for_fit,\
 			p0=p0,\
-			bounds = ((min_tau, min_a, min_b), (max_tau, max_a, max_b)),\
+			bounds = (pmin,pmax),\
 			maxfev=5000)
 		return pp
 
@@ -154,6 +225,12 @@ class PlotFRAP():
 			ax.legend(frameon=False, loc = 'lower right')
 		
 		return param[0], ax
+		
+		
+	def save_taus_fitting(self):
+		prefix = 'FRAP_taus_{}'.format(self.target_molecule_fit)
+		suffix = 'matrix'
+		utils.save(self.dir_edited_data, prefix, suffix, self.vals)
 		
 		
 class PlotFRAPMatrixValencyLength(PlotFRAP, Matrix, SpecDatasets):

@@ -1031,7 +1031,7 @@ def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False, \
 	
 	
 	
-def plot_a_panel_log(ax, oZ, x, y, colormap, levels, draw_border = False, ticks=None ):
+def plot_a_panel_log(ax, oZ, x, y, colormap, levels, draw_border = False, ticks_level=None ):
 	
 	# Observed data arrangement
 	oX, oY  = np.meshgrid(x, y)
@@ -1040,13 +1040,16 @@ def plot_a_panel_log(ax, oZ, x, y, colormap, levels, draw_border = False, ticks=
 	oz  = np.ravel(oZ.T)
 	
 	# Mesh grids for interpolation
-	mx_max = np.max(x)
+	mx_max   = np.max(x)
+	mx_min   = np.min(x)
+	mx_width = mx_max - mx_min
+	
 	my_max = np.max(y)
 	my_min = np.min(y)
-	my_min = my_min*0.9
+	my_width = my_max - my_min
 	
-	mx = np.linspace(0.0, mx_max*1.1, 55*4)
-	my = np.linspace(my_min, my_max*1.1, 55*4)
+	mx = np.linspace(mx_min-mx_width/20, mx_max+mx_width/20, 55*4)
+	my = np.linspace(my_min-my_width/20, my_max+my_width/20, 55*4)
 	
 	mX, mY = np.meshgrid(mx,my)
 	
@@ -1074,22 +1077,20 @@ def plot_a_panel_log(ax, oZ, x, y, colormap, levels, draw_border = False, ticks=
 	print('np.unique(mZ_except) ' , np.unique(mZ_except) )
 	cs = ax.contourf(mX, mY, mZ_except, vmin=0.3, vmax=0.4, cmap='binary' )
 	'''
-	#ax.set_facecolor("black")
 	
-	print('my_min ', my_min )
 	ax.set_xlim( np.min(mx), np.max(mx) )
-	ax.set_ylim( my_min, my_max )
+	ax.set_ylim( np.min(my), np.max(my) )
 	
 	ax.set_box_aspect(1)
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
 	
-	if ticks is None:
-		ticks=np.linspace(vmin, vmax, 5)
+	if ticks_level is None:
+		ticks_level=np.linspace(vmin, vmax, ticks_level)
 	
 	divider = mpl_toolkits.axes_grid1.make_axes_locatable(ax)
 	cax = divider.append_axes('right', '5%', pad='3%')
-	cb = plt.colorbar(cs, cax=cax, ticks=ticks)
+	cb = plt.colorbar(cs, cax=cax, ticks=ticks_level)
 	#cb.ax.set_yticklabels(["{:.2f}".format(i) for i in cb.get_ticks()])
 	
 	return cs, cb

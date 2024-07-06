@@ -31,13 +31,14 @@ class SimulatePhotobleach(SpecDatasets):
 		#SpecDatasetsFRAP.__init__(self, target_dataset )
 		self.center = None
 		self.suffix = 'FRAP'
+		self.num_skip_frames = 1
 		
 	def repeat_runs( self ):
 		
 		print('Repeat runs.')
 		print('Target dir : ', self.dir_lammpstrj)
-		for valency in self.valencies_frap:
-			for length in self.lengths_frap:
+		for valency in self.valencies:
+			for length in self.lengths:
 				
 				# Load data
 				print('Simulation file: ', self.filename_lammpstrj_matrix(valency, length) )
@@ -49,7 +50,7 @@ class SimulatePhotobleach(SpecDatasets):
 				
 				# Time
 				nf_before_pb, nf_after_pb  = self.set_frames_before_after_photobleach(valency, length)
-				target_frames     = list(range(num_frames - nf_after_pb - nf_before_pb, num_frames))
+				target_frames     = list(range(num_frames - nf_after_pb - nf_before_pb, num_frames, self.num_skip_frames))
 				frame_photobleach = num_frames - nf_after_pb
 				time_steps        = np.array([data_all.compute(t).attributes['Timestep'] for t in target_frames])
 				time_photobleach  = data_all.compute(frame_photobleach).attributes['Timestep']

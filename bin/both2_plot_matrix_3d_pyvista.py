@@ -28,7 +28,7 @@ class PlotMatrixPyvista(SpecDatasets):
 			rows		= self.glun2bs
 			columns		= self.stgs 
 		else:
-			ValueError("Neither conc_dependence nor valnency_length."
+			ValueError("Neither conc_dependence nor valnency_length.")
 		
 		num_rows		= len( rows )
 		num_columns		= len( columns )

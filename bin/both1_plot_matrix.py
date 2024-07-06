@@ -11,7 +11,7 @@ import lib.colormap as c
 plt.rcParams.update(p.rc_param)
 
 from specification_datasets import SpecDatasets
-from lib.utils_matrix import MatrixValencyLength, MatrixConcDependence, Matrix
+from lib.utils_matrix import Matrix
 	
 	
 class PlotConnectivity():

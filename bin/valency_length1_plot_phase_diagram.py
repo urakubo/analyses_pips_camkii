@@ -173,7 +173,7 @@ class Connectivity():
 
 
 		
-class RelaxzationTimeForMixture():
+class RelaxzationTime():
 	def __init__( self ):
 		
 		#self.dir_target = 'small_colony2'
@@ -184,20 +184,27 @@ class RelaxzationTimeForMixture():
 		self.basename = 'relaxzation_time_for_mixture'
 		self.colormap = plt.colormaps['Greys']
 		self.levels   = np.linspace(-1,1,30)
+		self.ticks_level = [-1,0,1]
 		
+		self.prefix_loadname = 'relaxzation_time'
 		
-	def run_mixture( self ):
+	def plot_mixture( self ):
 		#
 		
-		valencies    = self.valencies_frap
-		lengths      = self.lengths_frap
-		real_lengths = self.real_lengths_frap
+		valencies    = self.valencies
+		lengths      = self.lengths
+		real_lengths = self.real_lengths
 		num_columns = len( lengths )
 		num_rows    = len( valencies )
 		
-		prefix = 'relaxzation_times'
 		suffix = 'matrix'
-		d    = utils.load(self.dir_edited_data, prefix, suffix)
+		self.data    = utils.load(self.dir_edited_data, self.prefix_loadname, suffix)
+		self.data    = np.log10( self.data.T )
+		self.fig, ax = prepare_plot(self.title)
+		cs, cb = utils.plot_a_panel_log(ax, self.data, real_lengths, valencies, self.colormap, self.levels,\
+			ticks_level = self.ticks_level)
+		
+		'''
 		data = np.zeros([num_columns, num_rows], dtype = 'float')
 		for i, v in enumerate( valencies ):
 			for j, l in enumerate( lengths ):
@@ -205,12 +212,10 @@ class RelaxzationTimeForMixture():
 				prefix    = self.filename_edited_matrix(v,l)
 				print('Target file: ', prefix)
 				data[j,i] = np.log10( np.median(d[prefix]) )
-				if prefix in ['12_000', '10_000', '04_000', '04_001', '04_006']:
-					data[j,i] = np.nan
-		
 		print('data ', data)
 		self.fig, ax = prepare_plot(self.title)
 		cs, cb = utils.plot_a_panel_log(ax, data, real_lengths, valencies, self.colormap, self.levels)
+		'''
 		
 		
 class ModularityDensityClustering():
@@ -238,8 +243,8 @@ class ModularityDensityClustering():
 			self.prefix   = 'average_clustering_coefficient'
 			self.basename = 'clustering'
 			self.colormap = plt.colormaps['Greys']
-			self.levels   = np.linspace(0,0.30,10)
-			self.ticks    = [0, 0.1, 0.2, 0.3]
+			self.levels   = np.linspace(0,0.20,10)
+			self.ticks    = [0, 0.05, 0.1, 0.15, 0.2]
 		elif property == 'FRAP':
 			self.title    = 'CaMKII FRAP'
 			self.prefix   = 'FRAP_merged'
@@ -255,13 +260,15 @@ class ModularityDensityClustering():
 			self.colormap = plt.colormaps['Greys']
 			self.levels   = np.linspace(0, 0.02, 10)
 			self.ticks = [0, 0.01, 0.02]
+		else:
+			sys.exit('Target unspecified.')
 		#
 	def plot( self ):
 		#
 		
-		valencies    = self.valencies_frap
-		lengths      = self.lengths_frap
-		real_lengths = self.real_lengths_frap
+		valencies    = self.valencies
+		lengths      = self.lengths
+		real_lengths = self.real_lengths
 		num_columns = len( lengths )
 		num_rows    = len( valencies )
 		
@@ -276,8 +283,6 @@ class ModularityDensityClustering():
 				prefix    = self.filename_edited_matrix(v,l)
 				print('Target file: ', prefix)
 				data[j,i] = self.d[prefix]
-				if prefix in ['04_000', '04_001', '04_006']:
-					data[j,i] = np.nan
 		
 		print('data ', data)
 		self.fig, ax = prepare_plot( self.title )
@@ -286,7 +291,25 @@ class ModularityDensityClustering():
 			valencies, \
 			self.colormap, \
 			self.levels, \
-			ticks = self.ticks)
+			ticks_level = self.ticks)
+		#
+	def plot2( self ):
+		#
+		valencies    = self.valencies
+		lengths      = self.lengths
+		real_lengths = self.real_lengths
+		#
+		suffix = 'matrix'
+		self.data = utils.load(self.dir_edited_data, self.prefix, suffix)
+		self.data = self.data.T
+		print('data ', self.data)
+		self.fig, ax = prepare_plot( self.title )
+		cs, cb = utils.plot_a_panel_log(ax, self.data, \
+			real_lengths, \
+			valencies, \
+			self.colormap, \
+			self.levels, \
+			ticks_level = self.ticks)		
 		
 		
 class PlotConnectivityValencyLength(Connectivity, PlotValencyLength):
@@ -300,9 +323,9 @@ class PlotPhaseDiagramValencyLength(PhaseDiagram, PlotValencyLength):
 		PlotValencyLength.__init__(self )
 		
 		
-class PlotRelaxzationTimeForMixtureValencyLength(RelaxzationTimeForMixture, PlotValencyLength):
+class PlotRelaxzationTimeValencyLength(RelaxzationTime, PlotValencyLength):
 	def __init__( self ):
-		RelaxzationTimeForMixture.__init__(self)
+		RelaxzationTime.__init__(self)
 		PlotValencyLength.__init__(self )
 		
 
@@ -330,14 +353,12 @@ if __name__ == '__main__':
 	pl.run()
 	pl.save()
 	
-	pl = PlotRelaxzationTimeForMixtureValencyLength()
+	pl = PlotRelaxzationTimeValencyLength()
 	pl.valency_length_small_colony2()
 	pl.run_mixture()
 	pl.save()
 	'''	
 	
-	
-
 	#'''	
 	property = 'modularity' # 'density', 'modularity', 'clustering', 'FRAP'
 	pl = PlotPropertiesValencyLength(property)

@@ -42,11 +42,11 @@ def prepare_plot():
 	return fig, ax
 
 def plot_a_graph(ax, x, y, title, fitting_function, fitting_params, label):
-	xlim  = [-2.5, 2.5]
+	xlim  = [-3.2, 1]
 	#ax.set_yscale('log')
 	ax.set_xlim(xlim)
-	ax.set_ylim([-0.03,0.3])
-	ax.set_yticks([0,0.1,0.2,0.3])
+	ax.set_ylim([-0.02,0.2])
+	ax.set_yticks([0,0.1,0.2])
 	ax.set_xlabel('FRAP (log[10^9 MC steps])')
 	ax.set_ylabel('Clustering coefficient')
 	ax.set_title( title )
@@ -73,7 +73,7 @@ def save_plots( fig, dir_imgs, img_basename ):
 if __name__ == '__main__':
 	
 	t = SpecDatasets()
-	t.valency_length_small_colony2()
+	t.CG_valency_length_only_local_move()
 	
 	dir_imgs = os.path.join(t.dir_imgs_root, 'matrix')
 	os.makedirs(dir_imgs, exist_ok=True)
@@ -83,21 +83,24 @@ if __name__ == '__main__':
 	filename_img = 'FRAP_clustering_coefficient_fitting'
 	
 	# Load data: FRAP
-	prefix = 'FRAP_merged'
+	prefix = 'FRAP_taus_CaMKII_merged'
 	suffix = 'matrix'
 	d_FRAP = utils.load(t.dir_edited_data, prefix, suffix)
+	
 	
 	# Load data: Clustering coefficient.
 	prefix = 'average_clustering_coefficient'
 	d_cluster = utils.load(t.dir_edited_data, prefix, suffix)
 	
-	x = [d_FRAP[k] for k in d_FRAP.keys() if k not in ['04_000', '04_001', '04_006']]
-	y = [d_cluster[k] for k in d_FRAP.keys() if k not in ['04_000', '04_001', '04_006']]
-	x = np.array(x)
-	y = np.array(y)
+	
+	x = d_FRAP.flatten()
+	x = np.log10(x)
+	
+	y = d_cluster.flatten()
 	
 	
 	# Fitting
+	'''
 	title = 'Soft_plus'
 	fitting_function = soft_plus
 	inits = None
@@ -106,7 +109,6 @@ if __name__ == '__main__':
 	title = 'Exponential'
 	fitting_function = exponential
 	inits = np.array([0.5, 0.02])
-	'''
 	
 	fitting_params , pcov = curve_fit(fitting_function, x, y, p0= inits)
 	

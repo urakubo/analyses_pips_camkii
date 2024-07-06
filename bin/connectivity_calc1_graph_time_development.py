@@ -81,7 +81,7 @@ class MakeConnectivityGraphTimeDev(SpecDatasets):
 		print('filename_lammpstrj ', filename_lammpstrj)
 		print('filename_edited    ', filename_edited   )
 		
-		# Laod data
+		# Load data
 		data_all   = import_file(os.path.join(self.dir_lammpstrj, filename_lammpstrj), input_format= "lammps/dump" )
 		num_frames = data_all.source.num_frames
 		

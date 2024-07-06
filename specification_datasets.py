@@ -32,6 +32,39 @@ def set_frames_photobleach_colony3( valencies,lengths ):
 	return num_frames_before_photobleach, num_frames_after_photobleach
 	
 	
+def set_frames_photobleach_colony4( valency, length ):
+	
+	if length == 0 and valency in [10, 12]:
+		num_frames_after_photobleach  = 900
+		num_frames_before_photobleach = 90
+	elif length == 0 and valency == 8:
+		num_frames_after_photobleach  = 900
+		num_frames_before_photobleach = 90
+	elif length >= 6:
+		num_frames_after_photobleach  = 100
+		num_frames_before_photobleach = 40
+	else:
+		num_frames_after_photobleach  = 4000
+		num_frames_before_photobleach = 400
+	
+	return num_frames_before_photobleach, num_frames_after_photobleach
+	
+	
+	
+def set_frames_photobleach_colony5( valency, length ):
+	
+	if length < 5:
+		num_frames_after_photobleach  = 8000
+		num_frames_before_photobleach = 500
+	elif length >= 5:
+		num_frames_after_photobleach  = 2000
+		num_frames_before_photobleach = 500
+	else:
+		sys.exit("Error: invalid configuration: valency, length  ")
+	
+	return num_frames_before_photobleach, num_frames_after_photobleach
+	
+	
 class SpecDatasets():
 		
 	def __init__( self ):
@@ -59,6 +92,11 @@ class SpecDatasets():
 		filename  = 'R2_{}.lammpstrj'.format( str(length).zfill(3) )
 		return os.path.join(subdir, filename)
 		
+	def filename_lammpstrj_matrix_valency_length3(self, valency, length):
+		subdir    = 'val_{}'.format(valency)
+		filename  = 'R3_{}.lammpstrj'.format( str(length).zfill(3) )
+		return os.path.join(subdir, filename)
+		
 		
 	def valency_length_small_colony2( self, frap=False ):
 		
@@ -66,21 +104,20 @@ class SpecDatasets():
 		self.lengths   = range(7)
 		self.real_lengths = [1,2,3,4,5,6,9]
 		
-		subdirs    = ['val_{}'.format(i) for i in self.valencies]
-		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in self.lengths]
-		self.filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
-		self.filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in self.valencies for id_f in self.lengths]
+		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
+		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
+		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
 		
 		dir_target       = 'small_colony2'
 		self._shared4( dir_target )
 		
-		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
-		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
 		if frap==True:
 			self.valencies    = range(4,14,2)
-			self.lengths      = range(7) # [1, 2, 3, 4, 5, 6, 9]
-			self.real_lengths = [1,2,3,4,5,6,9]
+			self.lengths      = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
+			self.real_lengths = [2,3,4,5,6,9]
 		
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony2
 		
@@ -92,10 +129,11 @@ class SpecDatasets():
 		self.lengths   = range(7)
 		self.real_lengths = [1,2,3,4,5,6,9]
 		
-		subdirs    = ['val_{}'.format(i) for i in self.valencies]
-		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in self.lengths]
-		self.filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
-		self.filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in self.valencies for id_f in self.lengths]
+		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
+		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
+		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
 		
 		dir_target       = 'small_colony3'
 		self._shared4( dir_target )
@@ -105,11 +143,10 @@ class SpecDatasets():
 		
 		if frap==True:
 			self.valencies    = range(4,14,2)
-			self.lengths      = range(7) # [1, 2, 3, 4, 5, 6, 9]
-			self.real_lengths = [1,2,3,4,5,6,9]
+			self.lengths      = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
+			self.real_lengths = [2,3,4,5,6,9]
 		
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony3
-		
 		
 		
 	def valency_length( self, sub = False ):
@@ -118,23 +155,21 @@ class SpecDatasets():
 		self.lengths      = range(7)
 		self.real_lengths = [1,2,3,4,5,6,9]
 		
-		subdirs    = ['val_{}'.format(i) for i in self.valencies]
-		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in self.lengths]
-		self.filenames_lammpstrj  = [ os.path.join(d, f) for d in subdirs for f in filenames]
-		self.filenames_edited = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in self.valencies for id_f in self.lengths ]
-		dir_target       = 'valency_length'
-		self._shared4( dir_target )
-		
 		self.filename_edited_matrix      = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		
+		dir_target       = 'valency_length'
+		self._shared4( dir_target )
 		
 		# matrix pyvista
+		self.sub = sub
 		if sub == True:
 			self.valencies = [2, 4, 6, 8, 12] 
 			self.lengths      = [0, 2, 3, 4, 5]
 			self.real_lengths = [1, 3, 4, 5, 6]
-		self.sub = sub
 		
 		
 	def CG_valency_length( self, sub = False  ):
@@ -142,15 +177,14 @@ class SpecDatasets():
 		self.valencies = range(2,14,2)
 		self.lengths   = range(7)
 		
-		subdirs    = ['val_{}'.format(i) for i in self.valencies]
-		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in self.lengths]
-		self.filenames_lammpstrj = [ os.path.join(d, f) for d in subdirs for f in filenames]
-		self.filenames_edited    = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in self.valencies for id_f in self.lengths ]
-		dir_target = 'CG_valency_length'
-		self._shared4( dir_target )
-		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
+		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		
+		dir_target = 'CG_valency_length'
+		self._shared4( dir_target )
 		
 		# Surface tension.
 		self.real_lengths  = [1,2,3,4,5,6,9]
@@ -164,53 +198,112 @@ class SpecDatasets():
 		self.surface_tension_real_lengths  = [1,2,3,4,5,6,9]
 		
 		# matrix pyvista
+		self.sub = sub
 		if sub == True:
 			self.valencies = [2, 4, 6, 8, 12] 
 			self.lengths      = [0, 2, 3, 4, 5]
 			self.real_lengths = [1, 3, 4, 5, 6]
-		self.sub = sub
 		
 		
 		
 	def CG_valency_length_only_local_move( self, frap = False ):
 		
-		self.valencies = range(2,16,2)
+		self.valencies = range(2,14,2)
 		self.lengths   = range(7)
-		subdirs    = ['val_{}'.format(i) for i in self.valencies]
-		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in self.lengths]
-		self.filenames_lammpstrj  = [ os.path.join(d, f) for d in subdirs for f in filenames]
-		self.filenames_edited = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in self.valencies for id_f in self.lengths ]
-		dir_target       = 'CG_valency_length_only_local_move'
-		self._shared5( dir_target )
+		self.real_lengths = [1, 2, 3, 4, 5, 6, 9]
+		
+		if frap == True:
+			self.valencies = range(4,14,2)
+			self.lengths   = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
+			self.real_lengths = [2, 3, 4, 5, 6, 9]
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		
+		dir_target       = 'CG_valency_length_only_local_move'
+		self._shared5( dir_target )
+		
 		
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony2
+		
+		
+	def CG_valency_length_only_local_move_fine_sampling( self, frap = False ):
+		
+		self.valencies = range(2,14,2)
+		self.lengths   = range(7)
+		self.real_lengths = [1, 2, 3, 4, 5, 6, 9]
+		
 		if frap == True:
 			self.valencies = range(4,14,2)
-			self.lengths   = range(7) # [1, 2, 3, 4, 5, 6, 9]
+			self.lengths   = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
+			self.real_lengths = [2, 3, 4, 5, 6, 9]
+		
+		
+		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
+		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length3
+		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		
+		dir_target       = 'CG_valency_length_only_local_move_fine_sampling'
+		self._shared5( dir_target )
+		
+		self.set_frames_before_after_photobleach = set_frames_photobleach_colony5
+		
+		
 		
 		
 	def C_valency_length_FRAP_Control( self, frap = False ):
 		
-		self.valencies = range(2,16,2)
+		self.valencies = range(2,14,2)
 		self.lengths   = range(7)
-		subdirs    = ['val_{}'.format(i) for i in self.valencies]
-		filenames  = ['R2_{}.lammpstrj'.format(str(i).zfill(3)) for i in self.lengths]
-		self.filenames_lammpstrj  = [ os.path.join(d, f) for d in subdirs for f in filenames]
-		self.filenames_edited = [ str(id_d).zfill(2)+'_'+str(id_f).zfill(3) for id_d in self.valencies for id_f in self.lengths ]
-		dir_target       = 'C_valency_length_FRAP_Control'
-		self._shared5( dir_target )
+		self.real_lengths = [1, 2, 3, 4, 5, 6, 9]
+		
+		if  frap == True:
+			self.valencies    = range(4,14,2)
+			self.lengths      = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
+			self.real_lengths = [2, 3, 4, 5, 6, 9]
+		
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
-
+		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		
+		dir_target       = 'C_valency_length_FRAP_Control'
+		self._shared5( dir_target )
+		
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony2
+		
+		
+		
+		
+	def C_valency_length_FRAP_Control_fine_sampling( self, frap = False ):
+		
+		self.valencies = range(2,14,2)
+		self.lengths   = range(7)
+		self.real_lengths = [1, 2, 3, 4, 5, 6, 9]
+		
 		if  frap == True:
 			self.valencies = range(4,14,2)
-			self.lengths   = range(7) # [1, 2, 3, 4, 5, 6, 9]
+			self.lengths   = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
+			self.real_lengths = [2, 3, 4, 5, 6, 9]
+		
+		
+		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
+		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length3
+		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		
+		dir_target       = 'C_valency_length_FRAP_Control_fine_sampling'
+		self._shared5( dir_target )
+		
+		self.set_frames_before_after_photobleach = set_frames_photobleach_colony4
 		
 		
 	def conc_dependence( self ):
@@ -331,8 +424,6 @@ class SpecDatasets():
 		self.filenames_lammpstrj = [ os.path.join( 'PG','R2_{}.lammpstrj'.format(str(i).zfill(3)) ) for i in range(6) ]
 		dir_target = 'boundary_conditions'
 		self._shared4( dir_target )
-		
-		
 		
 		
 		'''
