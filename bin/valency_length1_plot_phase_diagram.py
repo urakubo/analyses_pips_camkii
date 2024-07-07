@@ -188,7 +188,7 @@ class RelaxzationTime():
 		
 		self.prefix_loadname = 'relaxzation_time'
 		
-	def plot_mixture( self ):
+	def plot_mixture( self , no_log = False):
 		#
 		
 		valencies    = self.valencies
@@ -198,8 +198,9 @@ class RelaxzationTime():
 		num_rows    = len( valencies )
 		
 		suffix = 'matrix'
-		self.data    = utils.load(self.dir_edited_data, self.prefix_loadname, suffix)
-		self.data    = np.log10( self.data.T )
+		self.data    = utils.load(self.dir_edited_data, self.prefix_loadname, suffix).T
+		if no_log == False:
+			self.data    = np.log10( self.data )
 		self.fig, ax = prepare_plot(self.title)
 		cs, cb = utils.plot_a_panel_log(ax, self.data, real_lengths, valencies, self.colormap, self.levels,\
 			ticks_level = self.ticks_level)

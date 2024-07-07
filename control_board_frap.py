@@ -22,24 +22,6 @@ import numpy as np
 '''
 
 
-property = 'modularity' # 'density', 'modularity', 'clustering', 'FRAP'
-pl = PlotPropertiesValencyLength(property)
-pl.valency_length_small_colony2()
-pl.plot()
-pl.save()
-
-
-# Single profiles of FRAP
-target_molecule = 'CaMKII' # 'GluN2B', 'CaMKII'
-valency         = 12 # 2, 6
-length          = 6 # 2, 6
-
-obj = PlotFRAPSingleValencyLength(target_molecule)
-obj.C_valency_length_FRAP_Control()
-obj.suffix_ = 'FRAP_'
-obj.plot(valency, length)
-obj.save()
-
 
 obj = SimulatePhotobleach()
 obj.C_valency_length_FRAP_Control_fine_sampling()
@@ -106,13 +88,6 @@ pprint.pprint(taus_std)
 utils.save( obj.dir_edited_data, prefix, suffix, taus_std )
 
 
-property = 'FRAP_GluN2B' # 'density', 'modularity', 'clustering', 'FRAP', 'FRAP_GluN2B'
-pl = PlotPropertiesValencyLength(property)
-pl.valency_length_small_colony3()
-pl.plot()
-pl.save()
-
-
 
 target_molecule = 'CaMKII' # 'CaMKII', 'GluN2B', 'Both'
 obj = MakeOvitoVideoFRAP()
@@ -125,13 +100,13 @@ obj.run(i, target_molecule)
 obj.make_a_video(i)
 
 
+## CaMKII FRAP CG_valency_length_only_local_move
 
 obj = SimulatePhotobleach()
 obj.CG_valency_length_only_local_move(frap = True)
 #obj.CG_valency_length_only_local_move_fine_sampling(frap = True)
 #obj.num_skip_frames = 10
 obj.repeat_runs()
-
 
 obj = PlotFRAPMatrixValencyLength( target_molecule = 'CaMKII' ) # CaMKII, GluN2B
 obj.CG_valency_length_only_local_move(frap = True)
@@ -140,8 +115,6 @@ obj.run()
 obj.save()
 obj.save_taus_fitting()
 
-
-'''
 
 # Merge two taus
 prefix = 'FRAP_taus_CaMKII'
@@ -165,6 +138,87 @@ pprint.pprint(taus_std)
 utils.save( obj.dir_edited_data, prefix, suffix, taus_std )
 
 
+import numpy as np
+pl = PlotRelaxzationTimeValencyLength()
+pl.CG_valency_length_only_local_move(frap= True)
+pl.prefix_loadname = 'FRAP_taus_CaMKII_merged'
+pl.basename = 'FRAP_taus_CaMKII_merged'
+pl.levels   = np.linspace(-4,1,8)
+pl.ticks_level = [-4, -3, -2, -1, 0, 1]
+pl.plot_mixture()
+pl.save()
+
+
+## GluN2B FRAP CG_valency_length_only_local_move
+
+obj = PlotFRAPMatrixValencyLength( target_molecule = 'GluN2B' ) # CaMKII, GluN2B
+obj.CG_valency_length_only_local_move(frap = True)
+#obj.CG_valency_length_only_local_move_fine_sampling(frap = True)
+obj.run()
+obj.save()
+obj.save_taus_fitting()
+
+obj = SimulatePhotobleach()
+#obj.CG_valency_length_only_local_move(frap = True)
+obj.CG_valency_length_only_local_move_fine_sampling(frap = True)
+obj.num_skip_frames = 10
+obj.repeat_runs()
+
+# Single profiles of FRAP
+target_molecule = 'GluN2B' # 'GluN2B', 'CaMKII'
+valency         = 12 # 2, 6
+length          = 6 # 2, 6
+
+
+obj = PlotFRAPMatrixValencyLength( target_molecule = 'GluN2B' ) # CaMKII, GluN2B
+obj.CG_valency_length_only_local_move(frap = True)
+#obj.CG_valency_length_only_local_move_fine_sampling(frap = True)
+obj.run()
+obj.save()
+obj.save_taus_fitting()
+
+
+# Single profiles of FRAP
+target_molecule = 'CaMKII' # 'GluN2B', 'CaMKII'
+valency         = 12 # 2, 6
+length          = 6 # 2, 6
+
+obj = PlotFRAPSingleValencyLength(target_molecule)
+obj.CG_valency_length_only_local_move_fine_sampling(frap = True)
+#obj.CG_valency_length_only_local_move(frap= True)
+obj.suffix_ = 'FRAP_'
+obj.plot(valency, length)
+obj.save()
+
+obj = PlotFRAPMatrixValencyLength( target_molecule = 'CaMKII' ) # CaMKII, GluN2B
+#obj.CG_valency_length_only_local_move(frap = True)
+obj.CG_valency_length_only_local_move_fine_sampling(frap = True)
+obj.run()
+obj.save()
+obj.save_taus_fitting()
+
+
+# Merge two taus
+prefix = 'FRAP_taus_CaMKII'
+suffix = 'matrix'
+obj = SpecDatasets()
+obj.CG_valency_length_only_local_move(frap= True)
+taus_std = utils.load(obj.dir_edited_data, prefix, suffix)
+obj.CG_valency_length_only_local_move_fine_sampling(frap= True)
+taus_fine = utils.load(obj.dir_edited_data, prefix, suffix)
+for i, column in enumerate( obj.lengths ):
+	for j, row in enumerate( obj.valencies ):
+		filename = obj.filename_edited_matrix(row,column)
+		print(filename)
+		if ('_006' in filename) or ('04_' in filename):
+		#if  ('04_' in filename):
+			taus_std[j,i] =taus_fine[j,i]
+	
+obj.CG_valency_length_only_local_move(frap= True)
+prefix = 'FRAP_taus_CaMKII_merged'
+pprint.pprint(taus_std)
+utils.save( obj.dir_edited_data, prefix, suffix, taus_std )
+
 
 import numpy as np
 pl = PlotRelaxzationTimeValencyLength()
@@ -175,4 +229,28 @@ pl.levels   = np.linspace(-4,1,8)
 pl.ticks_level = [-4, -3, -2, -1, 0, 1]
 pl.plot_mixture()
 pl.save()
-#'''
+
+# Single profiles of FRAP
+target_molecule = 'CaMKII' # 'GluN2B', 'CaMKII'
+valency         = 12 # 2, 6
+length          = 6 # 2, 6
+
+obj = PlotFRAPSingleValencyLength(target_molecule)
+obj.CG_valency_length_only_local_move_fine_sampling(frap = True)
+#obj.CG_valency_length_only_local_move(frap= True)
+obj.suffix_ = 'FRAP_'
+obj.plot(valency, length)
+obj.save()
+
+'''
+
+import numpy as np
+pl = PlotRelaxzationTimeValencyLength()
+pl.C_valency_length_FRAP_Control(frap= True)
+pl.prefix_loadname = 'FRAP_taus_CaMKII_merged'
+pl.basename = 'FRAP_taus_CaMKII_merged'
+pl.levels   = np.linspace(-4,1,8)
+pl.ticks_level = [-4, -3, -2, -1, 0, 1]
+pl.plot_mixture()
+pl.save()
+

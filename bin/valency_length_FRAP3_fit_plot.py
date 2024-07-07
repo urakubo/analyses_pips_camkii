@@ -31,15 +31,15 @@ class SingleValencyLength():
 		
 		if self.target_molecule_fit == 'CaMKII' and length == 2:
 			#self.dir_target  = 'small_colony2'
-			xlim        = [-1,8]
-			set_xticks  = [0,2,4,6,8]
-		elif self.target_molecule_fit == 'GluN2B' and length == 2:
+			xlim        = [-1,3]
+			set_xticks  = [-1,0,1,2,3]
+		elif self.target_molecule_fit == 'GluN2B':
 			#self.dir_target  = 'small_colony3'
-			xlim        = [-0.01,0.08]
-			set_xticks  = [0,0.04,0.08]
-		elif self.target_molecule_fit in ['CaMKII','GluN2B'] and length == 6:
+			xlim        = [-0.03,0.30]
+			set_xticks  = [0,0.10,0.20, 0.30]
+		elif self.target_molecule_fit == 'CaMKII' and length == 6:
 			#self.dir_target  = 'small_colony3'
-			xlim        = [-0.01,0.08]
+			xlim        = [-0.01,0.09]
 			set_xticks  = [0,0.04,0.08]
 		else:
 			print('Error!')
@@ -47,18 +47,18 @@ class SingleValencyLength():
 		
 		
 		# Load data
-		prefix =  self.filename_edited_matrix(valency, length)
-		d = utils.load(self.dir_edited_data, prefix, self.suffix)
+		self.prefix =  self.filename_edited_matrix(valency, length)
+		d = utils.load(self.dir_edited_data, self.prefix, self.suffix)
 		
 		# Plot
 		self.fig  = plt.figure(figsize=(1.3, 1.0))
 		legend = True
 		row = 0
 		column = 1
-		value, ax = self.plot_a_graph(row, column, d, self.basename, legend)
+		value, ax = self.plot_a_graph(row, column, d, self.prefix, legend)
 		ax.set_xlim( xlim )
 		ax.set_xticks(set_xticks)
-		ax.set_title('{},{:.4f}'.format( self.basename, value))
+		ax.set_title('{},{:.4f}'.format( self.prefix, value))
 		#
 		
 		
@@ -66,8 +66,8 @@ class SingleValencyLength():
 	
 		dir_imgs = os.path.join(self.dir_imgs_root, 'FRAP')
 		os.makedirs(dir_imgs, exist_ok=True)
-		self.fig.savefig( os.path.join(dir_imgs, self.basename + '.svg' ) )
-		self.fig.savefig( os.path.join(dir_imgs, self.basename + '.png' ), dpi=150 )
+		self.fig.savefig( os.path.join(dir_imgs, self.prefix+'_'+self.basename + '.svg' ) )
+		self.fig.savefig( os.path.join(dir_imgs, self.prefix+'_'+self.basename + '.png' ), dpi=150 )
 		plt.show()
 		plt.clf()
 		plt.close(fig=self.fig)
@@ -80,36 +80,18 @@ def func_exponential_recovery(x, tau, a, b):
 def get_boundanry(dir_edited_data, target_molecule_fit, title):
 	dir_target = os.path.split(dir_edited_data)[-1]
 	print('dir_target ', dir_target)
-			
-	if dir_target == 'CG_valency_length_only_local_move':
-		if ('006' in title):
-			min_a  , max_a   = 60, 100
-			min_b  , max_b   = 1, 1.5
-			max_tau,min_tau = 0.5,0.001
-			p0 = [0.1, 70, 1]
-		elif ('005' in title)or ('004' in title):
-			min_a  , max_a   = 60, 100
-			min_b  , max_b   = 1, 1.8
-			max_tau,min_tau = 0.5,0.001
-			p0 = [0.1, 70, 1]
-		else:
-			min_a  , max_a   = 60, 100
-			min_b  , max_b   = 1, 1.5
-			max_tau,min_tau = 10,0.001
-			p0 = [0.1, 70, 1]
 	
-	elif dir_target == 'CG_valency_length_only_local_move_fine_sampling':
-		
-		
+	if dir_target == 'CG_valency_length_only_local_move_fine_sampling' and target_molecule_fit=='CaMKII':
 		if ('_006' in title):
-			min_a  , max_a   = 60, 80
-			min_b  , max_b   = 1, 1.5
-			max_tau,min_tau = 0.005,0.0
-			p0 = [0.001, 70, 1]
+			print('Set fitting params for ', title)
+			min_a  , max_a   = 60, 100
+			min_b  , max_b   = 1, 5
+			max_tau,min_tau = 0.5,0.01
+			p0 = [0.05, 70, 5]
 		elif ('_005' in title):
 			min_a  , max_a   = 40, 60
-			min_b  , max_b   = 1, 1.5
-			max_tau,min_tau = 0.005,0.0
+			min_b  , max_b   = 1, 4
+			max_tau,min_tau = 0.05,0.0
 			p0 = [0.001, 60, 1]
 		elif ('04_' in title):
 			min_a  , max_a   = 40, 80
@@ -126,6 +108,30 @@ def get_boundanry(dir_edited_data, target_molecule_fit, title):
 			min_b  , max_b   = 1, 1.5
 			max_tau,min_tau = 1.0,0.001
 			p0 = [0.5, 70, 1]
+		
+	elif dir_target == 'CG_valency_length_only_local_move' and target_molecule_fit=='GluN2B':
+		min_a  , max_a   = 60, 100
+		min_b  , max_b   = 1, 2.0
+		max_tau,min_tau = 10,0.001
+		p0 = [0.1, 70, 1]
+		
+	elif dir_target == 'CG_valency_length_only_local_move' and target_molecule_fit=='CaMKII':
+		if ('006' in title):
+			min_a  , max_a   = 60, 100
+			min_b  , max_b   = 1, 1.5
+			max_tau,min_tau = 0.5,0.001
+			p0 = [0.1, 70, 1]
+		elif ('005' in title)or ('004' in title):
+			min_a  , max_a   = 60, 100
+			min_b  , max_b   = 1, 1.8
+			max_tau,min_tau = 0.5,0.001
+			p0 = [0.1, 70, 1]
+		else:
+			min_a  , max_a   = 60, 100
+			min_b  , max_b   = 1, 1.5
+			max_tau,min_tau = 10,0.001
+			p0 = [0.1, 70, 1]
+
 	elif dir_target == 'C_valency_length_FRAP_Control':
 		min_a  , max_a   = 60, 100
 		min_b  , max_b   = 1, 2
@@ -203,8 +209,11 @@ class PlotFRAP():
 			density = density / np.mean(density[time_frame < 0]) * 100
 			
 			if self.target_molecule_fit == 'GluN2B':
-				density_  = density[time_frame < 0.08]
-				time_frame_ = time_frame[time_frame < 0.08]
+				density_  = density[time_frame < 0.5]
+				time_frame_ = time_frame[time_frame < 0.5]
+				density_  = density_[time_frame_ > -0.2]
+				time_frame_ = time_frame_[time_frame_ > -0.2]
+				
 			else:
 				density_  = density
 				time_frame_ = time_frame
@@ -217,7 +226,7 @@ class PlotFRAP():
 			# Fitting
 			if mname == self.target_molecule_fit:
 				param = self.exponential_fitting( title, density_, time_frame_ )
-				time_frame_for_fit = time_frame_[time_frame_ > 0]
+				time_frame_for_fit = time_frame_[time_frame_ > 0.004]
 				ax.plot(time_frame_for_fit, func_exponential_recovery( time_frame_for_fit, *param.tolist() ) ,\
 					color = 'k')
 		

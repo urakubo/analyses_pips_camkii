@@ -984,6 +984,20 @@ def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False, \
 	oy      = np.ravel(oY)
 	oz  = np.ravel(oZ.T)
 	
+		
+	# Mesh grids for interpolation
+	mx_max   = np.max(x)
+	mx_min   = np.min(x)
+	mx_width = mx_max - mx_min
+	
+	my_max = np.max(y)
+	my_min = np.min(y)
+	my_width = my_max - my_min
+	
+	mx = np.linspace(mx_min-mx_width/20, mx_max+mx_width/20, 55*4)
+	my = np.linspace(my_min-my_width/20, my_max+my_width/20, 55*4)
+	
+	'''
 	# Mesh grids for interpolation
 	if mx_max == None:
 		mx_max = np.max(x)*1.1
@@ -991,6 +1005,7 @@ def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False, \
 		my_max = np.max(y)*1.1
 	mx = np.linspace(mx_min, mx_max, 55*4)
 	my = np.linspace(my_min, my_max, 55*4)
+	'''
 	
 	mX, mY = np.meshgrid(mx,my)
 	

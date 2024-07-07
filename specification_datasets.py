@@ -54,10 +54,10 @@ def set_frames_photobleach_colony4( valency, length ):
 def set_frames_photobleach_colony5( valency, length ):
 	
 	if length < 5:
-		num_frames_after_photobleach  = 8000
+		num_frames_after_photobleach  = 9500
 		num_frames_before_photobleach = 500
 	elif length >= 5:
-		num_frames_after_photobleach  = 2000
+		num_frames_after_photobleach  = 9500
 		num_frames_before_photobleach = 500
 	else:
 		sys.exit("Error: invalid configuration: valency, length  ")
@@ -216,7 +216,7 @@ class SpecDatasets():
 			self.valencies = range(4,14,2)
 			self.lengths   = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
 			self.real_lengths = [2, 3, 4, 5, 6, 9]
-		
+			
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
@@ -240,7 +240,7 @@ class SpecDatasets():
 			self.valencies = range(4,14,2)
 			self.lengths   = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
 			self.real_lengths = [2, 3, 4, 5, 6, 9]
-		
+			#self.lengths   = range(5,7) 
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length3
