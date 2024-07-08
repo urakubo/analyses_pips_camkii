@@ -53,14 +53,25 @@ def set_frames_photobleach_colony4( valency, length ):
 	
 def set_frames_photobleach_colony5( valency, length ):
 	
-	if length < 5:
-		num_frames_after_photobleach  = 9500
-		num_frames_before_photobleach = 500
-	elif length >= 5:
-		num_frames_after_photobleach  = 9500
-		num_frames_before_photobleach = 500
+	num_frames_after_photobleach  = 9500
+	num_frames_before_photobleach = 500
+	
+	return num_frames_before_photobleach, num_frames_after_photobleach
+	
+	
+def set_frames_photobleach_colony6( valency, length ):
+	if length == 6:
+		num_frames_after_photobleach  = 1000
+		num_frames_before_photobleach = 100
+	elif (valency == 4) and (length in [3,4,5]):
+		num_frames_after_photobleach  = 1000
+		num_frames_before_photobleach = 100
+	elif (valency == 6) and (length in [3,4,5]):
+		num_frames_after_photobleach  = 2000
+		num_frames_before_photobleach = 100
 	else:
-		sys.exit("Error: invalid configuration: valency, length  ")
+		num_frames_after_photobleach  = 9500
+		num_frames_before_photobleach = 500
 	
 	return num_frames_before_photobleach, num_frames_after_photobleach
 	
@@ -152,8 +163,8 @@ class SpecDatasets():
 	def valency_length( self, sub = False ):
 		
 		self.valencies    = range(2,14,2)
-		self.lengths      = range(7)
-		self.real_lengths = [1,2,3,4,5,6,9]
+		self.lengths      = range(1,7)
+		self.real_lengths = [2,3,4,5,6,9]
 		
 		self.filename_edited_matrix      = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
@@ -168,14 +179,14 @@ class SpecDatasets():
 		self.sub = sub
 		if sub == True:
 			self.valencies = [2, 4, 6, 8, 12] 
-			self.lengths      = [0, 2, 3, 4, 5]
-			self.real_lengths = [1, 3, 4, 5, 6]
+			self.lengths      = [1, 2, 3, 4, 5]
+			self.real_lengths = [2, 3, 4, 5, 6]
 		
 		
 	def CG_valency_length( self, sub = False  ):
 		
 		self.valencies = range(2,14,2)
-		self.lengths   = range(7)
+		self.lengths   = range(1,7)
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
@@ -201,8 +212,8 @@ class SpecDatasets():
 		self.sub = sub
 		if sub == True:
 			self.valencies = [2, 4, 6, 8, 12] 
-			self.lengths      = [0, 2, 3, 4, 5]
-			self.real_lengths = [1, 3, 4, 5, 6]
+			self.lengths      = [1, 2, 3, 4, 5]
+			self.real_lengths = [2, 3, 4, 5, 6]
 		
 		
 		
@@ -240,19 +251,19 @@ class SpecDatasets():
 			self.valencies = range(4,14,2)
 			self.lengths   = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
 			self.real_lengths = [2, 3, 4, 5, 6, 9]
-			#self.lengths   = range(5,7) 
+			
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length3
-		
-		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
-		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
 		
 		dir_target       = 'CG_valency_length_only_local_move_fine_sampling'
 		self._shared5( dir_target )
 		
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony5
 		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.set_frames_before_after = [self.set_frames_before_after_photobleach(v, l) for v in self.valencies for l in self.lengths]
 		
 		
 		
@@ -293,17 +304,20 @@ class SpecDatasets():
 			self.lengths   = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
 			self.real_lengths = [2, 3, 4, 5, 6, 9]
 		
+		self.lengths   = range(6,7) # [1, 2, 3, 4, 5, 6, 9]
+		#self.valencies = range(4,8,2)
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length3
 		
-		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
-		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
-		
 		dir_target       = 'C_valency_length_FRAP_Control_fine_sampling'
 		self._shared5( dir_target )
 		
-		self.set_frames_before_after_photobleach = set_frames_photobleach_colony4
+		self.set_frames_before_after_photobleach = set_frames_photobleach_colony6
+		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.set_frames_before_after = [self.set_frames_before_after_photobleach(v, l) for v in self.valencies for l in self.lengths]
 		
 		
 	def conc_dependence( self ):

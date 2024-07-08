@@ -55,15 +55,17 @@ def square_yz_mag(magnification):
 
 
 
-def plot_a_condensate_pyvista(d, pl, rotation=True): 
+def plot_a_condensate_pyvista(d, pl, rotation=False): 
 	
 	flipz = False
 	# Generate mesh
 	r_CaMKII   = d['region_condensate_in_grid_mesh']['CaMKII'].astype(float)
 	r_STG      = d['region_condensate_in_grid_mesh']['STG'].astype(float)
 	
-	mesh_CaMKII = generate_mesh(r_CaMKII, flipz = flipz)
-	mesh_STG    = generate_mesh(r_STG   , flipz = flipz)
+	if np.unique(r_CaMKII).shape[0] > 1:
+		mesh_CaMKII = generate_mesh(r_CaMKII, flipz = flipz)
+	if np.unique(r_STG).shape[0] > 1:
+		mesh_STG    = generate_mesh(r_STG   , flipz = flipz)
 	
 	if rotation == True:
 		utils.rotate(mesh_CaMKII, mesh_STG)
@@ -74,14 +76,13 @@ def plot_a_condensate_pyvista(d, pl, rotation=True):
 		x_length=utils.space[0], y_length=utils.space[1], z_length=utils.space[2])
 	pl.add_mesh(cube, color='black', style='wireframe')
 	'''
-	if mesh_CaMKII is not None:
+	if np.unique(r_CaMKII).shape[0] > 1:
 		pl.add_mesh(mesh_CaMKII, color='green', show_edges=False,  opacity=0.4)
-	if mesh_STG is not None:
+	if np.unique(r_STG).shape[0] > 1:
 		pl.add_mesh(mesh_STG   , color='red', show_edges=False,  opacity=0.4)
 	pl.set_background('white')
 	
 	
-
 def plot_a_pre_rotated_condensate_pyvista(d, pl): 
 	
 	flipz = False

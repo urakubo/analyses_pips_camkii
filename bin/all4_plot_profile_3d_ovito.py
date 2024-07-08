@@ -97,16 +97,24 @@ class Plot3dOvito(SpecDatasets):
 		
 		
 	def run( self, i ):
+			self.run_a_dataset( self.filenames_lammpstrj[i], self.filenames_edited[i] )
+		
+	def repeat_run( self ):
+		
+		for filename_lammpstrj, filename_edited in zip(self.filenames_lammpstrj, self.filenames_edited):
+			self.run_a_dataset( filename_lammpstrj, filename_edited )
+		
+		
+	def run_a_dataset( self, filename_lammpstrj, filename_edited):
 		
 		dir_imgs = os.path.join(self.dir_imgs_root, 'profiles_3d_ovito' )
 		os.makedirs(dir_imgs, exist_ok=True)
 		
 		
-		sampling_frame = utils.get_num_frames(self.dir_lammpstrj, self.filenames_lammpstrj[i])
-		data_all   = import_file(os.path.join(self.dir_lammpstrj, self.filenames_lammpstrj[i]), input_format= "lammps/dump" )
-		plot_snapshots(data_all, sampling_frame, dir_imgs, self.filenames_edited[i])
-		print('filename_input: ', self.filenames_lammpstrj[i])
-		print('sampling_frame: ', sampling_frame )
+		sampling_frame = utils.get_num_frames(self.dir_lammpstrj, filename_lammpstrj)
+		data_all   = import_file(os.path.join(self.dir_lammpstrj, filename_lammpstrj), input_format= "lammps/dump" )
+		plot_snapshots(data_all, sampling_frame, dir_imgs, filename_edited)
+		print('filename_input: {}, sampling_frame: {}'.format(filename_lammpstrj, sampling_frame) )
 		
 		
 if __name__ == '__main__':

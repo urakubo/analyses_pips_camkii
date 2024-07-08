@@ -37,39 +37,38 @@ class SimulatePhotobleach(SpecDatasets):
 		
 		print('Repeat runs.')
 		print('Target dir : ', self.dir_lammpstrj)
-		for valency in self.valencies:
-			for length in self.lengths:
-				
-				# Load data
-				print('Simulation file: ', self.filename_lammpstrj_matrix(valency, length) )
-				data_all   = import_file(
-					os.path.join(self.dir_lammpstrj, self.filename_lammpstrj_matrix(valency, length)),
-					input_format= "lammps/dump" )
-				num_frames = data_all.source.num_frames
-				print('num_frames     : ', num_frames)
-				
-				# Time
-				nf_before_pb, nf_after_pb  = self.set_frames_before_after_photobleach(valency, length)
-				target_frames     = list(range(num_frames - nf_after_pb - nf_before_pb, num_frames, self.num_skip_frames))
-				frame_photobleach = num_frames - nf_after_pb
-				time_steps        = np.array([data_all.compute(t).attributes['Timestep'] for t in target_frames])
-				time_photobleach  = data_all.compute(frame_photobleach).attributes['Timestep']
-				
-				# Run simulation
-				print('Run simulation.')
-				molecular_numbers_in_target_area = \
-					self.run_a_photobleach(target_frames, frame_photobleach, data_all)
-				
-				# Save
-				volume = (4/3*np.pi*rm*rm*rm)
-				molecular_concentration_in_target_area = np.array(molecular_numbers_in_target_area) / volume
-				d = {}
-				d['time_steps'] = time_steps - time_photobleach
-				d['molecular_concentration_in_target_area'] = molecular_concentration_in_target_area
-				
-				print('Save file      : ', self.filename_edited_matrix(valency, length) )
-				self.save_time_series(d, self.filename_edited_matrix(valency, length))
-				print('Finished.\n')
+		for filename_lammpstrj, filename_edited, (nf_before_pb, nf_after_pb) in \
+			zip( self.filenames_lammpstrj, self.filenames_edited, self.set_frames_before_after ):
+			
+			# Load data
+			data_all   = import_file(
+				os.path.join(self.dir_lammpstrj, filename_lammpstrj),
+				input_format= "lammps/dump" )
+			num_frames = data_all.source.num_frames
+			print('num_frames     : ', num_frames)
+			
+			# Time
+			# nf_before_pb, nf_after_pb  = self.set_frames_before_after_photobleach(valency, length)
+			target_frames     = list(range(num_frames - nf_after_pb - nf_before_pb, num_frames, self.num_skip_frames))
+			frame_photobleach = num_frames - nf_after_pb
+			time_steps        = np.array([data_all.compute(t).attributes['Timestep'] for t in target_frames])
+			time_photobleach  = data_all.compute(frame_photobleach).attributes['Timestep']
+			
+			# Run simulation
+			print('Run simulation.')
+			molecular_numbers_in_target_area = \
+				self.run_a_photobleach(target_frames, frame_photobleach, data_all)
+			
+			# Save
+			volume = (4/3*np.pi*rm*rm*rm)
+			molecular_concentration_in_target_area = np.array(molecular_numbers_in_target_area) / volume
+			d = {}
+			d['time_steps'] = time_steps - time_photobleach
+			d['molecular_concentration_in_target_area'] = molecular_concentration_in_target_area
+			
+			print('Save file      : ', filename_edited )
+			self.save_time_series( d, filename_edited )
+			print('Finished.\n')
 				
 				
 	def save_time_series( self, d, filename_edited ):

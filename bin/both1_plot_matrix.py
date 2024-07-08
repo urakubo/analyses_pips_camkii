@@ -54,7 +54,8 @@ class PlotConc():
 	def __init__( self, target ):
 		
 		if target not in ['region_condensates', \
-			'conc_CaMKII', 'conc_STG', 'conc_GluN2B', 'conc_PSD95', 'rdf', 'rdf_PSD95', 'concs_in_CaMKII', 'concs_in_STG',\
+			'conc_CaMKII', 'conc_STG', 'conc_GluN2B', 'conc_PSD95', 'rdf', 'rdf_CG', 'rdf_PSD95', \
+			'concs_in_CaMKII', 'concs_in_STG',\
 			'unshared_PSD95', 'shared_PSD95','conc_unrotated_CaMKII']:
 			raise ValueError("Erronous argument 'target': ", target)
 		else:

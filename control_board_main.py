@@ -21,18 +21,46 @@ from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
 	PlotPhaseDiagramConcDependence
 
 
-obj = EditConnectivityGraph()
-obj.CG_valency_length_only_local_move(frap= True)
+
+
+obj = PlotProfiles()
+obj.CG_valency_length_only_local_move(frap = True)
 obj.run()
+
+
 
 '''
 
+obj = Plot3dOvito()
+#obj.C_valency_length_FRAP_Control(frap = True)
+obj.CG_valency_length_only_local_move(frap = True)
+obj.repeat_run()
+
+
+# 'region_condensates', 'conc_CaMKII', 'conc_PSD95', 'conc_STG', 'conc_GluN2B', 'rdf',  'rdf_PSD95'
+# 'concs_in_CaMKII', 'concs_in_STG',
+# 'shared_PSD95', 'unshared_PSD95', 'conc_unrotated_CaMKII'
+
+obj = Plot3dPyvista()
+#obj.boundary_conditions2() #  conc_dependence_merged(), valency_length(), CG_valency_length(), boundary_conditions2()
+obj.CG_valency_length_only_local_move(frap = True)
+obj.run()
+
+
+target = 'rdf_CG'
+obj = PlotConcMatrix(target=target)
+#obj.conc_dependence_merged()
+obj.CG_valency_length_only_local_move(frap = True)
+obj.run()
+obj.save()
+
+
+obj = EditData()
+obj.CG_valency_length_only_local_move(frap = True)
+obj.run()
+
 obj = EditConnectivityGraph()
 obj.CG_valency_length_only_local_move(frap= True)
-obj.filenames_lammpstrj = obj.filenames_lammpstrj[-6:]
-obj.filenames_edited = obj.filenames_edited[-6:]
-print(obj.filenames_lammpstrj)
-print(obj.filenames_edited)
 obj.run()
 
 obj = PlotProfiles()
@@ -40,19 +68,9 @@ obj.CaMKII_blocked4()
 obj.run()
 
 
-pl = PlotPhaseDiagramValencyLength()
-pl.valency_length() # Only for the save directory?
-pl.plot()
-pl.save()
-
-
-#species, type_analysis = 'CaMKII', 'average'
-#species, type_analysis = 'PSD95' , 'average'
-species, type_analysis = 'PSD95' , 'ratio'
-pl = PlotConnectivityMatrix(species, type_analysis)
-pl.valency_length()
-pl.run()
-pl.save()
+obj = Plot3dOvito()
+obj.C_valency_length_FRAP_Control(frap = True)
+obj.repeat_run()
 
 pl = PlotRelaxzationTimeForMixtureValencyLength()
 pl.valency_length_small_colony2()
@@ -82,12 +100,6 @@ obj.CG_valency_length()
 obj.run()
 obj.save_figs()
 obj.save_hmws()
-
-
-sub = True
-obj = PlotMatrixPyvista()
-obj.valency_length(sub = sub)
-obj.run()
 
 sub = True
 obj = PlotMatrixPyvista()
@@ -134,8 +146,7 @@ obj.run()
 # because I do not know how to fully reset the ovito visualization system.
 obj = Plot3dOvito()
 obj.boundary_conditions2() #  conc_dependence(), valency_length(), CG_valency_length(), boundary_conditions2()
-obj.inspect()
-obj.run(1)
+obj.repeat_run()
 
 obj = Plot3dPyvista()
 obj.boundary_conditions2() #  conc_dependence_merged(), valency_length(), CG_valency_length(), boundary_conditions2()

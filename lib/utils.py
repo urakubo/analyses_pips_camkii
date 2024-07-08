@@ -848,7 +848,7 @@ def plot_binding_energy_bar(ax,d, type_energy, target_condensate, ymax):
 	ax.bar(*zip(*data.items()), width=0.6, color=colormap_conc_bargraph )
 	ax.set_ylim(0,ymax)
 	ax.set_ylabel('(1 / voxel)')
-	ax.tick_params(axis='x', rotation=45)
+	ax.tick_params(axis='x', rotation=45, horizontalalignment="right")
 	
 	return data['Total']
 
@@ -921,6 +921,10 @@ def select_plot(target, fig, num_rows, num_columns, row, column, d, title):
 		errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
 		ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
 		plot_a_rdf( ax, d, errorbar=errorbar, legend=scalebar )
+	elif target == 'rdf_CG':
+		errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
+		ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
+		plot_a_rdf( ax, d, errorbar=errorbar, legend=scalebar, target_molecules = ['All', 'CaMKII', 'GluN2B'] , ylim = (-0.01,1.0) )
 	elif target == 'rdf_PSD95':
 		errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
 		ax    = fig.add_subplot( num_rows, num_columns, row*num_columns+column )
@@ -986,14 +990,17 @@ def plot_a_panel(ax, oZ, x, y, colormap, levels, draw_border = False, \
 	
 		
 	# Mesh grids for interpolation
-	mx_max   = np.max(x)
-	mx_min   = np.min(x)
+	if mx_max == None:
+		mx_max = np.max(x)
+	if mx_min == None:
+		mx_min = np.min(x)
+	if my_max == None:
+		my_max = np.max(y)
+	if my_min == None:
+		my_min = np.min(y)
+	
 	mx_width = mx_max - mx_min
-	
-	my_max = np.max(y)
-	my_min = np.min(y)
 	my_width = my_max - my_min
-	
 	mx = np.linspace(mx_min-mx_width/20, mx_max+mx_width/20, 55*4)
 	my = np.linspace(my_min-my_width/20, my_max+my_width/20, 55*4)
 	
@@ -1121,14 +1128,22 @@ def plot_a_panel_overlay(ax, oZ, x, y, colormap, levels, \
 	oy      = np.ravel(oY)
 	oz  = np.ravel(oZ.T)
 	
+		
 	# Mesh grids for interpolation
 	if mx_max == None:
-		mx_max = np.max(x)*1.1
+		mx_max = np.max(x)
+	if mx_min == None:
+		mx_min = np.min(x)
 	if my_max == None:
-		my_max = np.max(y)*1.1
+		my_max = np.max(y)
+	if my_min == None:
+		my_min = np.min(y)
 	
-	mx = np.linspace(mx_min, mx_max, 55*4)
-	my = np.linspace(my_min, my_max, 55*4)
+	mx_width = mx_max - mx_min
+	my_width = my_max - my_min
+	mx = np.linspace(mx_min-mx_width/20, mx_max+mx_width/20, 55*4)
+	my = np.linspace(my_min-my_width/20, my_max+my_width/20, 55*4)
+	
 	
 	mX, mY = np.meshgrid(mx,my)
 	print('x ', x)

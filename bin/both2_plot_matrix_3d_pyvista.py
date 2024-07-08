@@ -14,7 +14,7 @@ class PlotMatrixPyvista(SpecDatasets):
 	def __init__( self ):
 		pass
 		
-	def run(self): 
+	def run(self, non_rotated = False): 
 		
 		if self.sub == True:
 			filename  = 'matrix_pyvista_sub.png'
@@ -46,8 +46,10 @@ class PlotMatrixPyvista(SpecDatasets):
 				d      = utils.load(self.dir_edited_data, filename_edited_prefix, suffix)
 				print('Target: ', filename_edited_prefix)
 				pl.subplot(num_rows-j-1, i)
-				#utils.plot_a_condensate_pyvista(d, pl)
-				utils_pyvista.plot_a_pre_rotated_condensate_pyvista(d, pl)
+				if non_rotated == True:
+					utils_pyvista.plot_a_condensate_pyvista(d, pl)
+				else:
+					utils_pyvista.plot_a_pre_rotated_condensate_pyvista(d, pl)
 				
 				pl.camera_position = [(150.0, 0.0, 0.0),\
 					 (7.0, -0.2, 2.5),\

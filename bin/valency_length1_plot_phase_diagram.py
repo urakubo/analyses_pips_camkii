@@ -48,7 +48,7 @@ class PlotValencyLength( SpecDatasets ):
 		
 		print('data ', data)
 		self.fig, ax = prepare_plot(self.title)
-		cs, cb = utils.plot_a_panel(ax, data, self.real_lengths, self.valencies, self.colormap, self.levels, ticks = self.ticks)
+		cs, cb = utils.plot_a_panel(ax, data, self.real_lengths, self.valencies, self.colormap, self.levels, ticks = self.ticks, mx_min=2.0, my_min=2.0)
 		
 	def save( self ):
 		
@@ -121,8 +121,8 @@ class PhaseDiagram():
 		
 		
 		self.fig, ax = prepare_plot(self.title)
-		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.p_lengths, self.p_valencies, colormap1, levels1, draw_border = True)
-		utils.plot_a_panel_overlay(ax, self.STG_only, self.p_lengths, self.p_valencies, colormap2, levels2)
+		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.p_lengths, self.p_valencies, colormap1, levels1, draw_border = True, mx_min = 2.0, my_min = 2.0)
+		utils.plot_a_panel_overlay(ax, self.STG_only, self.p_lengths, self.p_valencies, colormap2, levels2, mx_min = 2.0, my_min = 2.0)
 		
 		
 class Connectivity():
@@ -138,25 +138,50 @@ class Connectivity():
 			self.colormap =  c.cmap_white_green_universal
 			self.levels   = np.linspace(0,12,7)
 			self.ticks = [0, 4, 8, 12]
+			self.suffix = 'connectivity_graph'
 		elif species == 'PSD95' and type_analysis == 'average':
 			self.title    = 'Number of STG bound to one PSD95'
 			self.basename = 'num_STG_bound_to_one_PSD95'
 			self.colormap = c.cmap_white_red_universal
 			self.levels   = np.linspace(0,3,6)
 			self.ticks = [0, 1, 2, 3]
+			self.suffix = 'connectivity_graph'
 		elif species == 'PSD95' and type_analysis == 'ratio':
 			self.title    = 'Ratio of PSD95 bound to both GluN2B and STG'
 			self.basename = 'PSD95_bound_to_both_GluN2B_STG'
 			self.colormap =  plt.colormaps['Greys']
 			self.levels   = np.linspace(0,1.0,11)
 			self.ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
+			self.suffix = 'connectivity_graph'
+		elif species == 'CaMKII' and type_analysis == 'conc_in_CaMKII_condensate':
+			self.title    = 'conc CaMKII in CaMKII condensate'
+			self.basename = 'conc_CaMKII_in_CaMKII_condensate'
+			self.colormap =  c.cmap_white_green_universal
+			self.levels   = np.linspace(0,1.0,11)
+			self.ticks = [0, 0.5, 1.0]
+			self.suffix = 'sigma_2'
+		elif species == 'GluN2B' and type_analysis == 'conc_in_CaMKII_condensate':
+			self.title    = 'conc GluN2B in CaMKII condensate'
+			self.basename = 'conc_GluN2B_in_CaMKII_condensate'
+			self.colormap =  c.cmap_white_purple_universal
+			self.levels   = np.linspace(0,1.0,11)
+			self.ticks = [0, 0.5, 1.0]
+			self.suffix = 'sigma_2'
+		elif species == 'All' and type_analysis == 'conc_in_CaMKII_condensate':
+			self.title    = 'conc Total in CaMKII condensate'
+			self.basename = 'conc_total_in_CaMKII_condensate'
+			self.colormap =  plt.colormaps['Greys']
+			self.levels   = np.linspace(0,1.0,11)
+			self.ticks = [0, 0.5, 1.0]
+			self.suffix = 'sigma_2'
+		
+		
 		else:
 			raise ValueError("Not implemented, species: ", species, ", type_analysis: ", type_analysis)
 		
 		self.species = species
 		self.type_analysis = type_analysis
 		self.basename = '{}_{}'.format( self.species, self.type_analysis )
-		self.suffix = 'connectivity_graph'
 	
 	
 	def _modify_data(self, d):
@@ -169,6 +194,11 @@ class Connectivity():
 		elif self.species == 'PSD95' and self.type_analysis == 'ratio':
 			num_total = sum( d[self.species][self.type_analysis].values() )
 			data      = d[self.species][self.type_analysis]['Both'] / num_total
+		elif self.species == 'CaMKII' and self.type_analysis == 'conc_in_CaMKII_condensate':
+			data      = d['conc_condensate']['CaMKII']['CaMKII']
+		elif self.type_analysis == 'conc_in_CaMKII_condensate':
+			data      = d['conc_condensate']['CaMKII'][self.species]
+			
 		return data
 
 
