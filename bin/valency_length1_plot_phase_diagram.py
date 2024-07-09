@@ -48,8 +48,8 @@ class PlotValencyLength( SpecDatasets ):
 		
 		print('data ', data)
 		self.fig, ax = prepare_plot(self.title)
-		cs, cb = utils.plot_a_panel(ax, data, self.real_lengths, self.valencies, self.colormap, self.levels, ticks = self.ticks, mx_min=2.0, my_min=2.0)
-		
+		cs, cb = utils.plot_a_panel(ax, data, self.real_lengths, self.valencies, self.colormap, self.levels, ticks = self.ticks, mx_min=2.0, my_min=4.0)
+		# , mx_min=2.0, my_min=2.0
 	def save( self ):
 		
 		dir_imgs = os.path.join(self.dir_imgs_root, 'phase_diagram')

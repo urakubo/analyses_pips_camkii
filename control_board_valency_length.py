@@ -11,15 +11,13 @@ from bin.valency_length1_plot_phase_diagram import \
 from bin.valency_length_CG3_plot_FRAP_video_3d_ovito import MakeOvitoVideoFRAP
 
 
-species, type_analysis = 'CaMKII', 'conc_in_CaMKII_condensate'
+#species, type_analysis = 'CaMKII', 'conc_in_CaMKII_condensate'
 #species, type_analysis = 'GluN2B', 'conc_in_CaMKII_condensate'
-#species, type_analysis = 'All', 'conc_in_CaMKII_condensate'
+species, type_analysis = 'All', 'conc_in_CaMKII_condensate'
 obj = PlotConnectivityValencyLength(species, type_analysis)
 obj.CG_valency_length_only_local_move(frap = True)
 obj.run()
 obj.save()
-
-
 
 
 '''

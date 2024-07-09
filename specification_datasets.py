@@ -304,7 +304,7 @@ class SpecDatasets():
 			self.lengths   = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
 			self.real_lengths = [2, 3, 4, 5, 6, 9]
 		
-		self.lengths   = range(6,7) # [1, 2, 3, 4, 5, 6, 9]
+		#self.lengths   = range(6,7) # [1, 2, 3, 4, 5, 6, 9]
 		#self.valencies = range(4,8,2)
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)

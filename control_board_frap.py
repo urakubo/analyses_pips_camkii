@@ -20,6 +20,16 @@ import numpy as np
 
 
 
+import numpy as np
+pl = PlotRelaxzationTimeValencyLength()
+pl.C_valency_length_FRAP_Control_fine_sampling(frap = True)
+pl.prefix_loadname = 'FRAP_taus_CaMKII'
+pl.basename = 'FRAP_taus_CaMKII'
+pl.levels   =  np.linspace(-4,1,8)
+pl.ticks_level = [-4, -3, -2, -1, 0, 1]
+pl.plot_mixture()
+pl.save()
+
 
 '''
 
@@ -35,6 +45,8 @@ for center, suffix in zip(centers, suffixes):
 	obj.suffix = suffix
 	obj.repeat_runs()
 
+
+
 suffixes = ['FRAP{}'.format(i) for i in range(8)]
 suffix   = 'FRAP_'
 obj = CalcAverageFRAPValencyLength()
@@ -45,8 +57,6 @@ obj.C_valency_length_FRAP_Control_fine_sampling(frap = True)
 obj.convert_save()
 
 
-
-
 suffix   = 'FRAP_'
 obj = PlotFRAPMatrixValencyLength()
 obj.C_valency_length_FRAP_Control_fine_sampling(frap= True)
@@ -55,6 +65,7 @@ obj.suffix = suffix
 fitting_tau = obj.run()
 obj.save()
 obj.save_taus_fitting()
+
 
 
 obj = SimulatePhotobleach()

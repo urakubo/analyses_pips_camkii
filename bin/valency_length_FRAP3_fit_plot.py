@@ -81,7 +81,22 @@ def get_boundanry(dir_edited_data, target_molecule_fit, title):
 	dir_target = os.path.split(dir_edited_data)[-1]
 	print('dir_target ', dir_target)
 	
-	if dir_target == 'CG_valency_length_only_local_move_fine_sampling' and target_molecule_fit=='CaMKII':
+	if dir_target == 'C_valency_length_FRAP_Control_fine_sampling':
+		min_a  , max_a   = 60, 100
+		min_b  , max_b   = 1, 4
+		if ('000' in title) or ('001' in title) or ('002' in title):
+			max_tau, min_tau = 400, 0.001
+			p0 = [100, 70, 2]
+		elif ('003' in title):
+			max_tau,min_tau = 0.05,0.0
+			p0 = [0.0001, 70, 1]
+		elif ('006' in title) or ('005' in title)or ('004' in title):
+			max_tau,min_tau = 0.05,0.0
+			p0 = [0.0001, 70, 1]
+		else:
+			max_tau,min_tau = 0.01,0.0
+			p0 = [0.001, 70, 1]
+	elif dir_target == 'CG_valency_length_only_local_move_fine_sampling' and target_molecule_fit=='CaMKII':
 		if ('_006' in title):
 			print('Set fitting params for ', title)
 			min_a  , max_a   = 60, 100
@@ -144,21 +159,6 @@ def get_boundanry(dir_edited_data, target_molecule_fit, title):
 		else:
 			max_tau,min_tau = 10,0.001
 			p0 = [5, 70, 2]
-	elif dir_target == 'C_valency_length_FRAP_Control_fine_sampling':
-		min_a  , max_a   = 60, 100
-		min_b  , max_b   = 1, 2
-		if ('000' in title) or ('001' in title) or ('002' in title):
-			max_tau, min_tau = 400, 0.001
-			p0 = [100, 70, 2]
-		elif ('003' in title):
-			max_tau,min_tau = 0.05,0.0
-			p0 = [0.0001, 70, 1]
-		elif ('006' in title) or ('005' in title)or ('004' in title):
-			max_tau,min_tau = 0.05,0.0
-			p0 = [0.0001, 70, 1]
-		else:
-			max_tau,min_tau = 0.01,0.0
-			p0 = [0.001, 70, 1]
 	else:
 		sys.exit("No fit constraints for ", dir_target)
 	pmin = (min_tau, min_a, min_b)
@@ -226,7 +226,7 @@ class PlotFRAP():
 			# Fitting
 			if mname == self.target_molecule_fit:
 				param = self.exponential_fitting( title, density_, time_frame_ )
-				time_frame_for_fit = time_frame_[time_frame_ > 0.004]
+				time_frame_for_fit = time_frame_[time_frame_ > 0.0001]
 				ax.plot(time_frame_for_fit, func_exponential_recovery( time_frame_for_fit, *param.tolist() ) ,\
 					color = 'k')
 		

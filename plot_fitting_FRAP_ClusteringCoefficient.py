@@ -87,6 +87,15 @@ if __name__ == '__main__':
 	suffix = 'matrix'
 	d_FRAP = utils.load(t.dir_edited_data, prefix, suffix)
 	
+	'''
+	tt = SpecDatasets()
+	tt.C_valency_length_FRAP_Control_fine_sampling(frap = True)
+	prefix = 'FRAP_taus_CaMKII'
+	suffix = 'matrix'
+	d_FRAP = utils.load(tt.dir_edited_data, prefix, suffix)
+	dir_imgs = os.path.join(tt.dir_imgs_root, 'matrix')
+	os.makedirs(dir_imgs, exist_ok=True)
+	'''
 	
 	# Load data: Clustering coefficient.
 	prefix = 'average_clustering_coefficient'
