@@ -55,9 +55,22 @@ def plot_snapshots(data_all, dir_edited_data, dir_imgs, \
 	# label colors
 	for k, v in p.molecules_without_all.items():
 		data_all.modifiers.append(SelectTypeModifier(types=set(v['id'])))
-		data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio[k] ))	
+		data_all.modifiers.append(AssignColorModifier(color=c.cmap_universal_ratio[k] ))
 	
 	
+	'''
+	# Centering at the specified frame
+	frame_time_zero = frame_photobleach
+	types, positions, ids_molecule = utils.decode_data(data_all.compute( frame_time_zero ))
+	center = utils.get_center_of_mass(types, positions)
+	for dim in [0,1,2]:
+		center[dim] += - p.space[dim] * (center[dim]  >=  p.space[dim]) + p.space[dim] * (center[dim]  <  0)
+	modifier = utils_ovito.CenteringModifier()
+	modifier.center = center
+	data_all.modifiers.append(modifier)
+	'''
+	
+	# View
 	vp = Viewport()
 	vp.type = Viewport.Type.Perspective
 	vp.fov = np.radians(10.0) # math.radians
@@ -77,14 +90,29 @@ def plot_snapshots(data_all, dir_edited_data, dir_imgs, \
 			ids_bead_cluster = utils_ovito.get_CaMKII_beads_in_largest_cluster(data_all, target_frame)
 		elif target_molecule == 'GluN2B':
 			ids_bead_cluster = utils_ovito.get_GluN2B_beads_in_largest_cluster(data_all, target_frame)
-
+		elif target_molecule == 'Both_condensate_diluent':
+			data   = data_all.compute(target_frame)
+			ids_bead_cluster = np.arange(data.particles.count)
+		else:
+			sys.exit('target_molecule was inapproriate.')
+		
+		
+		# Slice
+		data      = data_all.compute(target_frame)
+		positions = np.array( data.particles['Position'] )
+		sliced    = set( np.flatnonzero( (positions[:,0] < 60+15) * (positions[:,0] > 60-15) ))
+		ids_bead_cluster = list( set(ids_bead_cluster) & sliced )
+		
 		# Photobleach
 		if (target_frame >= frame_photobleach) and (f_bleach == 0):
-			data   = data_all.compute(target_frame)
-			types, positions, ids_molecule = utils.decode_data(data)
+			#data   = data_all.compute(target_frame)
+			#types, positions, ids_molecule = utils.decode_data(data)
 			
+			center = (60,60-15,60)
+			'''
 			center    = utils.get_center_of_mass(types, positions)
-			position_centered = utils.centering(positions, center)
+			'''
+			position_centered       = utils.centering(positions, center)
 			unbleached_moleules     = get_molecular_ids_in_unbleached_area(position_centered)
 			ids_unbleached_moleules = set( np.flatnonzero(unbleached_moleules) )
 			
@@ -96,32 +124,37 @@ def plot_snapshots(data_all, dir_edited_data, dir_imgs, \
 		
 		# Remove the bleached molecules
 		if target_frame >= frame_photobleach:
-			ids_bead_cluster = list( set(ids_bead_cluster) & ids_unbleached_moleules )
+			ids_bead_cluster = list( set(ids_bead_cluster) & ids_unbleached_moleules & sliced )
 			#print('ids_bead_cluster  ',ids_bead_cluster )
 		
-		#print('ids_bead ', ids_bead)
 		
+		
+		# Exec remove
 		modifier_del = utils_ovito.DeleteParticle()
 		modifier_del.ids = ids_bead_cluster
 		data_all.modifiers.append(modifier_del)
 		
-		#data   = data_all.compute()
-		#data_all.add_to_scene()	
-		
 		
 		# Set time
-		timelabel = TextLabelOverlay( text = 'Time: {:.5f} 10^9 MC step'.format(target_time),\
+		'''
+		timelabel = TextLabelOverlay( text = 'Time: {:.4f} G MC step'.format(target_time),\
+			offset_x = 0.08 ,\
+			offset_y = 0.005, \
 			font_size = 0.03, \
 			text_color = (0,0,0) )
 		timelabel.alignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom
 		vp.overlays.append(timelabel)
 		
 		filename = os.path.join(dir_imgs, '{}.png'.format( str(i).zfill(4)) )
+		'''
+		
+		filename = os.path.join(dir_imgs, '{:+.4f}_G_MC_step.png'.format(target_time) )
 		print( filename )
 		i += 1
 		vp.render_image(size=(800,800), filename=filename, background=(1,1,1),frame=target_frame, renderer=OpenGLRenderer())
-		vp.overlays.remove(timelabel)
+		#vp.overlays.remove(timelabel)
 		del data_all.modifiers[-1]
+		
 	
 	return
 	
@@ -130,8 +163,8 @@ class MakeOvitoVideoFRAP(SpecDatasets):
 	
 	def __init__( self ):
 		
-		self.frame_num_after_photobleach  = 300
-		self.frame_num_before_photobleach = 10
+		self.num_frames_after_photobleach = 300
+		self.num_frames_before_photobleach = 10
 		self.num_skip_frames_for_sampling = 1
 		
 		
@@ -144,17 +177,18 @@ class MakeOvitoVideoFRAP(SpecDatasets):
 		
 		print('\nID {}: {}, {}'.format(i, self.filenames_lammpstrj[i], self.filenames_edited[i]))
 		# Shared init
-		
 		self.dir_imgs         = os.path.join( self.dir_imgs_root, 'for_movie_{}'.format( self.filenames_edited[i] ) )
 		os.makedirs(self.dir_imgs, exist_ok=True)
 		
 		# Load lammpstrj file.
 		data_all = import_file(os.path.join(self.dir_lammpstrj, self.filenames_lammpstrj[i]), input_format= "lammps/dump" )
 		
+		self.num_frames_before_photobleach, self.num_frames_after_photobleach = self.set_frames_before_after[i]
+		
 		# Make images
 		plot_snapshots(data_all, self.dir_edited_data, self.dir_imgs, \
-			self.frame_num_after_photobleach,  
-			self.frame_num_before_photobleach, 
+			self.num_frames_after_photobleach,  
+			self.num_frames_before_photobleach, 
 			self.num_skip_frames_for_sampling, 
 			target_molecule = target_molecule
 			)

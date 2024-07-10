@@ -28,7 +28,6 @@ class SingleValencyLength():
 		
 	def plot( self , valency = 12, length = 2 ):
 		
-		
 		if self.target_molecule_fit == 'CaMKII' and length == 2:
 			#self.dir_target  = 'small_colony2'
 			xlim        = [-1,3]
@@ -58,6 +57,56 @@ class SingleValencyLength():
 		value, ax = self.plot_a_graph(row, column, d, self.prefix, legend)
 		ax.set_xlim( xlim )
 		ax.set_xticks(set_xticks)
+		ax.set_title('{},{:.4f}'.format( self.prefix, value))
+		#
+		
+	def plot_dissociated_CaMKII( self , valency = 12, length = 6 ):
+		
+		# Load and plot foreground data
+		self.suffix = 'FRAP_'
+		self.prefix =  self.filename_edited_matrix(valency, length)
+		d = utils.load(self.dir_edited_data, self.prefix, self.suffix)
+		
+		# Plot
+		self.fig  = plt.figure(figsize=(1.3, 1.0))
+		legend = True
+		
+		row = 0
+		column = 1
+		value, ax = self.plot_a_graph(row, column, d, self.prefix, legend)
+		
+		bacground   = SpecDatasets()
+		if length == 2:
+			bacground.CG_valency_length_only_local_move(frap = True)
+		elif length == 6:
+			bacground.CG_valency_length_only_local_move_fine_sampling(frap = True)
+		
+		
+		suffix      = 'FRAP'
+		prefix      =  bacground.filename_edited_matrix(valency, length)
+		d_bacground = utils.load(bacground.dir_edited_data, prefix, suffix)
+		time_frame = d_bacground['time_steps'] /1e9
+		molecular_concentration_in_target_area = d_bacground['molecular_concentration_in_target_area']
+		mname = 'CaMKII'
+		tmp = [ molecular_concentration_in_target_area[:,i] for i in p.molecules_with_all[mname]['id'] ]
+		density = sum(tmp)
+		density = density / np.mean(density[time_frame < 0]) * 100
+		ax.plot(\
+			time_frame, density,\
+			color = c.cmap_universal_ratio_light['CaMKII'], label=mname, zorder=-1)
+
+		if length == 2:
+			ax.set_xlim([-0.1, 0.4])
+			ax.set_xticks( [0,0.2,0.4] )
+		elif length == 6:
+			ax.set_xlim([-0.01, 0.06])
+			ax.set_xticks( [0,0.03,0.06] )
+		# light_green_universal_uint
+		# p.molecules_with_all[mname]['c']
+		#ax.set_xlim([np.min(time_frame), 0.08])
+		#ax.set_xticks( [0,0.04,0.08] )
+
+		#ax.set_xticks(set_xticks)
 		ax.set_title('{},{:.4f}'.format( self.prefix, value))
 		#
 		

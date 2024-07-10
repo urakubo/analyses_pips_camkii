@@ -18,7 +18,13 @@ import lib.utils as utils
 import pprint
 import numpy as np
 
+obj = PlotFRAPSingleValencyLength()
+obj.C_valency_length_FRAP_Control_fine_sampling(frap = True)
+obj.plot_dissociated_CaMKII()
+obj.save()
 
+
+'''
 
 import numpy as np
 pl = PlotRelaxzationTimeValencyLength()
@@ -29,9 +35,6 @@ pl.levels   =  np.linspace(-4,1,8)
 pl.ticks_level = [-4, -3, -2, -1, 0, 1]
 pl.plot_mixture()
 pl.save()
-
-
-'''
 
 centers  = [[0,0,0],[60,0,0],[0,60,0],[0,0,60],[60,60,0],[0,60,60],[60,0,60],[60,60,60]]
 suffixes = ['FRAP{}'.format(i) for i in range(8)]
@@ -85,6 +88,7 @@ obj.C_valency_length_FRAP_Control_fine_sampling(frap = True)
 obj.center = center
 obj.suffix = suffix
 obj.repeat_runs()
+
 
 obj = PlotFRAPMatrixValencyLength()
 obj.C_valency_length_FRAP_Control_fine_sampling(frap= True)
