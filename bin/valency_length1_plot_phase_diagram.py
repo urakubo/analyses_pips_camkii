@@ -236,7 +236,7 @@ class RelaxzationTime():
 		cs, cb = utils.plot_a_panel_log(ax, self.data, real_lengths, valencies, self.colormap, self.levels,\
 			ticks_level = self.ticks_level)
 		
-		print('OK!')
+		print(self.data)
 		
 		'''
 		data = np.zeros([num_columns, num_rows], dtype = 'float')
@@ -258,7 +258,7 @@ class ModularityDensityClustering():
 		#self.dir_target     = 'small_colony2'
 		#self.lengths   = p.lengths2
 		#self.valencies = p.valencies2
-		
+		self.log = False
 		if property == 'modularity':
 			self.title    = 'Modularity'
 			self.basename = 'modularity'
@@ -279,6 +279,14 @@ class ModularityDensityClustering():
 			self.colormap = plt.colormaps['Greys']
 			self.levels   = np.linspace(0,0.20,10)
 			self.ticks    = [0, 0.05, 0.1, 0.15, 0.2]
+		elif property == 'clustering_log':
+			self.title    = 'Clustering coefficient'
+			self.prefix   = 'average_clustering_coefficient'
+			self.basename = 'clustering_log'
+			self.colormap = plt.colormaps['Greys']
+			self.levels   = np.linspace(-3,0,10)
+			self.ticks    = [-3, -2, -1, 0]
+			self.log      = True
 		elif property == 'FRAP':
 			self.title    = 'CaMKII FRAP'
 			self.prefix   = 'FRAP_merged'
@@ -336,6 +344,9 @@ class ModularityDensityClustering():
 		suffix = 'matrix'
 		self.data = utils.load(self.dir_edited_data, self.prefix, suffix)
 		self.data = self.data.T
+		print('data ', self.data)
+		if self.log == True:
+			self.data = np.log10(self.data)
 		print('data ', self.data)
 		self.fig, ax = prepare_plot( self.title )
 		cs, cb = utils.plot_a_panel_log(ax, self.data, \

@@ -28,26 +28,25 @@ def soft_plus(x, tau, a, x0):
 	return  a * np.log( 1+np.exp((x-x0)/tau) )
 
 
-def x_n(x, a, center, n):
-	return  a * (x - center)**n
+def linear(x, a, b):
+	return  a * x + b
 
 
 def prepare_plot():
-	fig  = plt.figure(figsize=(3.0, 3.5)) # (3.5, 3.5)
+	fig  = plt.figure(figsize=(3.0, 3.0)) # (3.5, 3.5)
 	fig.subplots_adjust(left = 0.2, bottom = 0.2, wspace=0.4,  hspace=0.6)
 	ax = fig.add_subplot( 1, 1, 1 )
-	
 	ax.spines['right'].set_visible(False)
 	ax.spines['top'].set_visible(False)
+	
 	return fig, ax
 
 def plot_a_graph(ax, x, y, title, fitting_function, fitting_params, label):
 	xlim  = [-3.2, 1]
-	#ax.set_yscale('log')
+	ylim  = [-3.2, 0]
 	ax.set_xlim(xlim)
-	ax.set_ylim([-0.02,0.2])
-	ax.set_yticks([0,0.1,0.2])
-	#ax.set_ylim(xlim)
+	ax.set_ylim(ylim)
+	#ax.set_yticks([0,0.1,0.2])
 	ax.set_xlabel('FRAP (log[10^9 MC steps])')
 	ax.set_ylabel('Clustering coefficient')
 	ax.set_title( title )
@@ -76,7 +75,7 @@ if __name__ == '__main__':
 	t = SpecDatasets()
 	t.CG_valency_length_only_local_move()
 	
-	dir_imgs = os.path.join(t.dir_imgs_root, 'matrix')
+	dir_imgs = os.path.join(t.dir_imgs_root, 'fitting')
 	os.makedirs(dir_imgs, exist_ok=True)
 	
 	
@@ -88,15 +87,6 @@ if __name__ == '__main__':
 	suffix = 'matrix'
 	d_FRAP = utils.load(t.dir_edited_data, prefix, suffix)
 	
-	'''
-	tt = SpecDatasets()
-	tt.C_valency_length_FRAP_Control_fine_sampling(frap = True)
-	prefix = 'FRAP_taus_CaMKII'
-	suffix = 'matrix'
-	d_FRAP = utils.load(tt.dir_edited_data, prefix, suffix)
-	dir_imgs = os.path.join(tt.dir_imgs_root, 'fitting')
-	os.makedirs(dir_imgs, exist_ok=True)
-	'''
 	
 	# Load data: Clustering coefficient.
 	prefix = 'average_clustering_coefficient'
@@ -107,19 +97,14 @@ if __name__ == '__main__':
 	x = d_FRAP.flatten()
 	x = np.log10(x)
 	y = d_cluster.flatten()
-	#y = np.log10(y)
+	y = np.log10(y)
 	
 	
 	# Fitting
-	'''
-	title = 'Soft_plus'
-	fitting_function = soft_plus
-	inits = None
 	
-	'''
-	title = 'Exponential'
-	fitting_function = exponential
-	inits = np.array([0.5, 0.02])
+	title = 'linear'
+	fitting_function = linear
+	inits = np.array([1, 0])
 	
 	fitting_params , pcov = curve_fit(fitting_function, x, y, p0= inits)
 	

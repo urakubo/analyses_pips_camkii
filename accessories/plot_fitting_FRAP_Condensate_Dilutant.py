@@ -33,7 +33,7 @@ def x_n(x, a, center, n):
 
 
 def prepare_plot():
-	fig  = plt.figure(figsize=(3.0, 3.5)) # (3.5, 3.5)
+	fig  = plt.figure(figsize=(3.8, 3.8)) # (3.5, 3.5)
 	fig.subplots_adjust(left = 0.2, bottom = 0.2, wspace=0.4,  hspace=0.6)
 	ax = fig.add_subplot( 1, 1, 1 )
 	
@@ -41,23 +41,22 @@ def prepare_plot():
 	ax.spines['top'].set_visible(False)
 	return fig, ax
 
-def plot_a_graph(ax, x, y, title, fitting_function, fitting_params, label):
-	xlim  = [-3.2, 1]
+def plot_a_graph(ax, x, y, title):
+	xlim  = [-4, 0.7]
 	#ax.set_yscale('log')
 	ax.set_xlim(xlim)
-	ax.set_ylim([-0.02,0.2])
-	ax.set_yticks([0,0.1,0.2])
-	#ax.set_ylim(xlim)
-	ax.set_xlabel('FRAP (log[10^9 MC steps])')
-	ax.set_ylabel('Clustering coefficient')
+	ax.set_ylim(xlim)
+	#ax.set_yticks([0,0.1,0.2])
+	ax.set_xlabel('Recovery time on condensate \n (log[10^9 MC steps])')
+	ax.set_ylabel('Recovery time on dilutant \n  (log[10^9 MC steps])')
 	ax.set_title( title )
 	
-	xx = np.linspace(xlim[0],xlim[1],40)
-	ax.plot( xx, fitting_function( xx,*fitting_params.tolist() ), '-', color = (0.5,0.5,0.5), label=label)
+	ax.plot( xlim, xlim, '--', color = (0.5,0.5,0.5))
 	ax.plot(x, y,'o', \
 		markersize = 4, \
 		color = 'k', \
 		markerfacecolor = 'k' )
+	ax.set_aspect('equal', 'box')
 	ax.legend(frameon=False)
 
 def save_plots( fig, dir_imgs, img_basename ):
@@ -70,69 +69,36 @@ def save_plots( fig, dir_imgs, img_basename ):
 
 
 
-		
 if __name__ == '__main__':
 	
+	# Shared init
+	filename_img = 'FRAP_Condansate_dilutent'
+	
+	# Load data: FRAP condensate
 	t = SpecDatasets()
 	t.CG_valency_length_only_local_move()
-	
-	dir_imgs = os.path.join(t.dir_imgs_root, 'matrix')
-	os.makedirs(dir_imgs, exist_ok=True)
-	
-	
-	# Shared init
-	filename_img = 'FRAP_clustering_coefficient_fitting'
-	
-	# Load data: FRAP
 	prefix = 'FRAP_taus_CaMKII_merged'
 	suffix = 'matrix'
 	d_FRAP = utils.load(t.dir_edited_data, prefix, suffix)
 	
-	'''
+	
+	# Load data: FRAP dilutant
 	tt = SpecDatasets()
 	tt.C_valency_length_FRAP_Control_fine_sampling(frap = True)
 	prefix = 'FRAP_taus_CaMKII'
 	suffix = 'matrix'
-	d_FRAP = utils.load(tt.dir_edited_data, prefix, suffix)
+	d_cluster = utils.load(tt.dir_edited_data, prefix, suffix)
 	dir_imgs = os.path.join(tt.dir_imgs_root, 'fitting')
 	os.makedirs(dir_imgs, exist_ok=True)
-	'''
-	
-	# Load data: Clustering coefficient.
-	prefix = 'average_clustering_coefficient'
-	d_cluster = utils.load(t.dir_edited_data, prefix, suffix)
-	
 	
 	
 	x = d_FRAP.flatten()
 	x = np.log10(x)
 	y = d_cluster.flatten()
-	#y = np.log10(y)
+	y = np.log10(y)
 	
-	
-	# Fitting
-	'''
-	title = 'Soft_plus'
-	fitting_function = soft_plus
-	inits = None
-	
-	'''
-	title = 'Exponential'
-	fitting_function = exponential
-	inits = np.array([0.5, 0.02])
-	
-	fitting_params , pcov = curve_fit(fitting_function, x, y, p0= inits)
-	
-	y_pred = fitting_function(x, *fitting_params.tolist())
-	r2_exp = r2_score(y, y_pred)
-	
-	label = 'R2: {:.3f}'.format(r2_exp)
-	print('fitting parameters: ', fitting_params)
-	print(label)
-	print()
-
 	# Plot a figure and save it.
 	fig, ax = prepare_plot()
-	plot_a_graph(ax, x, y, title, fitting_function, fitting_params, label)
-	save_plots( fig, dir_imgs, filename_img + '_' + title)
+	plot_a_graph(ax, x, y, filename_img)
+	save_plots( fig, dir_imgs, filename_img)
 

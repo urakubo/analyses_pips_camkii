@@ -15,20 +15,21 @@ from bin.valency_length1_plot_phase_diagram import \
 from bin.connectivity_calc2_modularity import CalcModularityClustringC
 
 
-obj = Plot3dOvitoConnectivity()
+property = 'clustering_log' # 'density', 'modularity', 'clustering', 'clustering_log', 'FRAP'
+obj = PlotPropertiesValencyLength(property)
 obj.CG_valency_length_only_local_move(frap= True)
-#obj.inspect()
-obj.plot_an_image(29) # 25, 29
-#obj.plot_an_image(25) # 25, 29
+obj.plot2()
+obj.save()
 
 
 
 '''
 
-obj = PlotPropertiesValencyLength('clustering') # 'modularity'
+obj = Plot3dOvitoConnectivity()
 obj.CG_valency_length_only_local_move(frap= True)
-obj.plot2()
-obj.save()
+#obj.inspect()
+obj.plot_an_image(29) # 25, 29
+#obj.plot_an_image(25) # 25, 29
 
 
 obj = PlotConnectivityMatrixDendrogram()
@@ -68,11 +69,6 @@ obj.make_a_video( i )
 
 
 
-property = 'modularity' # 'density', 'modularity', 'clustering', 'FRAP'
-pl = PlotPropertiesValencyLength(property)
-pl.valency_length_small_colony2()
-pl.plot()
-pl.save()
 
 obj = CalcModularityClustringC()
 obj.CG_valency_length_only_local_move(frap = True)
