@@ -231,14 +231,15 @@ class SpecDatasets():
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
 		
-		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
-		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
-		
 		dir_target       = 'CG_valency_length_only_local_move'
 		self._shared5( dir_target )
 		
-		
 		self.set_frames_before_after_photobleach = set_frames_photobleach_colony2
+		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.set_frames_before_after = [self.set_frames_before_after_photobleach(v, l) for v in self.valencies for l in self.lengths]
+		
 		
 		
 	def CG_valency_length_only_local_move_fine_sampling( self, frap = False ):

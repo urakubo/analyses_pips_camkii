@@ -231,9 +231,12 @@ class RelaxzationTime():
 		self.data    = utils.load(self.dir_edited_data, self.prefix_loadname, suffix).T
 		if no_log == False:
 			self.data    = np.log10( self.data )
+		#print('OK!')
 		self.fig, ax = prepare_plot(self.title)
 		cs, cb = utils.plot_a_panel_log(ax, self.data, real_lengths, valencies, self.colormap, self.levels,\
 			ticks_level = self.ticks_level)
+		
+		print('OK!')
 		
 		'''
 		data = np.zeros([num_columns, num_rows], dtype = 'float')

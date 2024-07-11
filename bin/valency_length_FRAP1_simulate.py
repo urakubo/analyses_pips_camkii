@@ -2,8 +2,10 @@
 import os, sys, glob, pickle, pprint, copy, pickle
 import numpy as np
 
+# from sklearn import mixture
+#https://matsci.org/t/compatibility-issue-between-python-ovito-library-and-matplotlib/50794
+os.environ['OVITO_GUI_MODE'] = '1'
 from ovito.io import import_file
-
 
 import lib.utils as utils
 import lib.parameters as p

@@ -116,7 +116,7 @@ class Plot3dOvitoConnectivity(SpecDatasets):
 		
 		
 		# Load graph
-		loadname_prefix = '{}_{}'.format(0, self.filename_edited )
+		loadname_prefix = '{}_{}'.format(0, filename_edited )
 		data = utils.load(self.dir_edited_data, loadname_prefix, 'cluster_dendrogram')
 		
 		#  Assign colors

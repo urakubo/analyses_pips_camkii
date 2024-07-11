@@ -108,10 +108,13 @@ def plot_snapshots(data_all, dir_edited_data, dir_imgs, \
 			#data   = data_all.compute(target_frame)
 			#types, positions, ids_molecule = utils.decode_data(data)
 			
+			'''
 			center = (60,60-15,60)
 			'''
+			
+			types, positions, ids_molecule = utils.decode_data(data_all.compute( target_frame ))
 			center    = utils.get_center_of_mass(types, positions)
-			'''
+			
 			position_centered       = utils.centering(positions, center)
 			unbleached_moleules     = get_molecular_ids_in_unbleached_area(position_centered)
 			ids_unbleached_moleules = set( np.flatnonzero(unbleached_moleules) )
@@ -144,7 +147,6 @@ def plot_snapshots(data_all, dir_edited_data, dir_imgs, \
 			text_color = (0,0,0) )
 		timelabel.alignment = QtCore.Qt.AlignmentFlag.AlignLeft | QtCore.Qt.AlignmentFlag.AlignBottom
 		vp.overlays.append(timelabel)
-		
 		filename = os.path.join(dir_imgs, '{}.png'.format( str(i).zfill(4)) )
 		'''
 		

@@ -15,13 +15,20 @@ from bin.valency_length1_plot_phase_diagram import \
 from bin.connectivity_calc2_modularity import CalcModularityClustringC
 
 
+obj = Plot3dOvitoConnectivity()
+obj.CG_valency_length_only_local_move(frap= True)
+#obj.inspect()
+obj.plot_an_image(29) # 25, 29
+#obj.plot_an_image(25) # 25, 29
+
+
+
+'''
+
 obj = PlotPropertiesValencyLength('clustering') # 'modularity'
 obj.CG_valency_length_only_local_move(frap= True)
 obj.plot2()
 obj.save()
-
-
-'''
 
 
 obj = PlotConnectivityMatrixDendrogram()
