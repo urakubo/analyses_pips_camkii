@@ -8,6 +8,7 @@ import mpl_toolkits.axes_grid1
 from scipy.interpolate import griddata, RegularGridInterpolator
 
 import lib.utils as utils
+import lib.utils_panel as utils_panel
 import lib.parameters as p
 import lib.colormap as c
 import lib.utils_graph as utils_graph
@@ -48,7 +49,7 @@ class PlotValencyLength( SpecDatasets ):
 		
 		print('data ', data)
 		self.fig, ax = prepare_plot(self.title)
-		cs, cb = utils.plot_a_panel(ax, data, self.real_lengths, self.valencies, self.colormap, self.levels, ticks = self.ticks, mx_min=2.0, my_min=4.0)
+		cs, cb = utils_panel.plot_a_panel(ax, data, self.real_lengths, self.valencies, self.colormap, self.levels, ticks = self.ticks, mx_min=2.0, my_min=4.0)
 		# , mx_min=2.0, my_min=2.0
 	def save( self ):
 		
@@ -121,8 +122,8 @@ class PhaseDiagram():
 		
 		
 		self.fig, ax = prepare_plot(self.title)
-		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.p_lengths, self.p_valencies, colormap1, levels1, draw_border = True, mx_min = 2.0, my_min = 2.0)
-		utils.plot_a_panel_overlay(ax, self.STG_only, self.p_lengths, self.p_valencies, colormap2, levels2, mx_min = 2.0, my_min = 2.0)
+		cs, cb = utils_panel.plot_a_panel(ax, self.phase_diagram, self.p_lengths, self.p_valencies, colormap1, levels1, draw_border = True, mx_min = 2.0, my_min = 2.0)
+		utils_panel.plot_a_panel_overlay(ax, self.STG_only, self.p_lengths, self.p_valencies, colormap2, levels2, mx_min = 2.0, my_min = 2.0)
 		
 		
 class Connectivity():
@@ -233,7 +234,7 @@ class RelaxzationTime():
 			self.data    = np.log10( self.data )
 		#print('OK!')
 		self.fig, ax = prepare_plot(self.title)
-		cs, cb = utils.plot_a_panel_log(ax, self.data, real_lengths, valencies, self.colormap, self.levels,\
+		cs, cb = utils_panel.plot_a_panel_log(ax, self.data, real_lengths, valencies, self.colormap, self.levels,\
 			ticks_level = self.ticks_level)
 		
 		print(self.data)
@@ -248,7 +249,7 @@ class RelaxzationTime():
 				data[j,i] = np.log10( np.median(d[prefix]) )
 		print('data ', data)
 		self.fig, ax = prepare_plot(self.title)
-		cs, cb = utils.plot_a_panel_log(ax, data, real_lengths, valencies, self.colormap, self.levels)
+		cs, cb = utils_panel.plot_a_panel_log(ax, data, real_lengths, valencies, self.colormap, self.levels)
 		'''
 		
 		
@@ -328,7 +329,7 @@ class ModularityDensityClustering():
 		
 		print('data ', data)
 		self.fig, ax = prepare_plot( self.title )
-		cs, cb = utils.plot_a_panel_log(ax, data, \
+		cs, cb = utils_panel.plot_a_panel_log(ax, data, \
 			lengths, \
 			valencies, \
 			self.colormap, \
@@ -349,7 +350,7 @@ class ModularityDensityClustering():
 			self.data = np.log10(self.data)
 		print('data ', self.data)
 		self.fig, ax = prepare_plot( self.title )
-		cs, cb = utils.plot_a_panel_log(ax, self.data, \
+		cs, cb = utils_panel.plot_a_panel_log(ax, self.data, \
 			real_lengths, \
 			valencies, \
 			self.colormap, \

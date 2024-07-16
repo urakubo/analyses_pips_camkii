@@ -60,6 +60,10 @@ class EditConnectivityGraph(SpecDatasets):
 		type_analysis = 'ratio'
 		d[species][type_analysis] = utils_graph.get_connection_statistics(multi_graph, species, type_analysis)
 		
+		species = 'PSD95'
+		type_analysis = 'ratio'
+		type_analysis_= 'ratio_condensate'
+		d[species][type_analysis_] = utils_graph.get_connection_statistics_condensate(multi_graph, species, type_analysis)
 		
 		_, ids_bead_shared_PSD = utils.get_ids_PSD95_shared_by_STG_GluN2B(multi_graph, shared_or_unshared = 'shared')
 		d['ids_bead_shared_PSD'] = ids_bead_shared_PSD

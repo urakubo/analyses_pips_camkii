@@ -12,7 +12,7 @@ from bin.valency_length1_plot_phase_diagram import \
 	PlotRelaxzationTimeValencyLength, \
 	PlotPropertiesValencyLength
 
-from bin.connectivity_calc2_modularity import CalcModularityClustringC
+from bin.connectivity_calc2_modularity import CalcModularityClustring
 
 
 property = 'clustering_log' # 'density', 'modularity', 'clustering', 'clustering_log', 'FRAP'

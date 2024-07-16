@@ -559,6 +559,14 @@ def get_multi_graph(ids_molecule, types, bp, positions_grid_coord):
 	return multi_graph
 	
 	
+def get_connection_statistics_condensate(multi_graph, species, type_analysis):
+	
+	clusters = sorted(nx.connected_components(multi_graph), key=len, reverse=True)
+	g_largest_cluster = multi_graph.subgraph(clusters[0])
+	
+	return get_connection_statistics(g_largest_cluster, species, type_analysis)
+	
+	
 	
 def get_connection_statistics(multi_graph, species, type_analysis):
 	
@@ -615,13 +623,13 @@ def get_connection_statistics(multi_graph, species, type_analysis):
 			for j, ref in enumerate( reference_types_connection ):
 				if utils.equal_list(connections_from_a_molecule, ref):
 					dist[titles[j]] += 1
-
+		
 	elif species == 'PSD95' and type_analysis == 'average':
 		num_STG_PSD95    = np.average( [c.count('STG_PSD95')  for c in connections_from_one_molecules ]   )
 		num_GluN2B_PSD95 = np.average( [c.count('GluN2B_PSD95') for c in connections_from_one_molecules ] )
 		dist = {'STG_PSD95': num_STG_PSD95, \
 				'GluN2B_PSD95': num_GluN2B_PSD95 }
-
+		
 	elif species == 'PSD95' and type_analysis == 'distribution':
 		reference_types_connection = [\
 			[], \
@@ -652,10 +660,10 @@ def get_connection_statistics(multi_graph, species, type_analysis):
 			elif ('STG_PSD95' in c) and ('GluN2B_PSD95' not in c):
 				types_connection.append('STG only')
 			elif ('STG_PSD95' not in c) and ('GluN2B_PSD95' in c):
-				types_connection.append('PSD95 only')
+				types_connection.append('GluN2B only')
 			elif ('STG_PSD95' in c) and ('GluN2B_PSD95' in c):
 				types_connection.append('Both')
-		dist = {t: types_connection.count(t) for t in [ 'None', 'STG only', 'PSD95 only', 'Both' ]}
+		dist = {t: types_connection.count(t) for t in [ 'None', 'STG only', 'GluN2B only', 'Both' ]}
 	
 	return dist
 	

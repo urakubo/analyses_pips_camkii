@@ -77,7 +77,7 @@ class HandleRDPCaMKII(SpecDatasets):
 		plt.rcParams.update( {'font.size': 6} )
 		
 		
-	def run( self ):
+	def run( self, separate_hub_binding = False ):
 		
 		num_rows	= len( self.valencies )
 		num_columns = len( self.lengths   ) 
@@ -95,13 +95,21 @@ class HandleRDPCaMKII(SpecDatasets):
 				# Load lammpstrj
 				print("\n"+filename_lammpstrj)
 				sampling_frame = utils.get_num_frames(self.dir_lammpstrj, filename_lammpstrj)
-				rdf, rdf_bins  = \
-					utils.get_rdf_CaMKII(self.dir_lammpstrj, filename_lammpstrj, sampling_frame )
-				
-				# Make figure
 				row    = num_rows-i-1
-				column = j
-				self.hmws[prefix] = self.plot_a_graph(row, column, rdf, rdf_bins, prefix)
+				column = j				
+				# Make figure
+				if separate_hub_binding == False:
+					rdf, rdf_bins  = \
+						utils.get_rdf_CaMKII(self.dir_lammpstrj, filename_lammpstrj, sampling_frame )
+					self.hmws[prefix] = self.plot_a_graph(row, column, rdf, rdf_bins, prefix)
+
+				else:
+					rdf, rdf_bins  = \
+						utils.get_rdf_CaMKII_hub_binding(self.dir_lammpstrj, filename_lammpstrj, sampling_frame )
+					self.plot_a_graph_hub_binding(row, column, rdf, rdf_bins, prefix)
+					self.basename = 'radius_CaMKII_hub_binding'
+
+
 		
 		
 		
@@ -118,8 +126,23 @@ class HandleRDPCaMKII(SpecDatasets):
 		print('hmw ', hmw)
 		plot_a_rdf( self.axes[row][column], r, y ) 
 		self.axes[row][column].set_title( '{}, r = {:.3f}'.format(title, hmw) )
-		
 		return hmw
+		
+		
+	def plot_a_graph_hub_binding(self, row, column, rdf, rdf_bins, title):
+		# Plot RDF
+		rdf_bins     = rdf_bins[4:-1]
+		rdf_binding  = rdf['CaMKII_binding'][4:]
+		rdf_hub      = rdf['CaMKII_hub'][4:]
+		
+		
+		plot_a_rdf( self.axes[row][column], rdf_bins, rdf_binding, legend=False,  ylim = (-0.006,0.66) )
+		self.axes[row][column].step( rdf_bins, rdf_hub, color='g', label='CaMKII hub')
+		self.axes[row][column].set_title( title )
+		return
+		
+		
+		
 		
 	def save_figs( self ):
 		

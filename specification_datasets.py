@@ -186,7 +186,7 @@ class SpecDatasets():
 	def CG_valency_length( self, sub = False  ):
 		
 		self.valencies = range(2,14,2)
-		self.lengths   = range(1,7)
+		self.lengths   = range(0,7)
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length

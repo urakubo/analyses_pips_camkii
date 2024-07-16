@@ -26,8 +26,8 @@ def _get_beads_in_largest_cluster(data_all, time_frame):
 	ids_PSD95  = utils.flatten(ids_PSD95 )
 	ids_STG    = utils.flatten(ids_STG   )
 	return ids_GluN2B, ids_CaMKII, ids_PSD95, ids_STG
-	
-	
+
+
 def get_beads_in_largest_cluster(data_all, time_frame):
 	ids_GluN2B, ids_CaMKII, ids_PSD95, ids_STG = _get_beads_in_largest_cluster(data_all, time_frame)
 	ids_bead_cluster = ids_GluN2B + ids_CaMKII + ids_PSD95 + ids_STG

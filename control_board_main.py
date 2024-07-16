@@ -11,10 +11,6 @@ from bin.all7_make_video_3d_ovito import MakeOvitoVideo
 from bin.both1_plot_matrix import PlotConcMatrix, PlotConnectivityMatrix
 from bin.both2_plot_matrix_3d_pyvista import PlotMatrixPyvista
 
-from bin.surface_tension1_calc_radius_CaMKII_condensate import HandleRDPCaMKII
-from bin.surface_tension2_plot import PlotSurfaceTension
-from bin.surface_tension3_plot_phase_diagram import PlotSurfaceTensionPhaseDiagramValencyLength
-
 from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
 	HandleConnectivityPhaseDiagramConcDependence, \
 	HandleCondVolumePhaseDiagramConcDependence, \
@@ -22,14 +18,19 @@ from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
 
 
 
-
-obj = PlotProfiles()
-obj.CG_valency_length_only_local_move(frap = True)
+obj = EditConnectivityGraph()
+#obj.conc_dependence()
+obj.conc_dependence_033()
 obj.run()
 
 
 
 '''
+
+obj = PlotProfiles()
+obj.CG_valency_length_only_local_move(frap = True)
+obj.run()
+
 
 obj = Plot3dOvito()
 #obj.C_valency_length_FRAP_Control(frap = True)
@@ -69,37 +70,16 @@ obj.run()
 
 
 obj = Plot3dOvito()
-obj.C_valency_length_FRAP_Control(frap = True)
+obj.boundary_conditions2() #  conc_dependence(), valency_length(), CG_valency_length(), boundary_conditions2()
 obj.repeat_run()
 
-pl = PlotRelaxzationTimeForMixtureValencyLength()
-pl.valency_length_small_colony2()
-pl.run_mixture()
-pl.save()
-
-obj = PlotSurfaceTensionPhaseDiagramValencyLength()
-obj.CG_valency_length()
-obj.reflect_spec()
-#graph.run_calc()
-#graph.save_data()
-obj.load_data()
-obj.plot_phase_diagrams()
-obj.plot_logistic_regression()
-
-
-obj = PlotSurfaceTension()
-obj.CG_valency_length()
-obj.reflect_spec()
-# obj.inspect_targets()
-obj.multiple_run_plot()
-obj.show_polar_graphs()
-
-
-obj = HandleRDPCaMKII()
-obj.CG_valency_length()
+obj = Plot3dPyvista()
+obj.boundary_conditions2() #  conc_dependence_merged(), valency_length(), CG_valency_length(), boundary_conditions2()
 obj.run()
-obj.save_figs()
-obj.save_hmws()
+
+obj = PlotProfilesSharedPSD95()
+obj.valency_length() #  conc_dependence(), valency_length(), CG_valency_length(), boundary_conditions2()
+obj.run()
 
 sub = True
 obj = PlotMatrixPyvista()
@@ -130,31 +110,6 @@ obj.valency_length()
 values = obj.run()
 obj.save()
 
-obj = EditData()
-obj.CG_valency_length() #  conc_dependence(), valency_length(), valency_length_CG(), inhibitor()
-obj.run()
-
-obj = EditConnectivityGraph()
-obj.CG_valency_length() #  conc_dependence(), valency_length(), CG_valency_length(), boundary_conditions2
-obj.run()
-
-obj = PlotProfiles()
-obj.inhibitor()  #  conc_dependence(), valency_length(), CG_valency_length(), boundary_conditions2()
-obj.run()
-
-# I manually ran each one of them,
-# because I do not know how to fully reset the ovito visualization system.
-obj = Plot3dOvito()
-obj.boundary_conditions2() #  conc_dependence(), valency_length(), CG_valency_length(), boundary_conditions2()
-obj.repeat_run()
-
-obj = Plot3dPyvista()
-obj.boundary_conditions2() #  conc_dependence_merged(), valency_length(), CG_valency_length(), boundary_conditions2()
-obj.run()
-
-obj = PlotProfilesSharedPSD95()
-obj.valency_length() #  conc_dependence(), valency_length(), CG_valency_length(), boundary_conditions2()
-obj.run()
 
 
 obj = MakeOvitoVideo()
@@ -162,35 +117,6 @@ obj.boundary_conditions2()
 obj.inspect()
 obj.run(3)
 obj.make_a_video(3)
-
-
-
-pl = PlotPhaseDiagramConcDependence()
-pl.conc_dependence_merged()
-pl.plot()
-pl.save_plots()
-
-
-
-species, type_analysis = 'CaMKII', 'average'
-#species, type_analysis = 'PSD95' , 'average'
-#species, type_analysis = 'PSD95' , 'ratio'
-# species, type_analysis = 'PSD95' , 'average_GluN2B'
-pl = HandleConnectivityPhaseDiagramConcDependence(species, type_analysis)
-pl.conc_dependence_merged()
-#pl.edit_data_save_them()
-pl.load_data()
-pl.plot_data()
-pl.save_plots()
-
-
-species = 'CaMKII' # 'CaMKII', 'STG'
-pl = HandleCondVolumePhaseDiagramConcDependence(species)
-pl.conc_dependence_merged()
-#pl.edit_data_save_them()
-pl.load_data()
-pl.plot_data()
-pl.save_plots()
 
 
 '''

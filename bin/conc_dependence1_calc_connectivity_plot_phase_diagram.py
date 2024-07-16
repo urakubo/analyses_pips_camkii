@@ -7,6 +7,7 @@ from matplotlib import cm
 from skimage.measure import label
 
 import lib.utils as utils
+import lib.utils_panel as utils_panel
 import lib.parameters as p
 import lib.colormap as c
 from specification_datasets import SpecDatasets
@@ -41,7 +42,8 @@ class PhaseDiagramConcDependence():
 		for i, stg in enumerate(self.stgs):
 			for j, glun2b in enumerate(self.glun2bs):
 				# Load data
-				prefix = self.filename_edited_matrix(stg, glun2b)
+				prefix = self.filename_edited_matrix(glun2b, stg)
+				
 				print('Target file: ', prefix)
 				d              = utils.load(self.dir_edited_data, prefix, self.suffix)
 				self.data[i,j] = self._modify_data(d)
@@ -57,6 +59,13 @@ class PhaseDiagramConcDependence():
 		suffix = 'data'
 		self.data = utils.load( self.dir_edited_data, prefix, suffix  )
 		
+		'''
+		prefix = 'max_vol_All'
+		suffix = 'data'
+		volume = utils.load( self.dir_edited_data, prefix, suffix  )
+		self.data = self.data / volume * 4e4
+		print(self.data)
+		'''
 		
 	def plot_data( self ):
 		mx_min = 0
@@ -65,9 +74,10 @@ class PhaseDiagramConcDependence():
 		my_max = np.max(self.concs_glun2b)   * 1.05 # None # 10.1
 		
 		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, self.data, self.concs_stg, self.concs_glun2b, self.colormap, self.levels,\
+		cs, cb = utils_panel.plot_a_panel(ax, self.data, self.concs_stg, self.concs_glun2b, self.colormap, self.levels,\
 			mx_min=mx_min, my_min=my_min, \
-			mx_max=mx_max, my_max=my_max \
+			mx_max=mx_max, my_max=my_max, \
+			margin = 0
 			)
 		
 		
@@ -90,7 +100,7 @@ class PlotConnectivity():
 			self.basename = 'num_GluN2B_bound_to_one_CaMKII'
 			self.colormap =  c.cmap_white_green_universal
 			self.levels   = np.linspace(0,12,7)
-		elif species == 'PSD95' and type_analysis == 'average':
+		elif species == 'PSD95' and type_analysis == 'average_STG':
 			self.title    = 'Number of STG bound to one PSD95'
 			self.basename = 'num_STG_bound_to_one_PSD95'
 			self.colormap = c.cmap_white_red_universal
@@ -98,11 +108,27 @@ class PlotConnectivity():
 		elif species == 'PSD95' and type_analysis == 'average_GluN2B':
 			self.title    = 'Number of GluN2B bound to one PSD95'
 			self.basename = 'num_GluN2B_bound_to_one_PSD95'
-			self.colormap = c.cmap_white_red_universal
+			self.colormap = c.cmap_white_purple_universal
 			self.levels   = np.linspace(0,3,6)
+		elif species == 'PSD95' and type_analysis == 'average_ratio':
+			self.title    = 'Ratio of STG /(STG+GluN2B) bound to PSD95'
+			self.basename = 'PSD95_bound_to_both_GluN2B_STG'
+			self.colormap = plt.get_cmap('Greys') # plt.colormaps['Greys']
+			self.levels   = np.linspace(0,1.0,11)
 		elif species == 'PSD95' and type_analysis == 'ratio':
 			self.title    = 'Ratio of PSD95 bound to both GluN2B and STG'
 			self.basename = 'PSD95_bound_to_both_GluN2B_STG'
+			self.colormap = plt.get_cmap('Greys') # plt.colormaps['Greys']
+			self.levels   = np.linspace(0,1.0,11)
+		elif species == 'PSD95' and type_analysis == 'ratio_condensate':
+			self.title    = 'Ratio of PSD95 bound to both GluN2B and STG'
+			self.basename = 'PSD95_bound_to_both_GluN2B_STG_condensate'
+			self.colormap = plt.get_cmap('Greys') # plt.colormaps['Greys']
+			self.levels   = np.linspace(0,1.0,11)
+			#self.levels   = np.linspace(0,2.0,11)
+		elif species == 'PSD95' and type_analysis == 'distribution':
+			self.title    = 'PSD95 occupied with neigther GluN2B nor STG'
+			self.basename = 'PSD95_occupied_with_neigther_GluN2B_nor_STG'
 			self.colormap = plt.get_cmap('Greys') # plt.colormaps['Greys']
 			self.levels   = np.linspace(0,1.0,11)
 		else:
@@ -118,17 +144,40 @@ class PlotConnectivity():
 		#print(d[self.species][self.type_analysis])
 		if self.species == 'CaMKII' and self.type_analysis == 'average':
 			data      = d[self.species][self.type_analysis]['GluN2B']
-		elif self.species == 'PSD95' and self.type_analysis == 'average':
-			data      = d[self.species][self.type_analysis]['STG_PSD95']
+		elif self.species == 'PSD95' and self.type_analysis == 'average_STG':
+			data      = d[self.species]['average']['STG_PSD95']
 		elif self.species == 'PSD95' and self.type_analysis == 'average_GluN2B':
 			data      = d[self.species]['average']['GluN2B_PSD95']
-		elif self.species == 'PSD95' and self.type_analysis == 'ratio':
-			num_total = sum( d[self.species][self.type_analysis].values() )
-			#both = d[self.species][self.type_analysis]['Both']
-			#STG  = d[self.species][self.type_analysis]['STG only']
-			#PSD95= d[self.species][self.type_analysis]['PSD95 only']
-			#num_total = both + STG + PSD95
-			data      = d[self.species][self.type_analysis]['Both'] / num_total
+		elif self.species == 'PSD95' and self.type_analysis == 'average_ratio':
+			average_STG    = d[self.species]['average']['STG_PSD95']
+			average_GluN2B = d[self.species]['average']['GluN2B_PSD95']
+			data = average_STG / (average_STG+average_GluN2B)
+			
+		elif self.species == 'PSD95' and 'ratio' in self.type_analysis:
+			both   = d[self.species][self.type_analysis]['Both']
+			STG    = d[self.species][self.type_analysis]['STG only']
+			GluN2B = d[self.species][self.type_analysis]['GluN2B only']
+			No_bound= d[self.species][self.type_analysis]['None']
+			
+			num_total = both + No_bound + STG + GluN2B
+			data      = both / num_total
+			
+		elif self.species == 'PSD95' and 'distribution' in self.type_analysis:
+			both0  = d[self.species]['distribution']['1 STG, 1 GluN2B']
+			both1  = d[self.species]['distribution']['2 STG, 1 GluN2B']
+			both2  = d[self.species]['distribution']['1 STG, 2 GluN2B']
+			No_bound= d[self.species]['distribution']['None']
+			STG1   = d[self.species]['distribution']['1 STG']
+			STG2   = d[self.species]['distribution']['2 STG']
+			STG3   = d[self.species]['distribution']['3 STG']
+			GluN2B1= d[self.species]['distribution']['1 GluN2B']
+			GluN2B2= d[self.species]['distribution']['2 GluN2B']
+			GluN2B3= d[self.species]['distribution']['3 GluN2B']
+			
+			#num_total = both0 + both1 + both2 + No_bound + STG1 + STG2 + STG3 + GluN2B1 + GluN2B2 + GluN2B3
+			#unoccupied = both0 + both1 + both2 + STG1 + STG2 + GluN2B1 + GluN2B2 
+			#data      = unoccupied / num_total
+			data = (both1+both2) / (both1 + both2 + STG3 + GluN2B3 )
 		return data
 
 
@@ -146,6 +195,11 @@ class PlotCondVolume():
 			self.basename = 'volume_largest_cond_STG'
 			self.colormap = c.cmap_white_red_universal
 			self.levels   = np.linspace(0,3e4,7)
+		elif species == 'All':
+			self.title    = 'Largest condensate volume of {}'.format(species)
+			self.basename = 'volume_largest_cond_All'
+			self.colormap = c.cmap_white_red_universal
+			self.levels   = np.linspace(0,10e4,7)
 		else:
 			raise ValueError("Not implemented, species: ", species)
 		
@@ -187,9 +241,9 @@ class PlotPhaseDiagramConcDependence( PhaseDiagramConcDependence, SpecDatasets )
 		self.title    = 'Phase diagram'
 		self.basename = 'phase_diagram_conc_dependence'
 		# -1: Unclear
-		# 1: Homogeneous LLPS (STG)
+		# 1: Homogeneous LLPS (CaMKII)
 		# 2: PIPS
-		# 3: Homogeneous LLPS (CaMKII)
+		# 3: Homogeneous LLPS (STG)
 		
 		phase_diagram = [\
 			[ 1, 1, 1, 1,   1, 1, 1, 1,   1, 1],
@@ -218,7 +272,7 @@ class PlotPhaseDiagramConcDependence( PhaseDiagramConcDependence, SpecDatasets )
 			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
 			[ 0, 0, 0, 0,   1, 1, 1, 1,   1, 1],
 			[ 0, 0, 1, 1,   1, 1, 1, 1,   1, 1],
-			[ 0, 1, 1, 1,   1, 1, 1, 1,   1, 1],
+			[ 0, 0, 1, 1,   1, 1, 1, 1,   1, 1],
 			[ 0, 0, 0, 0,   0, 1, 1, 1,   1, 1],
 			[ 0, 0, 0, 0,   0, 0, 0, 1,   1, 1],
 			[ 0, 0, 0, 0,   0, 0, 0, 0,   0, 0],
@@ -245,27 +299,27 @@ class PlotPhaseDiagramConcDependence( PhaseDiagramConcDependence, SpecDatasets )
 		colormap = c.cmap_phase_diagram7
 		levels   = np.array([0.0,2.0,4.0])
 		ax = self.prepare_plot()
-		cs, cb = utils.plot_a_panel(ax, self.phase_diagram, self.STGs, self.GluN2Bs, colormap, levels, \
+		cs, cb = utils_panel.plot_a_panel(ax, self.phase_diagram, self.STGs, self.GluN2Bs, colormap, levels, \
 			draw_border = True, \
 			mx_min=mx_min, my_min=my_min, \
 			mx_max=mx_max, my_max=my_max, \
-			)
+			margin = 0.0)
 		levels2		= [-1.5, 0.5, 1.5, 2.5]
 		colormap2	= c.cmap_phase_diagram6
-		utils.plot_a_panel_overlay(ax, self.phase_diagram_two_condensates, \
+		utils_panel.plot_a_panel_overlay(ax, self.phase_diagram_two_condensates, \
 			self.STGs, self.GluN2Bs,
 			colormap2, levels2,\
 			mx_min=mx_min, my_min=my_min, \
 			mx_max=mx_max, my_max=my_max, \
-			)		
+			margin = 0.0)
 		levels2		= [-0.5, 0.5, 1.5, 2.5]
 		colormap2	= c.cmap_phase_diagram5
-		utils.plot_a_panel_overlay(ax, self.phase_diagram_partial_engulfment, \
+		utils_panel.plot_a_panel_overlay(ax, self.phase_diagram_partial_engulfment, \
 			self.STGs, self.GluN2Bs,
 			colormap2, levels2,\
 			mx_min=mx_min, my_min=my_min, \
 			mx_max=mx_max, my_max=my_max, \
-			)
+			margin = 0.0)
 		
 		
 class HandleConnectivityPhaseDiagramConcDependence(PlotConnectivity, PhaseDiagramConcDependence, SpecDatasets):

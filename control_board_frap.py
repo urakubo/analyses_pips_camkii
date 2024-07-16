@@ -36,7 +36,6 @@ obj.save_taus_fitting()
 
 
 
-
 import numpy as np
 pl = PlotRelaxzationTimeValencyLength()
 pl.CG_valency_length_only_local_move(frap= True)

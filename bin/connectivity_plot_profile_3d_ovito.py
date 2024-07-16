@@ -7,6 +7,8 @@ import os, glob
 os.environ['OVITO_GUI_MODE'] = '1' # Request a session with OpenGL support
 
 import numpy as np
+import networkx as nx
+
 
 from ovito.io import import_file
 from ovito.modifiers import SliceModifier, SelectTypeModifier, AssignColorModifier
@@ -75,6 +77,40 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output, ids_col):
 	# https://ovito.org/manual/python/introduction/examples/overlays/scale_bar.html
 
 
+def assign_color_for_CaMKII_hub_beads(multi_graph):
+	clusters = sorted(nx.connected_components(multi_graph), key=len, reverse=True)
+	g_largest_cluster = nx.MultiGraph( multi_graph.subgraph(clusters[0]) )
+	
+	ids_CaMKII_hub = []
+	ids_CaMKII_binding = []
+	for id, v in g_largest_cluster.nodes.items():
+		if v['species'] == 'CaMKII':
+			# Make CaMKII hub beads in the new graphs
+			id_CaMKII_hub  = np.nonzero(v['types_bead'] == p.subunits['CaMKII hub']['id'])
+			id_hub_bead    = v['ids_bead'][0][id_CaMKII_hub[0][0]]
+			ids_CaMKII_hub.append( id_hub_bead )
+			# Make CaMKII interaction beads
+			id_CaMKII_binding = np.nonzero(v['types_bead'] == p.subunits['CaMKII binding site']['id'])
+			id_binding_bead  = v['ids_bead'][0][id_CaMKII_binding]
+			ids_CaMKII_binding.append( id_binding_bead.tolist() )
+	
+	ids_CaMKII_hub     = utils.flatten(ids_CaMKII_hub)
+	ids_CaMKII_binding = utils.flatten(ids_CaMKII_binding)
+	
+	ids_col_CaMKII_hub = {id :  (0,0,0) for id in ids_CaMKII_hub}
+	ids_col_CaMKII_binding = {id : (3/255,175/255,122/255) for id in ids_CaMKII_binding}
+	
+	
+	#print('ids_col_CaMKII_hub ', ids_col_CaMKII_hub)
+	#print('ids_col_CaMKII_binding ', ids_col_CaMKII_binding)
+	
+	ids_col = {**ids_col_CaMKII_hub, **ids_col_CaMKII_binding}
+	
+	
+	return ids_col
+	
+
+
 def assign_color_for_each_bead(rcms, multi_graph_CaMKII):
 	from cycler import cycler
 	cols   = cycler( color=c.cols_list_ratio )
@@ -99,7 +135,7 @@ class Plot3dOvitoConnectivity(SpecDatasets):
 			print('ID {}: {}, {}'.format(i, f_lammpstrj, f_edited))
 		print()
 		
-	def plot_an_image( self, i ):
+	def plot_an_image( self, i, mode = 'clustering' ):
 		
 		filename_lammpstrj = self.filenames_lammpstrj[i]
 		filename_edited    = self.filenames_edited[i]
@@ -115,17 +151,25 @@ class Plot3dOvitoConnectivity(SpecDatasets):
 		data_all   = import_file(os.path.join(self.dir_lammpstrj, filename_lammpstrj), input_format= "lammps/dump" )
 		
 		
-		# Load graph
-		loadname_prefix = '{}_{}'.format(0, filename_edited )
-		data = utils.load(self.dir_edited_data, loadname_prefix, 'cluster_dendrogram')
 		
 		#  Assign colors
-		#color_list        = data['color_list']
-		multi_graph_CaMKII = data['multi_graph_CaMKII']
-		partition          = data['partition']
-		ids_group = sorted(set(partition.values())) # List of group-ids
-		rcms = [[k for k, v in partition.items() if v == i] for i in ids_group ] # List of the CaMKII-ids list
-		ids_col = assign_color_for_each_bead(rcms, multi_graph_CaMKII)
+		if mode == 'clustering':
+			# Load graph
+			loadname_prefix = '{}_{}'.format(0, filename_edited )
+			data = utils.load(self.dir_edited_data, loadname_prefix, 'cluster_dendrogram')
+			#color_list        = data['color_list']
+			multi_graph_CaMKII = data['multi_graph_CaMKII']
+			partition          = data['partition']
+			ids_group = sorted(set(partition.values())) # List of group-ids
+			rcms = [[k for k, v in partition.items() if v == i] for i in ids_group ] # List of the CaMKII-ids list
+			ids_col = assign_color_for_each_bead(rcms, multi_graph_CaMKII)
+		elif mode == 'CaMKII_hub_beads':
+			# Load graph
+			data = utils.load(self.dir_edited_data, filename_edited,  'connectivity_graph')
+			multi_graph = data['multi_graph']
+			ids_col = assign_color_for_CaMKII_hub_beads(multi_graph)
+		
+		
 		
 		# print(ids_col)
 		
