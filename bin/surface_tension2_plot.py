@@ -42,18 +42,34 @@ class PlotSurfaceTension(SpecDatasets):
 		print()
 		
 		
-	def show_polar_graphs( self, filenames_prefix = ['12_002','12_006'] ):
+	def show_polar_graphs( self, targets = ['12_002','12_006'], mode = 'angle_from_condensate_center', mode_surrogate = True ):
 		
-		for filename_prefix in filenames_prefix:
-			print(filename_prefix)
-			d = utils.load(self.dir_edited_data, filename_prefix, 'connectivity_graph')
-			real_linker_length = self.real_linker_length_from_filename[filename_prefix]
-			radius_condensate = self.radii_condensate[filename_prefix]
+		for target in targets:
+			print(target)
+			d = utils.load(self.dir_edited_data, target, 'connectivity_graph')
+			real_linker_length = self.real_linker_length_from_filename[target]
+			radius_condensate = self.radii_condensate[target]
 			
-			angles_from_condensate_center, angles_from_hub, distances_to_hub = utils_surface_tension.calc_angle_and_distance_to_hub(d)
+			angles_from_condensate_center, angles_from_hub, distances_to_hub = \
+				utils_surface_tension.calc_angle_and_distance_to_hub(d, surrogate = mode_surrogate)
 			
-			#utils_surface_tension.plot_polar_scatter(angles_from_hub, distances_to_hub, real_linker_length, self.dir_imgs, filename_prefix)
-			utils_surface_tension.plot_polar_histogram(angles_from_hub, distances_to_hub, real_linker_length, self.dir_imgs, filename_prefix)
+			if mode == 'angle_from_condensate_center':
+				filename_prefix = target + '_' + mode
+				angles = angles_from_condensate_center
+				utils_surface_tension.plot_polar_histogram(angles, distances_to_hub, real_linker_length, \
+					self.dir_imgs, filename_prefix, step_color= 'Gray', center_direction = True ) # 'Greens'
+				utils_surface_tension.plot_polar_scatter(angles, distances_to_hub, real_linker_length, \
+					self.dir_imgs, filename_prefix, center_direction = True )
+
+			elif mode == 'angle_from_hub':
+				filename_prefix = target + '_' + mode
+				angles = angles_from_hub
+				utils_surface_tension.plot_polar_histogram(angles, distances_to_hub, real_linker_length, \
+					self.dir_imgs, filename_prefix, cmap='Greens', step_color=c.light_green_universal_ratio,\
+					center_direction = False) # c.cmap_white_green_universal 
+				utils_surface_tension.plot_polar_scatter(angles, distances_to_hub, real_linker_length, \
+					self.dir_imgs, filename_prefix, color=c.cmap_universal_ratio['CaMKII'], \
+					center_direction = False)
 		
 		
 	def single_run( self, filename_prefix = '12_002'):
@@ -67,16 +83,16 @@ class PlotSurfaceTension(SpecDatasets):
 		
 		angles_from_condensate_center, angles_from_hub, distances_to_hub = utils_surface_tension.calc_angle_and_distance_to_hub(d)
 		
-		'''
 		ave_cos, contraction_force, surface_tension, contraction_force_per_area = \
 			utils_surface_tension.calc_contraction_force(angles_from_condensate_center, distances_to_hub, real_linker_length, radius_condensate)
-		'''
 		
 		#print(' angles_from_hub ',  angles_from_hub )
 		#print(' distances_to_hub ',  distances_to_hub )
 		
+		'''
 		ave_cos, contraction_force, surface_tension, contraction_force_per_area = \
 			utils_surface_tension.calc_contraction_force(angles_from_hub, distances_to_hub, real_linker_length, radius_condensate)
+		'''
 		
 		
 		return ave_cos, contraction_force, surface_tension, contraction_force_per_area

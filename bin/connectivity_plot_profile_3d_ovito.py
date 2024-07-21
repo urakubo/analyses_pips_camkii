@@ -25,6 +25,7 @@ import lib.utils_ovito as utils_ovito
 from specification_datasets import SpecDatasets
 
 
+
 def plot_snapshots(data_all, time_frame, dir_imgs, filename_output, ids_col):
 	
 	# Fix bounging box
@@ -111,14 +112,31 @@ def assign_color_for_CaMKII_hub_beads(multi_graph):
 	
 
 
-def assign_color_for_each_bead(rcms, multi_graph_CaMKII):
+def assign_color_for_each_bead(partitioned, color_list, multi_graph_CaMKII):
+
+
+	#import matplotlib.pyplot as plt
 	from cycler import cycler
+	#plt.rcParams["axes.prop_cycle"] = cycler( color=c.cols_list_ratio )
+	#cols = plt.rcParams['axes.prop_cycle']
+	#'''
+	#from itertools import cycle
+	#colors = cycle(prop_cycle.by_key()['color'])
+	
 	cols   = cycler( color=c.cols_list_ratio )
-	colors = [c['color'] for p, c in zip(rcms, cols())]
+	#cols   = cycler( color=color_list )
+	#color_codes = map('C{}'.format, cols(10))
+	#colors = [c['color'] for p, c in zip(rcms+[0], cols())]
+	#colors = colors[1:]
+	#'''
+	
+	print('len(partitioned) ', len(partitioned))
+	print('len(color_list) ', len(color_list))
+	
 	
 	# ids_col = {id: c for ids_node, c in zip(rcm, colors) for id_node in ids_node for id in multi_graph_CaMKII.nodes[id_node]['id_bead_all']}
 	ids_col = {}
-	for ids_node, col in zip(rcms, colors):
+	for ids_node, col in zip(partitioned, color_list):
 		for id_node in ids_node:
 			for id in multi_graph_CaMKII.nodes[id_node]['id_bead_all']:
 				ids_col[id] = col
@@ -157,12 +175,22 @@ class Plot3dOvitoConnectivity(SpecDatasets):
 			# Load graph
 			loadname_prefix = '{}_{}'.format(0, filename_edited )
 			data = utils.load(self.dir_edited_data, loadname_prefix, 'cluster_dendrogram')
-			#color_list        = data['color_list']
 			multi_graph_CaMKII = data['multi_graph_CaMKII']
-			partition          = data['partition']
-			ids_group = sorted(set(partition.values())) # List of group-ids
-			rcms = [[k for k, v in partition.items() if v == i] for i in ids_group ] # List of the CaMKII-ids list
-			ids_col = assign_color_for_each_bead(rcms, multi_graph_CaMKII)
+			blocks             = data['blocks']
+			color_list         = data['color_list']
+			node_order         = data['node_order']
+			
+			partitioned = [node_order[s:e] for s,e  in blocks]
+			
+			
+			# partition          = data['partition']
+			#print('partition ', partition)
+			# print('blocks     ', blocks)
+			# print('node_order ', node_order)
+			# ids_group = sorted(set(partition.values())) # List of group-ids
+			# rcms = {i: [k for k, v in partition.items() if v == i] for i in ids_group } # List of the CaMKII-ids list
+			
+			ids_col = assign_color_for_each_bead(partitioned, color_list, multi_graph_CaMKII)
 		elif mode == 'CaMKII_hub_beads':
 			# Load graph
 			data = utils.load(self.dir_edited_data, filename_edited,  'connectivity_graph')

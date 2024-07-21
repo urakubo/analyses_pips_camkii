@@ -183,10 +183,16 @@ class SpecDatasets():
 			self.real_lengths = [2, 3, 4, 5, 6]
 		
 		
-	def CG_valency_length( self, sub = False  ):
+	def CG_valency_length( self, sub = False,  sub2 = False  ):
 		
+		'''
 		self.valencies = range(2,14,2)
 		self.lengths   = range(0,7)
+		self.real_lengths  = [1,2,3,4,5,6,9]
+		'''
+		self.valencies = range(2,14,2)
+		self.lengths   = range(1,7)
+		self.real_lengths = [2, 3, 4, 5, 6, 9]
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self.filename_lammpstrj_matrix_valency_length
@@ -198,15 +204,14 @@ class SpecDatasets():
 		self._shared4( dir_target )
 		
 		# Surface tension.
-		self.real_lengths  = [1,2,3,4,5,6,9]
 		self.real_linker_length_from_filename = \
 			{self.filename_edited_matrix(v, l): real_length \
 				for v in self.valencies \
 				for l, real_length in zip(self.lengths, self.real_lengths) }
 		
 		self.surface_tension_valencies = range(4,14,2)
-		self.surface_tension_lengths   = range(7)
-		self.surface_tension_real_lengths  = [1,2,3,4,5,6,9]
+		self.surface_tension_lengths   = range(1,7)
+		self.surface_tension_real_lengths  = [2,3,4,5,6,9]
 		
 		# matrix pyvista
 		self.sub = sub
@@ -214,6 +219,10 @@ class SpecDatasets():
 			self.valencies = [2, 4, 6, 8, 12] 
 			self.lengths      = [1, 2, 3, 4, 5]
 			self.real_lengths = [2, 3, 4, 5, 6]
+		if sub2 == True:
+			self.valencies = [4, 6, 8, 12] 
+			self.lengths      = [2, 3, 4, 5]
+			self.real_lengths = [3, 4, 5, 6]
 		
 		
 		

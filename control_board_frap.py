@@ -15,9 +15,23 @@ import pprint
 import numpy as np
 
 
+
+
+# Single profiles of FRAP
+target_molecule = 'GluN2B' # 'GluN2B', 'CaMKII'
+valency         = 12 
+length          = 5 # 2, 5, 6
+
+obj = PlotFRAPSingleValencyLength(target_molecule)
+#obj.CG_valency_length_only_local_move_fine_sampling(frap = True)
+obj.CG_valency_length_only_local_move(frap= True)
+obj.suffix_ = 'FRAP_'
+obj.plot(valency, length)
+obj.save()
+
+
+
 '''
-
-
 
 ## CaMKII FRAP CG_valency_length_only_local_move
 

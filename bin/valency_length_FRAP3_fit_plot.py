@@ -36,6 +36,10 @@ class SingleValencyLength():
 			#self.dir_target  = 'small_colony3'
 			xlim        = [-0.03,0.30]
 			set_xticks  = [0,0.10,0.20, 0.30]
+		elif self.target_molecule_fit == 'CaMKII' and length == 5:
+			#self.dir_target  = 'small_colony3'
+			xlim        = [-0.05,0.5]
+			set_xticks  = [0,0.25,0.5]
 		elif self.target_molecule_fit == 'CaMKII' and length == 6:
 			#self.dir_target  = 'small_colony3'
 			xlim        = [-0.01,0.09]

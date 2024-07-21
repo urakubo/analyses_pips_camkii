@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 import lib.utils as utils
+import lib.utils_panel as utils_panel
+
 import lib.utils_fitting as utils_fitting
 import lib.utils_surface_tension as utils_surface_tension
 import lib.parameters as p
@@ -62,10 +64,11 @@ class PlotSurfaceTensionPhaseDiagramValencyLength(SpecDatasets):
 				
 				radiuse_condensate = self.radii_condensate[filename_prefix]
 				
-				angles, distances_to_hub = utils_surface_tension.calc_angle_and_distance_to_hub(d)
+				angles_from_condensate_center, angles_from_hub, distances_to_hub = utils_surface_tension.calc_angle_and_distance_to_hub(d)
 				
 				ave_cos, contraction_force, surface_tension, contraction_force_per_area = \
-						utils_surface_tension.calc_contraction_force(angles, distances_to_hub, real_linker_length, radiuse_condensate)
+						utils_surface_tension.calc_contraction_force(angles_from_condensate_center,\
+						distances_to_hub, real_linker_length, radiuse_condensate)
 				
 				self.ave_cos[j,i]    = ave_cos
 				self.pull_force[j,i] = contraction_force
@@ -113,10 +116,12 @@ class PlotSurfaceTensionPhaseDiagramValencyLength(SpecDatasets):
 		colormap =  plt.colormaps['Greys'] #  plt.get_cmap plt.colormaps
 		levels   = np.linspace(0,36,35)
 		ax = self.prepare_plot(title)
-		cs, cb = utils.plot_a_panel(ax, self.radii_condensate_matrix,\
+		cs, cb = utils_panel.plot_a_panel(ax, self.radii_condensate_matrix,\
 			self.surface_tension_real_lengths, \
 			self.surface_tension_valencies, \
-			colormap, levels)
+			colormap, levels, \
+			mx_min = None, my_min = None \
+			)
 		self.save_a_fig( filename )
 		
 		title    = 'Average_cos'
@@ -124,10 +129,12 @@ class PlotSurfaceTensionPhaseDiagramValencyLength(SpecDatasets):
 		colormap =  c.cmap_white_green_universal
 		levels   = np.linspace(0,1,10)
 		ax = self.prepare_plot(title)
-		cs, cb = utils.plot_a_panel(ax, self.ave_cos, \
+		cs, cb = utils_panel.plot_a_panel(ax, self.ave_cos, \
 			self.surface_tension_real_lengths, \
 			self.surface_tension_valencies, \
-			colormap, levels)
+			colormap, levels, \
+			mx_min = None, my_min = None \
+			)
 		self.save_a_fig( filename )
 		
 		title    = 'Contraction force'
@@ -135,10 +142,12 @@ class PlotSurfaceTensionPhaseDiagramValencyLength(SpecDatasets):
 		colormap = c.cmap_white_red_universal
 		levels   = np.linspace(0,3000,10)
 		ax = self.prepare_plot(title)
-		cs, cb = utils.plot_a_panel(ax, self.pull_force, \
+		cs, cb = utils_panel.plot_a_panel(ax, self.pull_force, \
 			self.surface_tension_real_lengths, \
 			self.surface_tension_valencies, \
-			colormap, levels)
+			colormap, levels, \
+			mx_min = None, my_min = None \
+			)
 		self.save_a_fig( filename )
 		
 		title    = 'Contraction force per area'
@@ -146,10 +155,12 @@ class PlotSurfaceTensionPhaseDiagramValencyLength(SpecDatasets):
 		colormap = plt.colormaps['Greys'] #  plt.get_cmap plt.colormaps
 		levels   = np.linspace(0,0.6,10)
 		ax = self.prepare_plot(title)
-		cs, cb = utils.plot_a_panel(ax, self.pull_force_per_area, \
+		cs, cb = utils_panel.plot_a_panel(ax, self.pull_force_per_area, \
 			self.surface_tension_real_lengths, \
 			self.surface_tension_valencies, \
-			colormap, levels)
+			colormap, levels, \
+			mx_min = None, my_min = None \
+			)
 		self.save_a_fig( filename )
 		
 		title    = 'Surface tension'
@@ -158,10 +169,12 @@ class PlotSurfaceTensionPhaseDiagramValencyLength(SpecDatasets):
 		levels   = np.linspace(0,25,8)
 		ax = self.prepare_plot(title)
 		ticks = [0, 5, 10, 15, 20, 25]
-		cs, cb = utils.plot_a_panel(ax, self.surface_tensions, \
+		cs, cb = utils_panel.plot_a_panel(ax, self.surface_tensions, \
 			self.surface_tension_real_lengths, \
 			self.surface_tension_valencies, \
-			colormap, levels, ticks=ticks)
+			colormap, levels, ticks=ticks,\
+			mx_min = None, my_min = None \
+			)
 		self.save_a_fig( filename )
 		
 		
@@ -205,6 +218,17 @@ class PlotSurfaceTensionPhaseDiagramValencyLength(SpecDatasets):
 			[ 1, 1, 1, 1,  0, 0, 0], # 8
 			[ 1, 1, 1, 1,  0, 0, 0], # 6
 			]).T
+		
+		# 2, 3, 4, 5, 6, 9
+		y = np.array( [\
+			[ 1, 1, 0,  0, 0, 0], # 12
+			[ 1, 1, 0,  0, 0, 0], # 10
+			[ 1, 1, 1,  0, 0, 0], # 8
+			[ 1, 1, 1,  0, 0, 0], # 6
+			]).T
+
+
+
 		#'''
 		print('y')
 		print(y)
@@ -218,7 +242,7 @@ class PlotSurfaceTensionPhaseDiagramValencyLength(SpecDatasets):
 		model = utils_fitting.logistic_regression(x,y)
 
 
-		self.fig  = plt.figure(figsize=(2.0, 2.0))
+		self.fig  = plt.figure(figsize=(2.6, 2.0))
 		self.fig.subplots_adjust(wspace=0.4,  hspace=0.4)
 		ax = self.fig.add_subplot( 1, 1, 1 )
 		ax.spines['right'].set_visible(False)

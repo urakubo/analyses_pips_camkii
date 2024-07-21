@@ -100,7 +100,7 @@ def pickup_CaMKII_samples(g_largest_cluster, num_samples, random_seed, rot):
 		z = pos[0,2]
 		r = np.sqrt(x*x+y*y+z*z)
 		#print('x, y, z, ', x, y, z)
-		if (abs(x) > 2) or (r < 8) or (r > 20): # abs(xx[0]) < 2
+		if (abs(x) > 2) or (r < 14): # abs(xx[0]) < 2  or (r < 8) or (r > 20)
 			continue
 		angle = (np.arctan2(y, z)+np.pi) / 2 /np.pi * (num_samples * 2)
 		

@@ -10,7 +10,7 @@ from itertools import chain, combinations
 import matplotlib.pyplot as plt
 
 import networkx as nx
-from scipy.cluster.hierarchy import dendrogram
+from scipy.cluster.hierarchy import dendrogram, set_link_color_palette
 from networkx.algorithms.community.centrality import girvan_newman
 
 import lib.utils as utils
@@ -22,6 +22,8 @@ from specification_datasets import SpecDatasets
 
 
 plt.rcParams.update(p.rc_param)
+from cycler import cycler
+plt.rcParams["axes.prop_cycle"] = cycler( color=c.cols_list_ratio )
 
 
 
@@ -186,13 +188,16 @@ def get_clusters_from_dendrogram(R):
 
 def plot_dendrogram(ax, Z, labels, G_, color_threshold):
 	
+	#set_link_color_palette(['k','b','r','y','c','g'])
+	#from itertools import cycle
+	#cols_list_uint = ['k','b','r','y','c','g']*10000
+	# link_color_func=lambda x: 'black' link_color_func=lambda k: c.cols[k]
 	
 	R=dendrogram(Z, \
 		labels=labels, \
 		color_threshold = color_threshold, \
-		above_threshold_color='k',
-		ax=ax) \
-	# link_color_func=lambda x: 'black' link_color_func=lambda k: c.cols[k]
+		above_threshold_color='k',\
+		ax=ax)
 	ax.set_yticks([0,200,400])
 	ax.set_xticks([])
 	ax.spines['right'].set_visible(False)
@@ -255,7 +260,7 @@ class PlotConnectivityMatrixDendrogram(SpecDatasets):
 		print('\n Load graph')
 		d = utils.load(self.dir_edited_data, prefix_load, suffix_load )
 		
-		#'''
+		'''
 		print('\n Make new graphs of CaMKII')
 		nth_largest = 0
 		multi_graph_CaMKII, _, _, _ = \
@@ -275,7 +280,7 @@ class PlotConnectivityMatrixDendrogram(SpecDatasets):
 		data['labels']     = labels
 		
 		utils.save(self.dir_edited_data, filename_edited, 'tmp_dendrogram', data)
-		#'''
+		'''
 		
 		self.data_ = utils.load(self.dir_edited_data, filename_edited, 'tmp_dendrogram')
 		multi_graph_CaMKII = self.data_['multi_graph_CaMKII']
@@ -287,8 +292,6 @@ class PlotConnectivityMatrixDendrogram(SpecDatasets):
 		print('\n Plot figure and save it')
 		
 		color_threshold = 150
-		from cycler import cycler
-		plt.rcParams["axes.prop_cycle"] = cycler( color=c.cols_list_ratio )
 		fig = plt.figure(figsize=(4,4))
 		ax1 = fig.add_axes([0.3,0.71,0.6,0.2])
 		ax2 = fig.add_axes([0.3,0.1,0.6,0.6])
@@ -298,6 +301,14 @@ class PlotConnectivityMatrixDendrogram(SpecDatasets):
 		
 		ax1.set_title(self.savename_prefix)
 		self.show_save_img( fig, ax1, ax2 )
+		
+		# Decode color
+		cols = plt.rcParams["axes.prop_cycle"].by_key()['color']
+		print('cols ', cols)
+		print('color_list ', color_list)
+		color_list = [cols[int(id[1:])-1] for id in color_list]
+		print('color_list ' , color_list)
+		#utils.get_ratio_code(
 		
 		self.data = {}
 		self.data['multi_graph_CaMKII'] = multi_graph_CaMKII

@@ -14,8 +14,9 @@ plt.rcParams.update(p.rc_param)
 
 class Matrix():
 	def __init__( self ):
-		plt.rcParams.update( {'font.size': 6} )
-		
+		plt.rcParams.update( {'font.size': 8} )
+		#plt.rcParams.update( {'font.size': 6} )
+		#pass
 		
 	def run( self ):
 		
@@ -24,6 +25,7 @@ class Matrix():
 			rows	= self.valencies
 			columns	= self.lengths
 			figsize = (8, 8)
+			figsize = (6, 6)
 		elif hasattr( self, 'stgs') and ( self, 'glun2bs'):
 			rows	= self.glun2bs
 			columns	= self.stgs 

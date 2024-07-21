@@ -601,11 +601,21 @@ def get_rdfs( dir_input, filename_input, target_frame, center=None, multi_graph=
 	return rdfs, p.rdf_bins, rdf_sampling_frames
 	
 	
-def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.molecules_without_all.keys() , ylim = (-0.006,0.66) ):
+def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.molecules_without_all.keys() , ylim = (-0.006,0.66), pmax = False  ):
+	
+	if pmax == True:
+		ylim = (-5.0,150)
+	
 	r = d['rdf_bins'][1:-1] / np.sqrt(3) ###
 	for k in target_molecules:
 		rdf_mean  = np.mean( d['rdf'][k][1:], axis = 1 )
 		rdf_std   = np.std(  d['rdf'][k][1:], axis = 1 )
+		
+		if pmax == True:
+			rdfmax = np.max( rdf_mean )
+			rdf_mean  = rdf_mean / rdfmax * 100
+			rdf_std   = rdf_std / rdfmax * 100
+		
 		color     = c.cmap_universal_ratio[k]
 		if errorbar   == 'shaded':
 			ax.fill_between(r, rdf_mean-rdf_std, rdf_mean+rdf_std,color=c.cmap_universal_ratio_light[k])
@@ -631,7 +641,10 @@ def plot_a_rdf( ax, d, errorbar='shaded', legend=True, target_molecules = p.mole
 	ax.set_xticks(range(0,50,10))
 	ax.set_xlim(0,40)
 	'''
-	ax.set_ylabel('(beads / voxel)')
+	if pmax == True:
+		ax.set_ylabel('(% max)')
+	else:
+		ax.set_ylabel('(beads / voxel)')
 	ax.set_xlabel('Distance from \n center-of-mass (l.s.)')
 	ax.set_xticks(range(0,25,5))
 	ax.set_xlim(0,23)

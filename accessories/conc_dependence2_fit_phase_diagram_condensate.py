@@ -29,8 +29,8 @@ plt.rcParams.update( p.rc_param )
 
 	
 def prepare_plot():
-	# fig  = plt.figure(figsize=(5, 4))
-	fig  = plt.figure(figsize=(4, 4))
+	fig  = plt.figure(figsize=(4.5, 3))
+	#fig  = plt.figure(figsize=(4, 4))
 	fig.subplots_adjust(left = 0.20, bottom=0.2)
 	ax = fig.add_subplot( 1, 1, 1 )
 	ax.spines['right'].set_visible(False)
@@ -48,7 +48,7 @@ def save_plots( fig, dir_imgs, basename ):
 	
 	
 	
-def plot_fit_PIPS_partial_engulfment( fig, ax, title, ratios_connection ):
+def plot_fit_PIPS_versus_PE_or_OTHER( fig, ax, title, explanatory_variable ):
 	
 	pl = PlotPhaseDiagramConcDependence()
 	two_condensates    = pl.phase_diagram_two_condensates
@@ -56,23 +56,24 @@ def plot_fit_PIPS_partial_engulfment( fig, ax, title, ratios_connection ):
 	two_condensates    = np.fliplr(two_condensates)
 	partial_engulfment = np.fliplr(partial_engulfment)
 	
-	
 	two_condensates    = two_condensates[:-1,:]
 	partial_engulfment = partial_engulfment[:-1,:]
-	ratios_connection  = ratios_connection[:-1,:]
+	explanatory_variable = explanatory_variable[:-1,:]
+	pips = (partial_engulfment == 0) * two_condensates
+	print('partial_engulfment ', partial_engulfment)
+	print('pips ', pips)
 	
-	'''
-	print('two_condensates')
-	print(two_condensates)
-	print('ratios_connection')
-	print(ratios_connection)
-	'''
+	case = 'PIPS_versus_PE' # 'PIPS_versus_PE' or 'PIPS_versus_OTHER'
+	#case = 'PIPS_versus_OTHER' # 'PIPS_versus_PE' or 'PIPS_versus_OTHER'
 	
-	pips = two_condensates * (partial_engulfment == 0)
-	
-	
-	x = ratios_connection.reshape(-1, 1)
-	y = pips.astype('int').reshape(-1, 1)
+	if case == 'PIPS_versus_PE':
+		pips = pips[two_condensates > 0]
+		explanatory_variable = explanatory_variable[two_condensates > 0]
+		x = explanatory_variable.reshape(-1, 1)
+		y = pips.astype('int').reshape(-1, 1)
+	elif case == 'PIPS_versus_OTHER':
+		x = explanatory_variable.reshape(-1, 1)
+		y = pips.astype('int').reshape(-1, 1)
 	
 	model = utils_fitting.logistic_regression(x,y)
 	
@@ -91,7 +92,7 @@ def plot_fit_PIPS_partial_engulfment( fig, ax, title, ratios_connection ):
 	ax.set_ylim([-0.1,1.1])
 	ax.set_xlim([   0,xmax])
 	ax.set_yticks([0,1])
-	ax.set_yticklabels(['Others','PIPS'])
+	ax.set_yticklabels(['Partial\nengulfment','PIPS'])
 	
 	
 def hill(x, a, b, c): # Hill sigmoidal equation from zunzun.com
@@ -140,22 +141,24 @@ def plot_fit_hill_volumes( fig, ax, title, numbers_connection, volumes, species_
 if __name__ == '__main__':
 	
 	#species, type_analysis, species_vol, xmax = 'CaMKII', 'average','CaMKII', 12
-	species, type_analysis, species_vol, xmax = 'PSD95' , 'average', 'STG', 3
+	#species, type_analysis, species_vol, xmax = 'PSD95' , 'average', 'STG', 3
 	#species, type_analysis = 'PSD95' , 'ratio'
+	species, type_analysis = 'PSD95' , 'ratio_condensate'
+	#species, type_analysis = 'PSD95' , 'distribution'
 	pl = HandleConnectivityPhaseDiagramConcDependence(species, type_analysis)
 	pl.conc_dependence_merged()
 	pl.load_data()
+	subject_variable = pl.data
 	
-	numbers_ratios_connection = pl.data	
-	dir_imgs = os.path.join(pl.dir_imgs_root, 'phase_diagram')
+	dir_imgs = os.path.join(pl.dir_imgs_root, 'fitting')
 	title    = pl.title
 	basename = 'fit_' + species + '_' + type_analysis
 	
 	
 	fig, ax = prepare_plot()
 	
-	if type_analysis == 'ratio':
-		plot_fit_PIPS_partial_engulfment(fig, ax, title, numbers_ratios_connection )
+	if 'PSD95' in species:
+		plot_fit_PIPS_versus_PE_or_OTHER(fig, ax, title, subject_variable )
 	else:
 		pl = HandleCondVolumePhaseDiagramConcDependence(species_vol)
 		pl.conc_dependence_merged()
