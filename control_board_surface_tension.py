@@ -1,5 +1,5 @@
 
-from bin.surface_tension0_plot_pyvista_CaMKII_tmp import PlotPyvistaCaMKII
+from bin.surface_tension0_plot_pyvista_CaMKII import PlotPyvistaCaMKII
 
 from bin.surface_tension1_calc_radius_CaMKII_condensate import HandleRDPCaMKII
 from bin.surface_tension2_plot import PlotSurfaceTension
@@ -16,6 +16,21 @@ from bin.all3_plot_profile import PlotProfiles
 
 
 
+## Example plot for demo in Pyvista
+num_samples = 8
+prefix, random_seed = '12_005', 0
+num_samples = 10
+prefix, random_seed = '12_002', 1
+
+obj = PlotPyvistaCaMKII()
+obj.CG_valency_length()
+obj.plot_save( prefix = prefix, random_seed = random_seed, num_samples = num_samples )
+##
+
+
+'''
+
+
 # 'region_condensates', 'conc_CaMKII', 'conc_PSD95', 'conc_STG', 'conc_GluN2B', 'rdf',  'rdf_PSD95'
 # 'concs_in_CaMKII', 'concs_in_STG',
 # 'shared_PSD95', 'unshared_PSD95', 'conc_unrotated_CaMKII'
@@ -26,8 +41,6 @@ obj.CG_valency_length(sub2 = True)
 obj.run()
 obj.save()
 
-
-'''
 
 from bin.all4_plot_profile_3d_ovito import Plot3dOvito
 
@@ -75,20 +88,6 @@ graph.plot_logistic_regression()
 # 'angle_from_condensate_center'  'angle_from_hub' # targets = ['12_006']
 # , mode_surrogate = True
 
-
-
-## Example plot for demo in Pyvista
-num_samples = 10
-prefix, random_seed = '12_002', 1
-num_samples = 6
-prefix, random_seed = '12_006', 8
-num_samples = 7
-prefix, random_seed = '12_005', 0
-
-obj = PlotPyvistaCaMKII()
-obj.CG_valency_length()
-obj.plot_save( prefix = prefix, random_seed = random_seed, num_samples = num_samples )
-##
 
 
 

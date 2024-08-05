@@ -7,7 +7,6 @@ from scipy.spatial.transform import Rotation as R
 import networkx as nx
 import pyvista as pv
 import trimesh
-import copy
 
 import lib.utils as utils
 import lib.parameters as p
@@ -17,7 +16,7 @@ from specification_datasets import SpecDatasets
 
 
 rng = np.random.default_rng(seed=13)
-sphere = pv.Sphere(radius=0.6, phi_resolution=10, theta_resolution=10)
+sphere = pv.Sphere(radius=0.5, phi_resolution=10, theta_resolution=10)
 line   = pv.Line()
 
 
@@ -56,10 +55,11 @@ def plot_3D_pvista_cond_CaMKII(radius, locs_hub_bead_CaMKII, locs_binding_beads_
 	'''
 	
 	condensate = pv.Sphere(radius=radius, phi_resolution=30, theta_resolution=30)
-	pl.add_mesh(condensate, lighting=lighting, color=c.light_green_universal_uint, show_edges=False,  opacity=0.15)
+	pl.add_mesh(condensate, lighting=lighting, color=c.light_green_universal_uint, show_edges=False,  opacity=0.05)
 	
 	# Plot the bounding box
 	pl.add_mesh( utils_pyvista.square_yz_mag(magnification=2.0), color='black', style='wireframe')
+	#pl.add_title('Radius: {:.3f}'.format(radius))
 	pl.add_title('Radius: {:.3f} l.s.'.format(radius / np.sqrt(3)))
 	
 	# Show the image
@@ -67,12 +67,6 @@ def plot_3D_pvista_cond_CaMKII(radius, locs_hub_bead_CaMKII, locs_binding_beads_
 	pl.view_yz()
 	pl.camera.roll -= 90
 	pl.camera.Zoom(1.3)
-	#pl.camera.focal_point = (100, 0.0, 0.0)
-	print('pl.camera.position ', pl.camera.position)
-	print('pl.camera.focal_point ', pl.camera.focal_point)
-	print('pl.camera.view_angle ', pl.camera.view_angle)
-	#pl.camera.position = (70, 0.0, 0.0)
-	#pl.camera.view_angle = 60
 	
 	return pl
 	
@@ -88,41 +82,28 @@ def pickup_CaMKII_samples(g_largest_cluster, num_samples, random_seed, rot):
 	random.seed(random_seed)
 	random.shuffle(ids_CaMKII)
 	
-	i  = 0
-	accum_quadrant = np.array( np.zeros(num_samples * 2) )
-	accum_quadrant[[i * 2 for i in range(num_samples)]] = 1
-	while (1):
-		i += 1
+	i = 0
+	current_num = 0
+	while (current_num < num_samples):
 		pos = g_largest_cluster.nodes[ids_CaMKII[i]]['positions_grid_coord']
 		pos = rot.apply(pos)
-		x = pos[0,0]
-		y = pos[0,1]
-		z = pos[0,2]
-		r = np.sqrt(x*x+y*y+z*z)
-		#print('x, y, z, ', x, y, z)
-		if (abs(x) > 2) or (r < 14): # abs(xx[0]) < 2  or (r < 8) or (r > 20)
+		x = np.abs( pos[0,0] )
+		y = np.abs( pos[0,1] )
+		z = np.abs( pos[0,2] )
+		xx = pos[1:,0]
+		if (abs(x) > 1): # abs(xx[0]) < 2
+			i += 1
 			continue
-		angle = (np.arctan2(y, z)+np.pi) / 2 /np.pi * (num_samples * 2)
-		
-		id_angle = np.floor(angle).astype('int')
-		tmp_accum_quadrant = copy.deepcopy( accum_quadrant )
-		tmp_accum_quadrant[id_angle] += 1
-		#print(tmp_accum_quadrant)
-		if np.any(tmp_accum_quadrant > 1):
-			continue
-		
-		# current_num += 1
-		locs_hub_bead.append(pos[0,:].tolist())
-		locs_binding_beads.extend(pos[1:,:].tolist())
-		id_end_last = len( vertices )
-		vertices.extend(pos.tolist())
-		id_end_current = len( vertices )
-		lines.extend([[2, id_end_last, j] for j in range(id_end_last+1, id_end_current)])
-		
-		accum_quadrant = tmp_accum_quadrant
-		if np.all(accum_quadrant >= 1):
-			break
-		
+		else:
+			locs_hub_bead.append(pos[0,:].tolist())
+			locs_binding_beads.extend(pos[1:,:].tolist())
+			id_end_last = len( vertices )
+			vertices.extend(pos.tolist())
+			id_end_current = len( vertices )
+			lines.extend([[2, id_end_last, j] for j in range(id_end_last+1, id_end_current)])
+			i += 1
+			current_num += 1
+			
 	locs_hub_bead      = np.array( locs_hub_bead )
 	locs_binding_beads = np.array( locs_binding_beads )
 	vertices = np.array( vertices )
@@ -185,8 +166,7 @@ class PlotPyvistaCaMKII(SpecDatasets):
 		pl = plot_3D_pvista_cond_CaMKII(radius, locs_hub_bead, locs_binding_beads, vertices, lines, rot )
 		
 		filename = os.path.join(dir_imgs, '{}_.png'.format(prefix))
-		#pl.show(interactive=True, auto_close=False)
-		pl.show(interactive=False, auto_close=True)
+		pl.show(interactive=True, auto_close=False)
 		pl.screenshot(filename)
 		
 		

@@ -15,10 +15,8 @@ import pprint
 import numpy as np
 
 
-
-
 # Single profiles of FRAP
-target_molecule = 'GluN2B' # 'GluN2B', 'CaMKII'
+target_molecule = 'CaMKII' # 'GluN2B', 'CaMKII'
 valency         = 12 
 length          = 5 # 2, 5, 6
 
@@ -29,17 +27,19 @@ obj.suffix_ = 'FRAP_'
 obj.plot(valency, length)
 obj.save()
 
-
-
 '''
+
+
 
 ## CaMKII FRAP CG_valency_length_only_local_move
 
 obj = SimulatePhotobleach()
-#obj.CG_valency_length_only_local_move(frap = True)
+obj.CG_valency_length_only_local_move(frap = True)
 #obj.CG_valency_length_only_local_move_fine_sampling(frap = True)
 #obj.num_skip_frames = 10
 obj.repeat_runs()
+
+
 
 obj = PlotFRAPMatrixValencyLength( target_molecule = 'CaMKII' ) # CaMKII, GluN2B
 obj.CG_valency_length_only_local_move(frap = True)
