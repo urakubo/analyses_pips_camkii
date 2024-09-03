@@ -1,27 +1,18 @@
-# analyses_pips
-Communication between Pandey and Urakubo
+# AAnalysis programs for the results from LASSI simulation engine
+The GitHub space contains analysis codes for the study “the role of protein shape in multiphasic separation within condensates” by Vikas Pandey,  Tomohisa Hosokawa,  Yasunori Hayashi,  Hidetoshi Urakubo [1].
+All programs were written for Python3.8 and designed for the analyses of output from LASSI simulation engine [2].
 
-### lib directory files
-Files in this directory are shared by the following executable Python files.
+[1] https://www.biorxiv.org/content/10.1101/2024.08.26.606306v1
+[2] https://github.com/Pappulab/LASSI
 
-### all1_edit_data.py
-All of the beginning, Simulated lammpstrj files were translated into the dict variable d that contains many.
 
-### all2_edit_connectivity_graph.py
-All of the beginning, Simulated lammpstrj files were translated into the dict variable d that contains a network multigraph and generated connectivity info.
-
-### all3_plot_profile.py
-
-### all4_plot_profile_3d_ovito.py
-
-### all5_plot_profile_3d_pyvista.py
-
-### all6_plot_video_3d_ovito.py
-
-### all7_plot_profile_shared_PSD95.py
-
-### both1_plot_matrix.py
-
-### both1_plot_matrix_3d_pyvista.py
-
+## Directories
+### bin
+Executable programs.
+### lib
+Shared libraries.
+### workspace
+Accessary programs.
+### obsoletes
+Obsolete programs.
 

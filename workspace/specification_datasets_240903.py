@@ -14,6 +14,7 @@ class SpecDatasets():
 		
 		
 	def _set_directories( self, i, dir_target ):
+		
 		self.dir_lammpstrj    = os.path.join( '..', 'lammpstrj{}'.format(i), dir_target )
 		self.dir_edited_data  = os.path.join( 'data{}'.format(i), dir_target )
 		self.dir_imgs_root    = os.path.join( 'imgs{}'.format(i), dir_target )
@@ -31,6 +32,64 @@ class SpecDatasets():
 		filename  = 'R3_{}.lammpstrj'.format( str(length).zfill(3) )
 		return os.path.join(subdir, filename)
 		
+		
+		
+	def valency_length_small_colony2( self, frap=False ):
+		'''
+		Binary mixture of CaMKII and GluN2B.
+		Molecular number: smaller than the standard.
+		Monte Carlo move: full set.
+		No longer used.
+		'''
+		
+		self.valencies = range(2,14,2)
+		self.lengths   = range(7)
+		self.real_lengths = [1,2,3,4,5,6,9]
+		self.frap      = frap
+		if frap == True:
+			self.valencies    = range(4,14,2)
+			self.lengths      = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
+			self.real_lengths = [2,3,4,5,6,9]
+		
+		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
+		self.filename_lammpstrj_matrix = self._filename_lammpstrj_matrix_valency_length2
+		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		
+		dir_target = 'small_colony2'
+		self._set_directories( 4, dir_target )
+		
+		self.set_frames_before_after_photobleach = SamplingFramesPhotobleach().colony2()
+		
+		
+	def valency_length_small_colony3( self, frap=False ):
+		'''
+		Binary mixture of CaMKII and GluN2B.
+		Molecular number: much smaller than the standard.
+		Monte Carlo move: full set.
+		No longer used.
+		'''
+		
+		self.valencies = range(2,14,2)
+		self.lengths   = range(7)
+		self.real_lengths = [1,2,3,4,5,6,9]
+		if frap==True:
+			self.valencies    = range(4,14,2)
+			self.lengths      = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
+			self.real_lengths = [2,3,4,5,6,9]
+		
+		
+		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
+		self.filename_lammpstrj_matrix = self._filename_lammpstrj_matrix_valency_length2
+		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		
+		dir_target       = 'small_colony3'
+		self._set_directories( 4, dir_target )
+		
+		self.set_frames_before_after_photobleach = SamplingFramesPhotobleach().colony3()
 		
 		
 	def valency_length( self, sub = False ):
@@ -61,7 +120,6 @@ class SpecDatasets():
 		self._set_directories( 4, dir_target )
 		
 		
-		
 	def CG_valency_length( self, sub = False,  sub2 = False  ):
 		'''
 		Binary mixture of CaMKII and GluN2B.
@@ -82,6 +140,7 @@ class SpecDatasets():
 			self.valencies    = [4, 6, 8, 12] 
 			self.lengths      = [2, 3, 4, 5]
 			self.real_lengths = [3, 4, 5, 6]
+		
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self._filename_lammpstrj_matrix_valency_length2
@@ -126,7 +185,7 @@ class SpecDatasets():
 			self.valencies 	  = [12]
 			self.lengths      = [5]
 			self.real_lengths = [6]
-			self.set_frames_before_after_photobleach =  SamplingFramesPhotobleach().colony2_tmp()
+			self.set_frames_before_after_photobleach = SamplingFramesPhotobleach().colony2_tmp()
 			
 			
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
@@ -139,7 +198,6 @@ class SpecDatasets():
 		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
 		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
 		self.set_frames_before_after = [self.set_frames_before_after_photobleach(v, l) for v in self.valencies for l in self.lengths]
-		
 		
 		
 	def CG_valency_length_only_local_move_fine_sampling( self, frap = False ):
@@ -166,12 +224,35 @@ class SpecDatasets():
 		dir_target       = 'CG_valency_length_only_local_move_fine_sampling'
 		self._set_directories( 5, dir_target )
 		
-		self.set_frames_before_after_photobleach = SamplingFramesPhotobleach().colony5()
+		self.set_frames_before_after_photobleach = set_frames_photobleach_colony5
 		
 		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
 		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
 		self.set_frames_before_after = [self.set_frames_before_after_photobleach(v, l) for v in self.valencies for l in self.lengths]
 		
+		
+	def C_valency_length_FRAP_Control( self):
+		'''
+		CaMKII only.
+		Molecular number: ?
+		Monte Carlo move: local move only.
+		We did not use it because the sampling rate is too sparse.
+		'''
+		
+		self.valencies    = range(4,14,2)
+		self.lengths      = range(1,7) # range(7)
+		self.real_lengths = [2, 3, 4, 5, 6, 9] # [1, 2, 3, 4, 5, 6, 9]
+		
+		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
+		self.filename_lammpstrj_matrix = self._filename_lammpstrj_matrix_valency_length2
+		
+		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
+		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
+		
+		dir_target       = 'C_valency_length_FRAP_Control'
+		self._set_directories( 5, dir_target )
+		
+		self.set_frames_before_after_photobleach = set_frames_photobleach_colony2
 		
 		
 	def C_valency_length_FRAP_Control_fine_sampling( self, frap = False ):
@@ -182,10 +263,17 @@ class SpecDatasets():
 		Supplementary Fig 9
 		'''
 		
-		self.valencies = range(4,14,2)         # range(2,14,2)
-		self.lengths   = range(1,7)            # range(7)
-		self.real_lengths = [2, 3, 4, 5, 6, 9] # [1, 2, 3, 4, 5, 6, 9]
+		self.valencies = range(2,14,2)
+		self.lengths   = range(7)
+		self.real_lengths = [1, 2, 3, 4, 5, 6, 9]
 		
+		if  frap == True:
+			self.valencies = range(4,14,2)
+			self.lengths   = range(1,7) # [1, 2, 3, 4, 5, 6, 9]
+			self.real_lengths = [2, 3, 4, 5, 6, 9]
+		
+		#self.lengths   = range(6,7) # [1, 2, 3, 4, 5, 6, 9]
+		#self.valencies = range(4,8,2)
 		
 		self.filename_edited_matrix    = lambda valency, length: str(valency).zfill(2)+'_'+str(length).zfill(3)
 		self.filename_lammpstrj_matrix = self._filename_lammpstrj_matrix_valency_length3
@@ -193,7 +281,7 @@ class SpecDatasets():
 		dir_target       = 'C_valency_length_FRAP_Control_fine_sampling'
 		self._set_directories( 5, dir_target )
 		
-		self.set_frames_before_after_photobleach = SamplingFramesPhotobleach().colony6()
+		self.set_frames_before_after_photobleach = set_frames_photobleach_colony6
 		
 		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
 		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
@@ -211,6 +299,20 @@ class SpecDatasets():
 		self.filenames_edited     = [str(i).zfill(3) for i in range(81) ]
 		self.filenames_lammpstrj  = ['R2_{}.lammpstrj'.format(f) for f in self.filenames_edited ]
 		dir_target  = 'conc_dependence'
+		self._set_directories( 4, dir_target )
+		
+		
+	def inhibitor( self ):
+		'''
+		Quaternary mixture of CaMKII, GluN2B, STG, PSD95 plus inhibitor.
+		Molecular number: standard.
+		Monte Carlo move: full set.
+		We did not use it.
+		'''
+		
+		self.filenames_edited    = [str(i).zfill(3) for i in range(3) ]
+		self.filenames_lammpstrj = ['R2_{}.lammpstrj'.format(f) for f in self.filenames_edited ]
+		dir_target  = 'cam2kn1'
 		self._set_directories( 4, dir_target )
 		
 		
@@ -264,9 +366,25 @@ class SpecDatasets():
 		# sub_glun2bs [540, 4320, 8640,17280]
 		
 		
+		
 	def conc_dependence_merged_sub( self ):
 		self.filenames_edited = [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in range(8,10) for glun2b in range(4,6) ]
 		dir_target  = 'conc_dependence_merged'
+		self._set_directories( 4, dir_target )
+		
+		
+		
+	def CaMKII_blocked( self ):
+		'''
+		Quaternary mixture of CaMKII, GluN2B, STG, PSD95 plus inhibitor.
+		Molecular number: standard.
+		Monte Carlo move: full set.
+		We did not use it.
+		'''
+		
+		self.filenames_edited = [str(i).zfill(3) for i in range(3) ]
+		self.filenames_lammpstrj  = ['R2_{}.lammpstrj'.format(f) for f in self.filenames_edited ]
+		dir_target = 'CaMKII_blocked'
 		self._set_directories( 4, dir_target )
 		
 		
@@ -288,6 +406,18 @@ class SpecDatasets():
 		self._set_directories( 4, dir_target )
 		
 		
+	def boundary_conditions2( self ):
+		'''
+		Quaternary mixtures.
+		Molecular number: standard.
+		Monte Carlo move: full set.
+		We did not use them probably.
+		'''
+		self.filenames_edited = ['SPG0','SPG1','SPG2','SPG3']
+		self.filenames_lammpstrj = [os.path.join('SPG', 'R{}_trj.lammpstrj'.format(i)) for i in [0,1,2,3]]
+		dir_target = 'boundary_conditions'
+		self._set_directories( 4, dir_target )
+		
 		
 	def boundary_conditions3( self ):
 		'''
@@ -300,7 +430,6 @@ class SpecDatasets():
 		self.filenames_lammpstrj = [ os.path.join( 'PG','R2_{}.lammpstrj'.format(str(i).zfill(3)) ) for i in range(6) ]
 		dir_target = 'boundary_conditions'
 		self._set_directories( 4, dir_target )
-		
 		
 		
 	def boundary_conditions5( self ):
