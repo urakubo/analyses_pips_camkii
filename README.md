@@ -29,17 +29,20 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | **`self.dir_imgs_root`**| str | Directory for image files. |
 | **`self.filenames_lammpstrj`**| list/tuple | Filenames of target lammpstrj files. |
 | **`self.filenames_edited`**| list/tuple | Filenames of intermediate data files. |
+| **` self.filename_lammpstrj_matrix `**| func(v, l)  | Filename of a target lammpstrj file specified by valency/GluN2B conc (v) and length/STG conc (l). |
+| **`self.filename_edited_matrix`**| func(v, l) | Filename of the intermediate data file specified by valency/GluN2B conc (v) and length/STG conc (l). |
 
 The "SpecDatasets" is a superclass of executable programs and all the executable refer the above variables.
 
-### lib/paramters.py
-It defines basic parameters such as “ID versus molecular name“, “the size of lattice space” and so on.  Defined variables are referred such as p.space.
+### Some key .py files
 
-### lib/colormap.py
-It defines colormaps. We utilized the color universal design for color-blindness.
+| .py file | functions |
+| -------- | -------- |
+| **`lib/paramters.py`** | It defines basic parameters such as “ID versus molecular name“, “the size of lattice space” and so on.  Defined variables are referred such as "p.space". |
+| **`lib/colormap.py`**| It defines colormaps. The color universal design was utilized for color-blindness. |
+| **` control_board_*.py `**| Workspaces. They would be further edited based on the requirements of additional simulation and analyses.
+ |
 
-### control_board_*.py
-Workspaces. They would be further edited based on the requirements of additional simulation and analyses.
 
 ## control_board_example.py
 
