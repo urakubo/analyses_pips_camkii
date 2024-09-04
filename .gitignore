@@ -18,6 +18,8 @@ __pycache__/
 env/
 build/
 develop-eggs/
+obsolete/
+obsoletes/
 downloads/
 eggs/
 .eggs/
