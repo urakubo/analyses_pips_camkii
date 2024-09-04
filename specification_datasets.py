@@ -33,6 +33,128 @@ class SpecDatasets():
 		
 		
 		
+	def boundary_conditions( self ):
+		'''
+		Binary, ternary, and quaternary mixtures.
+		Molecular number: standard.
+		Monte Carlo move: full set.
+		Fig. 1, Supplementary fig 1
+		'''
+		
+		dirs_fnms_lammpstrj = [
+			('CPG','000'),('SP' ,'000'),('SPG','000'),
+			('binary_CG','000'),('binary_CG','001'),('binary_CG','002'),('binary_CG','003')]
+		self.filenames_lammpstrj = [os.path.join(d,'R2_{}.lammpstrj'.format(f)) for d, f in dirs_fnms_lammpstrj ]
+		self.filenames_edited    = ['CPG', 'SP', 'SPG', 'CG_000','CG_001','CG_002','CG_003']
+		
+		dir_target = 'boundary_conditions'
+		self._set_directories( 4, dir_target )
+		
+		
+	def boundary_conditions2( self ):
+		'''
+		Binary mixtures.
+		Molecular number: standard.
+		Monte Carlo move: full set.
+		Supplementary fig 1
+		'''
+		self.filenames_edited = [ 'PG_{}'.format( str(i).zfill(3) ) for i in range(6) ]
+		self.filenames_lammpstrj = [ os.path.join( 'PG','R2_{}.lammpstrj'.format(str(i).zfill(3)) ) for i in range(6) ]
+		dir_target = 'boundary_conditions'
+		self._set_directories( 4, dir_target )
+		
+		
+	def boundary_conditions_video( self ):
+		'''
+		Quaternary mixtures.
+		Molecular number: standard.
+		Monte Carlo move: full set.
+		Supplementary video 1
+		Supplementary fig 1
+		'''
+		
+		dirs_fnms_lammpstrj = [
+			('CG' ,'000'),('CPG','000'),
+			('PG' ,'000'),('PG' ,'001'),('PG','002') ,('PG','003') ,('PG','004') ,('PG' ,'005'),
+			('SP' ,'000'),
+			('SPG','001'),('SPG','002'),('SPG','003'),('SPG','004'),('SPG','005')
+			]
+		self.filenames_lammpstrj = [os.path.join(d,'R2_{}.lammpstrj'.format(f)) for d, f in dirs_fnms_lammpstrj]
+		self.filenames_edited    = [
+			'CG','CPG',\
+			'PG000','PG001','PG002','PG003','PG004','PG005', \
+			'SP', \
+			'SPG001', 'SPG002', 'SPG003', 'SPG004', 'SPG005']
+		
+		dir_target = 'boundary_conditions'
+		self._set_directories( 5, dir_target )
+		
+		
+		
+	def conc_dependence( self ):
+		'''
+		Quaternary mixture of CaMKII, GluN2B, STG, PSD95.
+		Molecular number: standard.
+		Monte Carlo move: full set.
+		Fig 2, Supplmentary figs 2, 3
+		'''
+		
+		self.filenames_edited     = [str(i).zfill(3) for i in range(81) ]
+		self.filenames_lammpstrj  = ['R2_{}.lammpstrj'.format(f) for f in self.filenames_edited ]
+		dir_target  = 'conc_dependence'
+		self._set_directories( 4, dir_target )
+		
+		
+		
+	def conc_dependence_033( self ):
+		'''
+		Quaternary mixture of CaMKII, GluN2B, STG, PSD95.
+		Molecular number: standard.
+		Monte Carlo move: full set.
+		Fig 2, Supplmentary figs 2, 3
+		Additional set of concentration
+		'''
+		
+		self.filenames_edited = [str(i).zfill(3) for i in range(9) ]
+		self.filenames_lammpstrj  = ['R2_{}.lammpstrj'.format(f) for f in self.filenames_edited ]
+		dir_target          = 'conc_dependence_0.33'
+		self._set_directories( 4, dir_target )
+		
+		
+		
+	def conc_dependence_merged( self, sub = False ):
+		'''
+		Quaternary mixture of CaMKII, GluN2B, STG, PSD95.
+		Molecular number: standard.
+		Monte Carlo move: full set.
+		Fig 2, Supplmentary figs 2, 3
+		Merge of 'conc_dependence' and 'conc_dependence_033'
+		'''
+		
+		self.stgs    = range(10)
+		self.glun2bs = range(9)
+		
+		self.filenames_edited = [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in self.stgs for glun2b in self.glun2bs ]
+		dir_target  = 'conc_dependence_merged'
+		self._set_directories( 4, dir_target )
+		
+		self.filename_edited_matrix = lambda glun2b, stg: str(stg).zfill(2)+'_'+str(glun2b).zfill(2)
+		
+		
+		STGs    = [108,216,432,576,864,1728,2592,3456,4320,5184]
+		GluN2Bs = [270,540,1080,2160,4320,6480,8640,12960,17280]
+		volume  = np.prod(p.space_np)
+		self.concs_stg    = [ s / volume * 1000 for s in STGs    ]
+		self.concs_glun2b = [ n / volume * 1000 for n in GluN2Bs ]
+		
+		if sub == True:
+			self.stgs    = [1, 3, 5, 7]
+			self.glun2bs = [1, 4, 6, 8]
+		self.sub = sub
+		# sub_stgs    [216, 576, 1728, 3456] 
+		# sub_glun2bs [540, 4320, 8640,17280]
+		
+		
 	def valency_length( self, sub = False ):
 		'''
 		Quaternary mixture of CaMKII, GluN2B, STG, PSD95.
@@ -199,133 +321,3 @@ class SpecDatasets():
 		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
 		self.set_frames_before_after = [self.set_frames_before_after_photobleach(v, l) for v in self.valencies for l in self.lengths]
 		
-		
-	def conc_dependence( self ):
-		'''
-		Quaternary mixture of CaMKII, GluN2B, STG, PSD95.
-		Molecular number: standard.
-		Monte Carlo move: full set.
-		Fig 2, Supplmentary figs 2, 3
-		'''
-		
-		self.filenames_edited     = [str(i).zfill(3) for i in range(81) ]
-		self.filenames_lammpstrj  = ['R2_{}.lammpstrj'.format(f) for f in self.filenames_edited ]
-		dir_target  = 'conc_dependence'
-		self._set_directories( 4, dir_target )
-		
-		
-		
-	def conc_dependence_033( self ):
-		'''
-		Quaternary mixture of CaMKII, GluN2B, STG, PSD95.
-		Molecular number: standard.
-		Monte Carlo move: full set.
-		Fig 2, Supplmentary figs 2, 3
-		Additional set of concentration
-		'''
-		
-		self.filenames_edited = [str(i).zfill(3) for i in range(9) ]
-		self.filenames_lammpstrj  = ['R2_{}.lammpstrj'.format(f) for f in self.filenames_edited ]
-		dir_target          = 'conc_dependence_0.33'
-		self._set_directories( 4, dir_target )
-		
-		
-		
-	def conc_dependence_merged( self, sub = False ):
-		'''
-		Quaternary mixture of CaMKII, GluN2B, STG, PSD95.
-		Molecular number: standard.
-		Monte Carlo move: full set.
-		Fig 2, Supplmentary figs 2, 3
-		Merge of 'conc_dependence' and 'conc_dependence_033'
-		'''
-		
-		self.stgs    = range(10)
-		self.glun2bs = range(9)
-		
-		self.filenames_edited = [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in self.stgs for glun2b in self.glun2bs ]
-		dir_target  = 'conc_dependence_merged'
-		self._set_directories( 4, dir_target )
-		
-		self.filename_edited_matrix = lambda glun2b, stg: str(stg).zfill(2)+'_'+str(glun2b).zfill(2)
-		
-		
-		STGs    = [108,216,432,576,864,1728,2592,3456,4320,5184]
-		GluN2Bs = [270,540,1080,2160,4320,6480,8640,12960,17280]
-		volume  = np.prod(p.space_np)
-		self.concs_stg    = [ s / volume * 1000 for s in STGs    ]
-		self.concs_glun2b = [ n / volume * 1000 for n in GluN2Bs ]
-		
-		if sub == True:
-			self.stgs    = [1, 3, 5, 7]
-			self.glun2bs = [1, 4, 6, 8]
-		self.sub = sub
-		# sub_stgs    [216, 576, 1728, 3456] 
-		# sub_glun2bs [540, 4320, 8640,17280]
-		
-		
-	def conc_dependence_merged_sub( self ):
-		self.filenames_edited = [str(stg).zfill(2)+'_'+str(glun2b).zfill(2) for stg in range(8,10) for glun2b in range(4,6) ]
-		dir_target  = 'conc_dependence_merged'
-		self._set_directories( 4, dir_target )
-		
-		
-	def boundary_conditions4( self ):
-		'''
-		Binary, ternary, and quaternary mixtures.
-		Molecular number: standard.
-		Monte Carlo move: full set.
-		Fig. 1, Supplementary fig 1
-		'''
-		
-		dirs_fnms_lammpstrj = [
-			('CPG','000'),('SP' ,'000'),('SPG','000'),
-			('binary_CG','000'),('binary_CG','001'),('binary_CG','002'),('binary_CG','003')]
-		self.filenames_lammpstrj = [os.path.join(d,'R2_{}.lammpstrj'.format(f)) for d, f in dirs_fnms_lammpstrj ]
-		self.filenames_edited    = ['CPG', 'SP', 'SPG', 'CG_000','CG_001','CG_002','CG_003']
-		
-		dir_target = 'boundary_conditions'
-		self._set_directories( 4, dir_target )
-		
-		
-		
-	def boundary_conditions3( self ):
-		'''
-		Binary mixtures.
-		Molecular number: standard.
-		Monte Carlo move: full set.
-		Supplementary fig 1
-		'''
-		self.filenames_edited = [ 'PG_{}'.format( str(i).zfill(3) ) for i in range(6) ]
-		self.filenames_lammpstrj = [ os.path.join( 'PG','R2_{}.lammpstrj'.format(str(i).zfill(3)) ) for i in range(6) ]
-		dir_target = 'boundary_conditions'
-		self._set_directories( 4, dir_target )
-		
-		
-		
-	def boundary_conditions5( self ):
-		'''
-		Quaternary mixtures.
-		Molecular number: standard.
-		Monte Carlo move: full set.
-		Supplementary video 1
-		Supplementary fig 1
-		'''
-		
-		dirs_fnms_lammpstrj = [
-			('CG' ,'000'),('CPG','000'),
-			('PG' ,'000'),('PG' ,'001'),('PG','002') ,('PG','003') ,('PG','004') ,('PG' ,'005'),
-			('SP' ,'000'),
-			('SPG','001'),('SPG','002'),('SPG','003'),('SPG','004'),('SPG','005')
-			]
-		self.filenames_lammpstrj = [os.path.join(d,'R2_{}.lammpstrj'.format(f)) for d, f in dirs_fnms_lammpstrj]
-		self.filenames_edited    = [
-			'CG','CPG',\
-			'PG000','PG001','PG002','PG003','PG004','PG005', \
-			'SP', \
-			'SPG001', 'SPG002', 'SPG003', 'SPG004', 'SPG005']
-		
-		dir_target = 'boundary_conditions'
-		self._set_directories( 5, dir_target )
-		
-

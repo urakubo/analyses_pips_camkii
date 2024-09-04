@@ -11,14 +11,26 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 [2] https://github.com/Pappulab/LASSI
 
 
-### Directories
 | directory | contents |
 | -------- | -------- |
 | **`bin`** |Executable programs. |
 | **`lib`**| Shared libraries. |
 | **`workspace`**| Accessary programs. |
-| **`obsolete`**| Obsolete programs. |
 
+Analyses were conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. In the methods of “SpecDatasets” class, the following instance variables should be specified:
+
+| instance variable | variable type | content |
+| -------- | -------- | -------- |
+| **`self.dir_lammpstrj`** | str | Directory for target lammpstrj files. |
+| **`self.dir_edited_data`**| str |Directory for intermediate data files. |
+| **`self.dir_imgs_root`**| str | Directory for image files. |
+| **`self.filenames_lammpstrj`**| list/tuple | Filenames of target lammpstrj files. |
+| **`self.filenames_edited`**| list/tuple | Filenames of intermediate data files. |
+
+
+
+### specification_datasets.py
+Specifies the directories and filenames of lammpstrj and intermediate data files.  
 
 
 Under documentation...
