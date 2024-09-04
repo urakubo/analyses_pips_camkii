@@ -2,11 +2,11 @@ import os, glob, pickle, pprint, copy
 import numpy as np
 
 
-
 bsize     = 120
 space     = [bsize, bsize, bsize]
 space_np  = np.array(space)
 center_np = space_np / 2
+
 
 edge0 =  list(range(-int(space[0]/2), int(space[0]/2), 1))
 edge1 =  list(range(-int(space[1]/2), int(space[1]/2), 1))

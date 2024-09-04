@@ -16,7 +16,6 @@ class EditData(SpecDatasets):
 		
 	def run( self ):
 		
-		
 		for filename_input, filename_output in zip(self.filenames_lammpstrj, self.filenames_edited):
 			self.edit_a_dataset( filename_input, filename_output )
 		

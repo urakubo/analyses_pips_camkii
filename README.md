@@ -20,7 +20,7 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 
 ### specification_datasets.py
 
-Analyses were conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. In the methods of "SpecDatasets" class, the following instance variables should be specified:
+Analyses are conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. In the methods of "SpecDatasets" class, the following instance variables should be specified:
 
 | instance variable | variable type | content |
 | -------- | -------- | -------- |
@@ -30,9 +30,17 @@ Analyses were conducted through two steps: the conversion of lammpstrj files int
 | **`self.filenames_lammpstrj`**| list/tuple | Filenames of target lammpstrj files. |
 | **`self.filenames_edited`**| list/tuple | Filenames of intermediate data files. |
 
-The "SpecDatasets" class is a superclass of executable programs.
+The "SpecDatasets" is a superclass of executable programs and all the executable refer the above variables.
+
+### lib/paramters.py
+It defines basic parameters such as “ID versus molecular name“, “the size of lattice space” and so on.  Defined variables are referred such as p.space.
+
+### lib/colormap.py
+It defines colormaps. We utilized the color universal design for color-blindness.
+
+### control_board_*.py
+Workspaces. They would be further edited based on the requirements of additional simulation and analyses.
+
+## control_board_example.py
 
 
-
-
-Under documentation...
