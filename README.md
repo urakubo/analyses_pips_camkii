@@ -1,6 +1,6 @@
-# Analysis programs for LASSI simulation engine
+# Analysis code for “the role of protein shape in multiphasic separation within condensates”
 The GitHub space contains analysis codes for the study “the role of protein shape in multiphasic separation within condensates” by Vikas Pandey,  Tomohisa Hosokawa,  Yasunori Hayashi,  Hidetoshi Urakubo [1].
-All programs were written for Python3.8 and designed for the analyses of output from LASSI simulation engine [2].
+All programs were written in Python3.8 (Windows) and designed for the analyses of output from LASSI simulation engine [2].
 
 [1] https://www.biorxiv.org/content/10.1101/2024.08.26.606306v1
 
