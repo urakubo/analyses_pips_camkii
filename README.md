@@ -3,7 +3,7 @@
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # Analysis code for "the role of protein shape in multiphasic separation within condensates"
-The GitHub repository contains analysis programs for the study "the role of protein shape in multiphasic separation within condensates" by V Pandey et al. [1].
+The GitHub repository contains analysis programs for the study "the role of protein shape in multiphasic separation within condensates" by Pandey et al. [1].
 All programs were written in Python3.8 (Windows) and designed for the analyses of output from LASSI simulation engine [2].
 
 [1] https://www.biorxiv.org/content/10.1101/2024.08.26.606306v1
@@ -20,7 +20,7 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 
 ### specification_datasets.py
 
-Analyses are conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. Their directories and filenames are specified as instance variables of a superclass "SpecDatasets" in "specification_datasets.py." In the methods of "SpecDatasets", the instance variables below must be defined. They are referred by executable programs (bin/).
+Analyses are conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. Their directories and filenames are specified as instance variables of a superclass "SpecDatasets" in "specification_datasets.py." In the methods of "SpecDatasets", the instance variables below should be defined. They are referred by executable programs (bin/).
 
 | instance variable | variable type | content |
 | -------- | -------- | -------- |
@@ -48,9 +48,9 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | diretory / file | contents |
 | -------- | -------- |
 | **`control_board_example.py`** | Executable programs. |
-| **`example_lammpstrj`**| CG.zip, PS.zip, CGPS.zip. Please unzip them. |
-| **`example_edited`**| Empty. |
-| **`example_imgs`**| Empty. |
+| **`example_data/lammpstrj`**| CG.zip, PS.zip, CGPS.zip. Please unzip them. |
+| **`example_data/edited`**| Empty. |
+| **`example_data/imgs`**| Empty. |
 
 
 

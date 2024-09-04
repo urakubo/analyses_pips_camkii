@@ -8,6 +8,21 @@ from sampling_frame_photobleach import SamplingFramePhotobleach
 
 class SpecDatasets():
 		
+	def examples( self ):
+		'''
+		Binary and quaternary mixtures.
+		Molecular number: standard.
+		Monte Carlo move: full set.
+		Fig. 1
+		'''
+		self.filenames_lammpstrj = ['{}.lammpstrj'.format(f) for f in ['PS', 'CG', 'CGPS'] ]
+		self.filenames_edited    = ['PS', 'CG', 'CGPS']
+		
+		self.dir_lammpstrj    = os.path.join('example_data','lammpstrj')
+		self.dir_edited_data  = os.path.join('example_data','edited')
+		self.dir_imgs_root    = os.path.join('example_data','imgs')
+		
+		
 	def __init__( self ):
 		
 		pass
@@ -31,19 +46,7 @@ class SpecDatasets():
 		filename  = 'R3_{}.lammpstrj'.format( str(length).zfill(3) )
 		return os.path.join(subdir, filename)
 		
-	def examples( self ):
-		'''
-		Binary and quaternary mixtures.
-		Molecular number: standard.
-		Monte Carlo move: full set.
-		Fig. 1
-		'''
-		self.filenames_lammpstrj = ['{}.lammpstrj'.format(f) for f in ['PS', 'CG', 'CGPS'] ]
-		self.filenames_edited    = ['PS', 'CG', 'CGPS']
-		
-		self.dir_lammpstrj    = 'example_lammpstrj'
-		self.dir_edited_data  = 'example_edited'
-		self.dir_imgs_root    = 'example_imgs'
+
 		
 		
 	def boundary_conditions( self ):
