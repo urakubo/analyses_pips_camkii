@@ -5,6 +5,7 @@
 *.pickle
 *.mp4
 *.txt
+*.lammpstrj
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

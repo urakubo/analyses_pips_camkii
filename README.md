@@ -20,7 +20,7 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 
 ### specification_datasets.py
 
-Analyses are conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. Their directories and filenames are specified by the instance variables of a superclass "SpecDatasets" in "specification_datasets.py." In the methods of "SpecDatasets", the instance variables below must be defined. They are referred by executable programs (bin/).
+Analyses are conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. Their directories and filenames are specified as instance variables of a superclass "SpecDatasets" in "specification_datasets.py." In the methods of "SpecDatasets", the instance variables below must be defined. They are referred by executable programs (bin/).
 
 | instance variable | variable type | content |
 | -------- | -------- | -------- |
@@ -38,11 +38,19 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 
 | .py file | functions |
 | -------- | -------- |
-| **`lib/paramters.py`** | It defines basic parameters such as “ID versus molecular name“, “the size of lattice space” and so on.  The defined variables are referred such as "p.space". |
-| **`lib/colormap.py`**| It defines colors. The color universal design was utilized for color-blindness. |
+| **`lib/paramters.py`** | It defines basic parameters such as “ID versus molecular name“, “the size of lattice space” and so on.  The defined variables (e.g., space) are referred such as "p.space" in executable programs (bin/). |
+| **`lib/colormap.py`**| It defines colors. The color universal design was utilized for color blindness. |
 | **` control_board_*.py `**| Workspaces. They would be edited depending on further simulation and analyses. |
 
 
-### control_board_example.py
+### Example
+
+| diretory / file | contents |
+| -------- | -------- |
+| **`control_board_example.py`** | Executable programs. |
+| **`example_lammpstrj`**| CG.zip, PS.zip, CGPS.zip. Please unzip them. |
+| **`example_edited`**| Empty. |
+| **`example_imgs`**| Empty. |
+
 
 
