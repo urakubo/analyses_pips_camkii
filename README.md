@@ -12,12 +12,13 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 
 
 ### Directories
-**`bin`**: executable programs.
+| directory | contents |
+| -------- | -------- |
+| **`bin`** |Executable programs. |
+| **`lib`**| Shared libraries. |
+| **`workspace`**| Accessary programs. |
+| **`obsolete`**| Obsolete programs. |
 
-**`lib`**: shared libraries.
 
-**`workspace`**: accessary programs.
-
-**`bin`**: obsolete programs.
 
 Under documentation...
