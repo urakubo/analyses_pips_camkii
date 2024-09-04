@@ -7,14 +7,13 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 [2] https://github.com/Pappulab/LASSI
 
 
-## Directories
-### bin
-Executable programs.
-### lib
-Shared libraries.
-### workspace
-Accessary programs.
-### obsoletes
-Obsolete programs.
+### Directories
+**`bin`**: executable programs.
+
+**`lib`**: shared libraries.
+
+**`workspace`**: accessary programs.
+
+**`bin`**: obsolete programs.
 
 Under documentation...
