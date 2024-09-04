@@ -3,7 +3,7 @@
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 # Analysis code for "the role of protein shape in multiphasic separation within condensates"
-The GitHub space contains analysis programs for the study “the role of protein shape in multiphasic separation within condensates” by Vikas Pandey,  Tomohisa Hosokawa,  Yasunori Hayashi,  Hidetoshi Urakubo [1].
+The GitHub repository contains analysis programs for the study "the role of protein shape in multiphasic separation within condensates" by V Pandey et al. [1].
 All programs were written in Python3.8 (Windows) and designed for the analyses of output from LASSI simulation engine [2].
 
 [1] https://www.biorxiv.org/content/10.1101/2024.08.26.606306v1
@@ -20,7 +20,7 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 
 ### specification_datasets.py
 
-Analyses are conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. The "SpecDatasets" is a superclass of executable programs (bin/). In the methods of "SpecDatasets" class, the following instance variables must be defined:
+Analyses are conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. Their directories and filenames are specified by the instance variables of a superclass "SpecDatasets" in "specification_datasets.py." In the methods of "SpecDatasets", the instance variables below must be defined. They are referred by executable programs (bin/).
 
 | instance variable | variable type | content |
 | -------- | -------- | -------- |
@@ -32,7 +32,9 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | **` self.filename_lammpstrj_matrix `**| func(v, l)  | Filename of a target lammpstrj file specified by valency/GluN2B conc (v) and length/STG conc (l). It is used to draw matrix graphs and phase planes. |
 | **`self.filename_edited_matrix`**| func(v, l) | Filename of the intermediate data file specified by valency/GluN2B conc (v) and length/STG conc (l). It is used to draw matrix graphs and phase planes. |
 
-### Functions of some .py files
+
+
+### Some .py files
 
 | .py file | functions |
 | -------- | -------- |
@@ -41,6 +43,6 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | **` control_board_*.py `**| Workspaces. They would be edited depending on further simulation and analyses. |
 
 
-## control_board_example.py
+### control_board_example.py
 
 
