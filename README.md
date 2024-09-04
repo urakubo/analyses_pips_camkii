@@ -17,7 +17,10 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 | **`lib`**| Shared libraries. |
 | **`workspace`**| Accessary programs. |
 
-Analyses were conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. In the methods of “SpecDatasets” class, the following instance variables should be specified:
+
+### specification_datasets.py
+
+Analyses were conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. In the methods of "SpecDatasets" class, the following instance variables should be specified:
 
 | instance variable | variable type | content |
 | -------- | -------- | -------- |
@@ -27,10 +30,9 @@ Analyses were conducted through two steps: the conversion of lammpstrj files int
 | **`self.filenames_lammpstrj`**| list/tuple | Filenames of target lammpstrj files. |
 | **`self.filenames_edited`**| list/tuple | Filenames of intermediate data files. |
 
+The "SpecDatasets" class is a superclass of executable programs.
 
 
-### specification_datasets.py
-Specifies the directories and filenames of lammpstrj and intermediate data files.  
 
 
 Under documentation...
