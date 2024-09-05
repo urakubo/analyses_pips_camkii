@@ -45,7 +45,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 
 ## Example
 
-### Programs and data
+#### Programs and data
 
 | diretory / file | contents |
 | -------- | -------- |
@@ -55,13 +55,18 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | **`example_data/edited`**| Empty. |
 | **`example_data/imgs`**| Empty. |
 
-### control_board_example.py
+#### control_board_example.py
 
-It calls the following programs.
+It calls the following classes.
 
 - EditData
+- PlotProfiles
+- Plot3dOvito
+- Plot3dPyvista
 
-It converts the lammpstrj files (‘CG.lammpstrj’, ‘PS.lammpstrj’, and ‘CGPS.lammpstrj’; example_data/lammpstrj) into intermediate data files (‘CG_.pickle’, ‘PS_.pickle’, and ‘CGPS_.pickle’; example_data/edited). Each pickle file has a dict variable with the following keys:
+#### EditData
+
+The 'PlotProfiles' class converts the lammpstrj files ('CG.lammpstrj', 'PS.lammpstrj', and 'CGPS.lammpstrj' in example_data/lammpstrj) into intermediate data files ('CG_.pickle', 'PS_.pickle', and 'CGPS_.pickle'; example_data/edited). Each pickle file has a dict variable with the following keys:
 
 | key | value type | description |
 | -------- | -------- | -------- |
@@ -82,4 +87,19 @@ It converts the lammpstrj files (‘CG.lammpstrj’, ‘PS.lammpstrj’, and ‘
 
 Here, X, Y ∈ ['All', 'CaMKII', 'GluN2B', 'STG', 'PSD95'], Z ∈ ['All', 'CaMKII', 'GluN2B', 'STG', 'PSD95', 'dilute'].
 
+#### PlotProfiles
+
+It produces graphs that show the intensity levels at the section that divided the center of the condensate as well as the RDPs from condensate center-of-mass ('CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles).
+
+
+#### Plot3dOvito
+
+It visualizes protein bead distributions in the 3D space
+('CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles_3d_ovito).
+
+
+#### Plot3dPyvista
+
+It visualizes the 3D shapes of the condensates using their rendered volumes
+('CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles_3d_pyvista).
 

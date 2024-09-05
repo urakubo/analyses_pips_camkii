@@ -62,7 +62,7 @@ class Plot3dPyvista(SpecDatasets):
 		# Load data
 		print('Target: ', filename)
 		prefix = filename
-		suffix = 'sigma_2'
+		suffix = ''
 		d      = utils.load(self.dir_edited_data, prefix, suffix)
 		save_a_plot(d, self.dir_imgs, prefix, suffix)
 	

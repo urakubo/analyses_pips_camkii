@@ -49,12 +49,12 @@ def plot_snapshots(data_all, time_frame, dir_imgs, filename_output):
 	
 	
 	# Slice data
-	'''
+	#'''
 	modifier = SliceModifier()
 	modifier.normal   = (1.0, 0.0, 0.0)
 	modifier.distance = 60
 	data_all.modifiers.append(modifier)
-	'''
+	#'''
 	
 	
 	for k, v in p.molecules_without_all.items():

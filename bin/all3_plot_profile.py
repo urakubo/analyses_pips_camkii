@@ -103,7 +103,7 @@ def plot_a_figure( d ):
 	
 	errorbar= 'shaded' # errorbar='shaded', 'line', or 'final_frame_alone'
 	utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=True, ylim = (-0.05,0.5) ) # , ylim = (-0.006,0.46)
-	##utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=True, target_molecules = ['All', 'CaMKII', 'GluN2B'] , ylim = (-0.01,1.0) )
+	#utils.plot_a_rdf( ax, d, errorbar=errorbar, legend=True, target_molecules = ['All', 'CaMKII', 'GluN2B'] , ylim = (-0.01,1.0) )
 	
 	
 	arrange_graph_bar(ax, panel_dx, yloc[2], panel_size/2, panel_size)
@@ -136,8 +136,6 @@ class PlotProfiles(SpecDatasets):
 		suffix = '' # sigma_2
 		print('Target: ', filename)
 		d   = utils.load(self.dir_edited_data, prefix, suffix)
-		
-		pprint.pprint( d )
 		
 		# Make figure
 		return plot_a_figure(d)

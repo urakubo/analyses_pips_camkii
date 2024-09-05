@@ -8,7 +8,7 @@ from bin.all5_plot_profile_3d_pyvista import Plot3dPyvista
 
 # EditData generates 
 
-obj = PlotProfiles()
+obj = Plot3dPyvista()
 obj.examples()
 obj.run()
 
