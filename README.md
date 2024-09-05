@@ -66,7 +66,7 @@ It converts the lammpstrj files (‘CG.lammpstrj’, ‘PS.lammpstrj’, and ‘
 | -------- | -------- | -------- |
 | **`mc_step`** | int | Sampled MC step. Final MC step in general. |
 | **`sampling_frame`** | int | Sampled time frame. Final time frame in general. |
-| **`region_condensate_in_grid_mesh`** | dict[X], 'dilute' | Condensate region of X. Each condensate region is defined by the region over the half maximal levels of blurred Y. |
+| **`region_condensate_in_grid_mesh`** | dict[Z] | Condensate region of X. Each condensate region is defined by the region over the half maximal levels of blurred Y. |
 | **`conc_condensate`** | dict[Y][X] | Conc of X in the condensate region Y. |
 | **`conc_periphery`** | dict[X] | Conc of X in the periphery region. The periphery region is defined by the region over d/2 distant from the center in the lattice space [d, d, d]. |
 | **` concs_in_grid_mesh`** | dict[X] | Conc of X in the 3d space (3d np.array, float). Grid locations of beads were blurred by the gaussian (sd: p.sigma in lattice unit). |
@@ -74,11 +74,11 @@ It converts the lammpstrj files (‘CG.lammpstrj’, ‘PS.lammpstrj’, and ‘
 | **`rdf_bins`**| 1d np.array, int | Bins for radial distribution profile (RDP) (in lattice unit).  |
 | **`rdf_sampling_frames`**| list, int | Sampled frames for RDP |
 | **`rdf `**| dict[X] | Radial distribution profile X (2d np.array, float)  |
-| **`dir_lammpstrj `**| dir_lammpstrj. |
-| **`filename_lammpstrj`**| filename_lammpstrj. |
+| **`dir_lammpstrj `**| str | dir_lammpstrj. |
+| **`filename_lammpstrj`**| str | filename_lammpstrj. |
 | **`rotated_region_condensate_in_grid_mesh`** | dict[X] | Same as **` region_condensate_in_grid_mesh `** but rotated. |
 | **`rotated_concs_in_grid_mesh`** | dict[X] | Same as **`concs_in_grid_mesh`** but rotated. |
 
-Here, X, Y ∈ [‘All’, ’CaMKII’, ‘GluN2B’, ‘STG’, ‘PSD95’]
+Here, X, Y ∈ ['All', 'CaMKII', 'GluN2B', 'STG', 'PSD95'], Z ∈ ['All', 'CaMKII', 'GluN2B', 'STG', 'PSD95', 'dilute'].
 
 
