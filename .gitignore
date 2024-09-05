@@ -1,16 +1,16 @@
 # Outputs
 *.pdf
-*.png
-*.svg
-*.pickle
 *.mp4
 *.txt
 *.lammpstrj
+*.pickle
 
 # Output dirs
 
 workspace/
 workspaces/
+imgs4/
+imgs5/
 
 
 # Byte-compiled / optimized / DLL files

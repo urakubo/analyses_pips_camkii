@@ -50,10 +50,10 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | diretory / file | contents |
 | -------- | -------- |
 | **`specification_datasets.py`** | The method "examples" is referred. |
-| **`control_board_example.py`** | Control board that calls executables. |
-| **`example_data/lammpstrj`**| CG.zip, PS.zip, CGPS.zip. Please unzip them. |
-| **`example_data/edited`**| Empty. |
-| **`example_data/imgs`**| Empty. |
+| **`control_board_example.py`** | It calls executables. |
+| **`example_data/lammpstrj`**| Zipped lammpstrj files (CG.zip, PS.zip, CGPS.zip). Please unzip them. |
+| **`example_data/edited`**| Zipped intermediate data files (CG_.zip, PS_.zip, CGPS_.zip). Please unzip them. |
+| **`example_data/imgs`**| Image file directories (profiles, profiles_3d_ovito, profiles_3d_pyvista). |
 
 #### control_board_example.py
 
