@@ -60,6 +60,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 It calls the following programs.
 
 - EditData
+
 It converts the lammpstrj files (‘CG.lammpstrj’, ‘PS.lammpstrj’, and ‘CGPS.lammpstrj’; example_data/lammpstrj) into intermediate data files (‘CG_.pickle’, ‘PS_.pickle’, and ‘CGPS_.pickle’; example_data/edited). Each pickle file has a dict variable with the following keys:
 
 | key | value type | description |
