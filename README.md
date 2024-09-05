@@ -39,11 +39,11 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | .py file | functions |
 | -------- | -------- |
 | **`lib/paramters.py`** | It defines basic parameters such as “ID versus molecular name“, “the size of lattice space” and so on.  The defined variables (e.g., space) are referred such as "p.space" in executable programs (bin/). |
-| **`lib/colormap.py`**| It defines colors. The color universal design was utilized for color blindness. |
-| **` control_board_*.py `**| Workspaces. They would be edited depending on further simulation and analyses. |
+| **`lib/colormap.py`**| It defines colors. The color universal design is utilized for color blindness. |
+| **` control_board_*.py `**| Workspaces. They would be edited depending on simulation and analyses. |
 
 
-### Example
+## Example
 
 #### Programs and data
 
