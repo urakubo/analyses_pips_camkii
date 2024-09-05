@@ -133,9 +133,11 @@ class PlotProfiles(SpecDatasets):
 		
 		# Load data
 		prefix = filename
-		suffix = 'sigma_2'
+		suffix = '' # sigma_2
 		print('Target: ', filename)
 		d   = utils.load(self.dir_edited_data, prefix, suffix)
+		
+		pprint.pprint( d )
 		
 		# Make figure
 		return plot_a_figure(d)
@@ -143,8 +145,8 @@ class PlotProfiles(SpecDatasets):
 		
 	def save_a_figure( self, fig, filename ):
 		# Save figure
-		fig.savefig( os.path.join(self.dir_imgs, '{}_sigma_2.svg'.format( filename ) ) )
-		fig.savefig( os.path.join(self.dir_imgs, '{}_sigma_2.png'.format( filename ) ) , dpi=150)
+		fig.savefig( os.path.join(self.dir_imgs, '{}.svg'.format( filename ) ) )
+		fig.savefig( os.path.join(self.dir_imgs, '{}.png'.format( filename ) ) , dpi=150)
 		#plt.show()
 		plt.clf()
 		plt.close(fig=fig)

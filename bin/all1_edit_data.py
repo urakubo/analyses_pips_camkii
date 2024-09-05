@@ -37,7 +37,7 @@ class EditData(SpecDatasets):
 		
 		# Get concs and condensates
 		d = utils.get_concs_and_condensates(types, positions_real_coord, ids_molecule, \
-			sigma = 2)
+			sigma = p.sigma)
 		
 		
 		# RDF
@@ -61,7 +61,7 @@ class EditData(SpecDatasets):
 		
 		# Save the edited data
 		prefix = filename_output
-		suffix = 'sigma_2'
+		suffix = ''
 		utils.save(self.dir_edited_data, prefix, suffix, d)
 		
 		

@@ -30,7 +30,7 @@ class SpecDatasets():
 		
 	def _set_directories( self, i, dir_target ):
 		self.dir_lammpstrj    = os.path.join( '..', 'lammpstrj{}'.format(i), dir_target )
-		self.dir_edited_data  = os.path.join( 'data{}'.format(i), dir_target )
+		self.dir_edited_data  = os.path.join( '..', 'data{}'.format(i), dir_target )
 		self.dir_imgs_root    = os.path.join( 'imgs{}'.format(i), dir_target )
 		os.makedirs(self.dir_edited_data, exist_ok=True)
 		

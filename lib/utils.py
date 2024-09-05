@@ -249,7 +249,7 @@ def get_ids_PSD95_shared_only_by_GluN2B(multi_graph):
 	# (numpy bool in 3D space) (p.space[0], p.space[1], p.space[2])
 	#
 	
-def get_concs_and_condensates(types, positions, ids_molecule, energy = None, multi_graph = None, sigma=2):
+def get_concs_and_condensates(types, positions, ids_molecule, multi_graph = None, sigma=2):
 	
 	# Parameters
 	targs_molecule  = p.molecules_with_all.keys() # ['GluN2B', 'CaMKII', 'STG', 'PSD95', 'All']
@@ -270,19 +270,11 @@ def get_concs_and_condensates(types, positions, ids_molecule, energy = None, mul
 	regions_condensate_in_grid_mesh['dilute'] = region_periphery
 	
 	def get_concs_condensate(ref_molecule):
-		return {t: np.sum(locs_in_grid_mesh[t] * regions_condensate_in_grid_mesh[ref_molecule])/ \
-				np.sum( regions_condensate_in_grid_mesh[ref_molecule] ) for t in targs_molecule }
+		rs     = {t: np.sum( locs_in_grid_mesh[t] * regions_condensate_in_grid_mesh[ref_molecule] ) for t in targs_molecule }
+		rs_sum = {t: np.sum( regions_condensate_in_grid_mesh[ref_molecule] ) for t in targs_molecule }
+		concs_region = {t: rs[t] / rs_sum[t] if rs_sum[t] != 0 else rs[t] for t in targs_molecule }
+		return concs_region
 	concs_condensate = {t: get_concs_condensate(t) for t in targs_molecule}
-	
-	# Rotate particles and obtain their concentrations and 
-	rot_matrix = get_rotation_matrix_in_CaMKII_PSD95_direction( locs_in_real_coord )
-	rotated_in_real_coord = {t: rot_matrix.dot(locs_in_real_coord[t].T).T  for t in targs_molecule}
-	
-	rotated_in_grid_mesh  = {k: get_hist(rotated_in_real_coord[k]) for k in targs_molecule}
-	rotated_concs_in_grid_mesh = \
-		{t: ndimage.gaussian_filter(rotated_in_grid_mesh[t], sigma = sigma) for t in targs_molecule}
-	rotated_regions_condensate_in_grid_mesh = \
-		{t: get_high(rotated_concs_in_grid_mesh[t]-concs_periphery[t]) for t in targs_molecule}
 	
 	
 	# Summary
@@ -291,28 +283,27 @@ def get_concs_and_condensates(types, positions, ids_molecule, energy = None, mul
 			'concs_in_grid_mesh':	concs_in_grid_mesh,
 			'region_condensate_in_grid_mesh': regions_condensate_in_grid_mesh,
 			#
-			'rotated_concs_in_grid_mesh':	rotated_concs_in_grid_mesh,
-			'rotated_region_condensate_in_grid_mesh': rotated_regions_condensate_in_grid_mesh,
-			#
 			'conc_periphery'	:	concs_periphery,
 			'conc_condensate'	:	concs_condensate,
 		}
 	
-	if energy is not None:
-		#iso        = energy['energy_isotropic']
-		#aniso      = energy['energy_anisotropic']
-		#aniso_self = energy['energy_anisotropic_self']
-		
-		for k, e in energy.items():
-			e /= 2
-			engy_in_real_coord = {m: e[flag_type[m]] for m in targs_molecule }
-			engy_in_grid_mesh  = {m: get_sum_energy(locs_in_real_coord[m], engy_in_real_coord[m]) for m in targs_molecule}
-			def get_sum_energy_condensate(ref_molecule):
-				return {m: np.sum(engy_in_grid_mesh[m] * regions_condensate_in_grid_mesh[ref_molecule]) for m in targs_molecule }
-			engy_condensate    = {r: get_sum_energy_condensate(r) for r in targs_molecule}
-			engy_condensate['dilute'] = {m: np.sum(engy_in_grid_mesh[m] * region_periphery) for m in targs_molecule }
-			
-			d[k] = engy_condensate
+	
+	# Optionals
+	# Rotate particles and obtain their concentrations
+	if any( flag_type['CaMKII'] ) and any( flag_type['PSD95'] ) :
+		print('Rotated')
+		rot_matrix = get_rotation_matrix_in_CaMKII_PSD95_direction( locs_in_real_coord )
+		rotated_in_real_coord = {t: rot_matrix.dot(locs_in_real_coord[t].T).T  for t in targs_molecule}
+	
+		rotated_in_grid_mesh  = {k: get_hist(rotated_in_real_coord[k]) for k in targs_molecule}
+		rotated_concs_in_grid_mesh = \
+			{t: ndimage.gaussian_filter(rotated_in_grid_mesh[t], sigma = sigma) for t in targs_molecule}
+		rotated_regions_condensate_in_grid_mesh = \
+			{t: get_high(rotated_concs_in_grid_mesh[t]-concs_periphery[t]) for t in targs_molecule}
+	
+		d['rotated_concs_in_grid_mesh'] = rotated_concs_in_grid_mesh
+		d['rotated_region_condensate_in_grid_mesh'] = rotated_regions_condensate_in_grid_mesh
+	
 	
 	if multi_graph is not None:
 		_, ids_bead_shared_PSD   = get_ids_PSD95_shared_by_STG_GluN2B(multi_graph, shared_or_unshared = 'shared')
@@ -560,7 +551,6 @@ def get_rdf_CaMKII_hub_binding( dir_lammpstrj, filename_input, sampling_frame ):
 	return rdf, p.rdf_bins
 	
 	
-	
 def get_rdfs_from_multiple_frames( dir_lammpstrj, filename_input, sampling_time_frames, center = None, multi_graph=None ):
 	
 	# Parameters
@@ -576,7 +566,7 @@ def get_rdfs_from_multiple_frames( dir_lammpstrj, filename_input, sampling_time_
 			
 	for i, id_frame in enumerate( sampling_time_frames ):
 		types, positions, _, time_stamp = load_lammpstrj( dir_lammpstrj, filename_input, id_frame )
-		print('Time_stamp: ', time_stamp)
+		print('Time_stamp (MC steps): ', time_stamp)
 		current_rdfs = get_a_rdf(types, positions, rdf_grid_points, center, multi_graph=multi_graph )
 		for k in rdfs.keys():
 			rdfs[k][:,i] = current_rdfs[k]
