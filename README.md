@@ -11,6 +11,7 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 [2] https://github.com/Pappulab/LASSI
 
 
+#### Directories
 | directory | contents |
 | -------- | -------- |
 | **`bin`** |Executable programs. |
@@ -34,7 +35,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | **`self.filename_edited_matrix`**| func(v, l) | Filename of the intermediate data file specified by valency/GluN2B conc (v) and length/STG conc (l). It is used to draw matrix graphs and phase planes. |
 
 
-## Some .py files
+#### Some .py files
 
 | .py file | functions |
 | -------- | -------- |
