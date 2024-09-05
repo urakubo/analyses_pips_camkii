@@ -17,7 +17,7 @@ obj.run()
 
 obj = Plot3dOvito()
 obj.examples()
-obj.repeat_run()
+obj.run()
 
 
 obj = Plot3dPyvista()

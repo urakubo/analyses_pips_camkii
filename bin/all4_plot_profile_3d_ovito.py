@@ -96,10 +96,10 @@ class Plot3dOvito(SpecDatasets):
 			print('ID {}: {}, {}'.format(i, f_lammpstrj, f_edited))
 		
 		
-	def run( self, i ):
+	def single_run( self, i ):
 			self.run_a_dataset( self.filenames_lammpstrj[i], self.filenames_edited[i] )
 		
-	def repeat_run( self ):
+	def run( self ):
 		
 		for filename_lammpstrj, filename_edited in zip(self.filenames_lammpstrj, self.filenames_edited):
 			self.run_a_dataset( filename_lammpstrj, filename_edited )
