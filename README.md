@@ -15,7 +15,7 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 | -------- | -------- |
 | **`bin`** |Executable programs. |
 | **`lib`**| Shared libraries. |
-| **`workspace`**| Accessary programs. |
+| **`accessaries`**| Accessary programs. |
 
 
 ### specification_datasets.py
