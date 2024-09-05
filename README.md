@@ -57,7 +57,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 
 #### control_board_example.py
 
-It creates objects of the classes below. Each object 'obj' calls the examples method to specify the target lammpstrj files (obj.exmaples()), and executes the method for processing (obj.run(), obj.repeat_run()).
+It creates objects of the classes below. Each object "obj" first calls the "examples" method to specify target files (obj.exmaples()), then executes a method for processing (obj.run(), obj.repeat_run()).
 
 - EditData
 - PlotProfiles
