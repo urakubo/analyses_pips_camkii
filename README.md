@@ -57,7 +57,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 
 #### control_board_example.py
 
-It creates objects of the classes below. Each object "obj" first calls the "examples" method to specify target files (obj.exmaples()), then executes a method for processing (obj.run()).
+It creates objects of the classes below. Each object 'obj' first calls the 'examples' method to specify target files (obj.exmaples()), then executes a method for processing (obj.run()).
 
 - EditData
 - PlotProfiles
@@ -66,7 +66,7 @@ It creates objects of the classes below. Each object "obj" first calls the "exam
 
 #### EditData
 
-The 'PlotProfiles' class converts the lammpstrj files ('CG.lammpstrj', 'PS.lammpstrj', and 'CGPS.lammpstrj' in example_data/lammpstrj) into intermediate data files ('CG_.pickle', 'PS_.pickle', and 'CGPS_.pickle'; example_data/edited). Each pickle file has a dict variable with the following keys:
+The 'EditData' class converts the lammpstrj files ('CG.lammpstrj', 'PS.lammpstrj', and 'CGPS.lammpstrj' in example_data/lammpstrj) into intermediate data files ('CG_.pickle', 'PS_.pickle', and 'CGPS_.pickle'; example_data/edited). Each pickle file has a dict variable with the following keys:
 
 | key | value type | description |
 | -------- | -------- | -------- |
@@ -74,18 +74,18 @@ The 'PlotProfiles' class converts the lammpstrj files ('CG.lammpstrj', 'PS.lammp
 | **`sampling_frame`** | int | Sampled time frame. Final time frame in general. |
 | **`region_condensate_in_grid_mesh`** | dict[Z] | Condensate region of X. Each condensate region is defined by the region over the half maximal levels of blurred Y. |
 | **`conc_condensate`** | dict[Y][X] | Conc of X in the condensate region Y. |
-| **`conc_periphery`** | dict[X] | Conc of X in the periphery region. The periphery region is defined by the region over d/2 distant from the center in the lattice space [d, d, d]. |
-| **` concs_in_grid_mesh`** | dict[X] | Conc of X in the 3d space (3d np.array, float). Grid locations of beads were blurred by the gaussian (sd: p.sigma in lattice unit). |
-| **` locs_in_grid_mesh`** | dict[X] | Conc of X in the 3d space (3d np.array, int). Grid locations of beads. |
+| **`conc_periphery`** | dict[X] | Conc of X in the periphery region. The periphery region is defined by the region over d/2 distant from the center of the lattice space [d, d, d]. |
+| **`concs_in_grid_mesh`** | dict[X] | Conc of X in the 3d space (3d np.array, float). Grid locations of beads were blurred by the gaussian (sd: p.sigma in lattice unit). |
+| **`locs_in_grid_mesh`** | dict[X] | Conc of X in the 3d space (3d np.array, int). Grid locations of beads. |
 | **`rdf_bins`**| 1d np.array, int | Bins for radial distribution profile (RDP) (in lattice unit).  |
 | **`rdf_sampling_frames`**| list, int | Sampled frames for RDP |
 | **`rdf `**| dict[X] | Radial distribution profile X (2d np.array, float)  |
 | **`dir_lammpstrj `**| str | dir_lammpstrj. |
 | **`filename_lammpstrj`**| str | filename_lammpstrj. |
-| **`rotated_region_condensate_in_grid_mesh`** | dict[X] | Same as **` region_condensate_in_grid_mesh `** but rotated. |
-| **`rotated_concs_in_grid_mesh`** | dict[X] | Same as **`concs_in_grid_mesh`** but rotated. |
+| **`rotated_region_condensate_in_grid_mesh`** | dict[X] | Same as **` region_condensate_in_grid_mesh `** but rotated. Only in CGPS. |
+| **`rotated_concs_in_grid_mesh`** | dict[X] | Same as **`concs_in_grid_mesh`** but rotated. Only in CGPS. |
 
-Here, X, Y ∈ ['All', 'CaMKII', 'GluN2B', 'STG', 'PSD95'], Z ∈ ['All', 'CaMKII', 'GluN2B', 'STG', 'PSD95', 'dilute'].
+Here, X, Y ∈ ['All', 'CaMKII', 'GluN2B', 'STG', 'PSD95'], and Z ∈ ['All', 'CaMKII', 'GluN2B', 'STG', 'PSD95', 'dilute'].
 
 #### PlotProfiles
 
