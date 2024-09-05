@@ -89,7 +89,7 @@ Here, X, Y ∈ ['All', 'CaMKII', 'GluN2B', 'STG', 'PSD95'], Z ∈ ['All', 'CaMKI
 
 #### PlotProfiles
 
-It produces graphs that show the intensity levels at the section that divided the center of the condensate as well as the RDPs from condensate center-of-mass ('CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles).
+It visualizes intensity levels at the section that divided the center of condensate as well as RDPs from condensate center-of-mass ('CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles).
 
 
 #### Plot3dOvito
@@ -100,6 +100,6 @@ It visualizes protein bead distributions in the 3D space
 
 #### Plot3dPyvista
 
-It visualizes the 3D shapes of the condensates using their rendered volumes
+It visualizes the 3D shapes of condensates using their rendered volumes
 ('CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles_3d_pyvista).
 
