@@ -45,6 +45,8 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 
 ## Example
 
+We would introduce the procedure for analyses and visualization as a gateway of the hacking of analysis programs.
+
 #### Programs and data
 
 | diretory / file | contents |
