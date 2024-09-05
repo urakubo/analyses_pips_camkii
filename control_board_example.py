@@ -1,18 +1,11 @@
 
 from bin.all1_edit_data import EditData
-# from bin.all2_edit_connectivity_graph import EditConnectivityGraph
 from bin.all3_plot_profile import PlotProfiles
 from bin.all4_plot_profile_3d_ovito import Plot3dOvito
 from bin.all5_plot_profile_3d_pyvista import Plot3dPyvista
 
 
-# EditData generates 
 
-obj = Plot3dPyvista()
-obj.examples()
-obj.run()
-
-'''
 
 obj = EditData()
 obj.examples()
@@ -30,6 +23,5 @@ obj.repeat_run()
 obj = Plot3dPyvista()
 obj.examples()
 obj.run()
-'''
 
 

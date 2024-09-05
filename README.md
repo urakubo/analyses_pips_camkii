@@ -26,7 +26,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | -------- | -------- | -------- |
 | **`self.dir_lammpstrj`** | str | Directory for target lammpstrj files. |
 | **`self.dir_edited_data`**| str |Directory for intermediate data files. |
-| **`self.dir_imgs_root`**| str | Directory for image files. |
+| **`self.dir_imgs_root`**| str | Root directory for image files. |
 | **`self.filenames_lammpstrj`**| list/tuple | Filenames of target lammpstrj files. |
 | **`self.filenames_edited`**| list/tuple | Filenames of intermediate data files. |
 | **` self.filename_lammpstrj_matrix `**| func(v, l)  | Filename of a target lammpstrj file specified by valency/GluN2B conc (v) and length/STG conc (l). It is used to draw matrix graphs and phase planes. |
@@ -43,7 +43,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | **` control_board_*.py `**| Workspaces. They would be edited depending on further simulation and analyses. |
 
 
-## Example
+### Example
 
 #### Programs and data
 
@@ -53,7 +53,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | **`control_board_example.py`** | It calls executables. |
 | **`example_data/lammpstrj`**| Zipped lammpstrj files (CG.zip, PS.zip, CGPS.zip). Please unzip them. |
 | **`example_data/edited`**| Zipped intermediate data files (CG_.zip, PS_.zip, CGPS_.zip). Please unzip them. |
-| **`example_data/imgs`**| Image file directories (profiles, profiles_3d_ovito, profiles_3d_pyvista). |
+| **`example_data/imgs`**| Image file directories and images (profiles, profiles_3d_ovito, profiles_3d_pyvista). |
 
 #### control_board_example.py
 
