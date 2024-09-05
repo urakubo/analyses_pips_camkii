@@ -18,10 +18,11 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 | **`accessaries`**| Accessary programs. |
 
 
-### specification_datasets.py
+## Basic procedure
 
 Analyses are conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. Their directories and filenames are specified as instance variables of a superclass "SpecDatasets" in "specification_datasets.py." In the methods of "SpecDatasets", the instance variables below should be defined. They are referred by executable programs (bin/).
 
+#### specification_datasets.py
 | instance variable | variable type | content |
 | -------- | -------- | -------- |
 | **`self.dir_lammpstrj`** | str | Directory for target lammpstrj files. |
@@ -33,8 +34,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | **`self.filename_edited_matrix`**| func(v, l) | Filename of the intermediate data file specified by valency/GluN2B conc (v) and length/STG conc (l). It is used to draw matrix graphs and phase planes. |
 
 
-
-### Some .py files
+## Some .py files
 
 | .py file | functions |
 | -------- | -------- |
@@ -45,7 +45,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 
 ## Example
 
-We would introduce the procedure for analyses and visualization as a gateway of the hacking of analysis programs.
+We would introduce the analyses and visualization procedure as a gateway of the hacking of analysis programs.
 
 #### Programs and data
 
