@@ -14,9 +14,10 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 #### Directories
 | directory | contents |
 | -------- | -------- |
-| **`bin`** |Executable programs. |
-| **`lib`**| Shared libraries. |
-| **`accessaries`**| Accessary programs. |
+| **`bin`** |Executable programs |
+| **`lib`**| Shared libraries |
+| **`accessaries`**| Accessary programs |
+| **`example_data`**| Example data used below |
 
 
 ## Basic procedure
@@ -46,7 +47,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 
 ## Example
 
-We would introduce the analyses and visualization procedure as a gateway of the hacking of analysis programs.
+We would introduce a example procedure for analyses and visualization  as a gateway of the hacking of analysis programs.
 
 #### Programs and data
 
@@ -60,7 +61,7 @@ We would introduce the analyses and visualization procedure as a gateway of the 
 
 #### control_board_example.py
 
-It creates objects of the classes below. Each object 'obj' first calls the 'examples' method to specify target files (obj.exmaples()), then executes a method for processing (obj.run()).
+It creates objects of the classes below. Each object 'obj' first calls the 'examples' method to specify target files (obj.exmaples()), then executes a method for data conversion or visualization (obj.run()).
 
 - EditData
 - PlotProfiles
@@ -73,8 +74,8 @@ The 'EditData' class converts the lammpstrj files ('CG.lammpstrj', 'PS.lammpstrj
 
 | key | value type | description |
 | -------- | -------- | -------- |
-| **`mc_step`** | int | Sampled MC step. Final MC step in general. |
-| **`sampling_frame`** | int | Sampled time frame. Final time frame in general. |
+| **`mc_step`** | int | Sampled MC step. Final MC step is selected in general. |
+| **`sampling_frame`** | int | Sampled time frame. Final time frame is selected in general. |
 | **`region_condensate_in_grid_mesh`** | dict[Z] | Condensate region of X. Each condensate region is defined by the region over the half maximal levels of blurred Y. |
 | **`conc_condensate`** | dict[Y][X] | Conc of X in the condensate region Y. |
 | **`conc_periphery`** | dict[X] | Conc of X in the periphery region. The periphery region is defined by the region over d/2 distant from the center of the lattice space [d, d, d]. |
@@ -92,17 +93,17 @@ Here, X, Y ∈ ['All', 'CaMKII', 'GluN2B', 'STG', 'PSD95'], and Z ∈ ['All', 'C
 
 #### PlotProfiles
 
-It visualizes intensity levels at the section that divided the center of condensate as well as RDPs from condensate center-of-mass ('CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles).
+It visualizes intensity levels at the section that divided the center of condensate as well as RDPs from condensate center-of-mass ('CG.png', 'PS.png', 'CGPS.png', 'CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles).
 
 
 #### Plot3dOvito
 
 It visualizes protein bead distributions in the 3D space
-('CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles_3d_ovito).
+('CG.png', 'PS.png', 'CGPS.png', 'CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles_3d_ovito).
 
 
 #### Plot3dPyvista
 
 It visualizes the 3D shapes of condensates using their rendered volumes
-('CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles_3d_pyvista).
+('CG.png', 'PS.png', 'CGPS.png', 'CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles_3d_pyvista).
 
