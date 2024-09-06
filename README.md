@@ -42,7 +42,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 | -------- | -------- |
 | **`lib/paramters.py`** | It defines basic parameters such as “ID versus molecular name“, “the size of lattice space” and so on.  The defined variables (e.g., space) are referred such as "p.space" in executable programs (bin/). |
 | **`lib/colormap.py`**| It defines colors. The color universal design is utilized for color blindness. |
-| **` control_board_*.py `**| Workspaces. They would be edited depending on simulation and analyses. |
+| **` control_board_*.py `**| Workspaces. They would be edited for further simulation and analyses. |
 
 
 ## Example
@@ -94,16 +94,16 @@ Here, X, Y ∈ ['All', 'CaMKII', 'GluN2B', 'STG', 'PSD95'], and Z ∈ ['All', 'C
 #### PlotProfiles
 
 It visualizes intensity levels at the section that divided the center of condensate as well as RDPs from condensate center-of-mass ('CG.png', 'PS.png', 'CGPS.png', 'CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles).
-
+Each image includes the panels showing intensity levels in the planes of 'yz', 'xy', 'zx', partition index, concentrations in the STG and CaMKII condensates, and RDPs.
 
 #### Plot3dOvito
 
-It visualizes protein bead distributions in the 3D space
+It visualizes protein bead distributions in the 3D lattice space
 ('CG.png', 'PS.png', 'CGPS.png', 'CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles_3d_ovito).
 
 
 #### Plot3dPyvista
 
 It visualizes the 3D shapes of condensates using their rendered volumes
-('CG.png', 'PS.png', 'CGPS.png', 'CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles_3d_pyvista).
+('CG.png', 'PS.png', 'CGPS.png', 'CG.svg', 'PS.svg', and 'CGPS.svg' in example_data/imgs/profiles_3d_pyvista). Each image includes the panels showing rendered volumes in the planes of 'yz', 'xy', 'zx'.
 
