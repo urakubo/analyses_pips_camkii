@@ -24,7 +24,7 @@ All programs were written in Python3.8 (Windows) and designed for the analyses o
 
 Analyses are conducted through two steps: the conversion of lammpstrj files into intermediate data files and the visualization based on the intermediate data. Their directories and filenames are specified as instance variables of a superclass "SpecDatasets" in "specification_datasets.py." In the methods of "SpecDatasets", the instance variables below should be defined. They are referred by executable programs (bin/).
 
-#### specification_datasets.py
+#### Instance variables of class "SpecDatasets" in "specification_datasets.py"
 | instance variable | variable type | content |
 | -------- | -------- | -------- |
 | **`self.dir_lammpstrj`** | str | Directory for target lammpstrj files. |
@@ -47,7 +47,7 @@ Analyses are conducted through two steps: the conversion of lammpstrj files into
 
 ## Example
 
-We would introduce a example procedure for analyses and visualization  as a gateway of the hacking of analysis programs.
+We would introduce an example procedure for analyses and visualization  as a gateway of the hacking of analysis programs.
 
 #### Programs and data
 
