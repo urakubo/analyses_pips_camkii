@@ -1,7 +1,6 @@
 # Outputs
 *.pdf
 *.mp4
-*.txt
 *.lammpstrj
 *.pickle
 
