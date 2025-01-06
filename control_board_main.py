@@ -17,15 +17,20 @@ from bin.conc_dependence1_calc_connectivity_plot_phase_diagram import \
 	PlotPhaseDiagramConcDependence
 
 
-
-obj = EditConnectivityGraph()
-#obj.conc_dependence()
-obj.conc_dependence_033()
+obj = Plot3dPyvista()
+#obj.boundary_conditions2() #  conc_dependence_merged(), valency_length(), CG_valency_length(), boundary_conditions2()
+obj.boundary_conditions2()
 obj.run()
 
 
 
 '''
+
+
+obj = EditConnectivityGraph()
+#obj.conc_dependence()
+obj.conc_dependence_033()
+obj.run()
 
 obj = PlotProfiles()
 obj.CG_valency_length_only_local_move(frap = True)

@@ -393,9 +393,6 @@ class SpecDatasets():
 		self.filenames_lammpstrj  = [self.filename_lammpstrj_matrix(v,l) for v in self.valencies for l in self.lengths]
 		self.filenames_edited     = [self.filename_edited_matrix(v,l) for v in self.valencies for l in self.lengths]
 		self.set_frames_before_after = [self.set_frames_before_after_photobleach(v, l) for v in self.valencies for l in self.lengths]
-<<<<<<< Updated upstream
-		
-=======
 		
 		
 	def conc_dependence( self ):
@@ -467,5 +464,3 @@ class SpecDatasets():
 		dir_target  = 'conc_dependence_merged'
 		self._set_directories( 4, dir_target )
 		
-
->>>>>>> Stashed changes

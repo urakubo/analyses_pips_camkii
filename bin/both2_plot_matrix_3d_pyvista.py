@@ -1,5 +1,5 @@
 
-import os, glob, pickle, pprint, copy
+import os, sys, glob, pickle, pprint, copy
 import numpy as np
 import pyvista
 
@@ -12,11 +12,11 @@ from specification_datasets import SpecDatasets
 
 class PlotMatrixPyvista(SpecDatasets):
 	def __init__( self ):
-		pass
+		self.suffix = 'sigma_2'
 		
 	def run(self, non_rotated = False): 
 		
-		if self.sub == True:
+		if hasattr( self, 'sub') and self.sub == True:
 			filename  = 'matrix_pyvista_sub.png'
 		else:
 			filename  = 'matrix_pyvista_all.png'
@@ -24,15 +24,17 @@ class PlotMatrixPyvista(SpecDatasets):
 		if hasattr( self, 'valencies') and ( self, 'lengths'):
 			rows		= self.valencies
 			columns		= self.lengths
+			print('valencies and lengths')
 		elif hasattr( self, 'stgs') and ( self, 'glun2bs'):
 			rows		= self.glun2bs
-			columns		= self.stgs 
+			columns		= self.stgs
+			print('rows and columns')
 		else:
-			ValueError("Neither conc_dependence nor valnency_length.")
+			print("Neither conc_dependence nor valnency_length.")
+			sys.exit(1)
 		
 		num_rows		= len( rows )
 		num_columns		= len( columns )
-		suffix = 'sigma_2'
 		
 		
 		pl = pyvista.Plotter(window_size=[1500,1500], \
@@ -43,7 +45,7 @@ class PlotMatrixPyvista(SpecDatasets):
 			for j, row in enumerate( rows ):
 				# Load data
 				filename_edited_prefix = self.filename_edited_matrix(row, column)
-				d      = utils.load(self.dir_edited_data, filename_edited_prefix, suffix)
+				d      = utils.load(self.dir_edited_data, filename_edited_prefix, self.suffix)
 				print('Target: ', filename_edited_prefix)
 				pl.subplot(num_rows-j-1, i)
 				if non_rotated == True:

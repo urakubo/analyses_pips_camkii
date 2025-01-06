@@ -44,8 +44,8 @@ def save_a_plot(d, dir_img, prefix, suffix):
 class Plot3dPyvista(SpecDatasets):
 	def __init__( self ):
 		
+		self.suffix = 'sigma_2'
 		pass
-		
 		
 	def run( self ):
 		
@@ -62,9 +62,9 @@ class Plot3dPyvista(SpecDatasets):
 		# Load data
 		print('Target: ', filename)
 		prefix = filename
-		suffix = ''
-		d      = utils.load(self.dir_edited_data, prefix, suffix)
-		save_a_plot(d, self.dir_imgs, prefix, suffix)
+
+		d      = utils.load(self.dir_edited_data, prefix, self.suffix)
+		save_a_plot(d, self.dir_imgs, prefix, self.suffix)
 	
 	
 if __name__ == '__main__':

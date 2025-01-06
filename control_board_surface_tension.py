@@ -66,7 +66,7 @@ obj = Plot3dOvitoConnectivity()
 obj.CG_valency_length()
 obj.inspect()
 #obj.plot_an_image(37, mode = 'CaMKII_hub_beads') # 37, 41
-obj.plot_an_image( 34) # 31, 34 # , mode = 'CaMKII_hub_beads'
+obj.plot_an_image(34) # 31, 34 # , mode = 'CaMKII_hub_beads'
 
 
 obj = EditData()
