@@ -167,7 +167,7 @@ def plot_a_panel_log(ax, oZ, x, y, colormap, levels, draw_border = False, ticks_
 	return cs, cb
 	
 	
-def plot_a_panel_overlay(ax, oZ, x, y, colormap, levels, \
+def plot_a_panel_overlay(ax, oZ, x, y, colormap, levels, draw_border = True, \
 	mx_min = 0.0, my_min = 1.0, mx_max = None, my_max = None, margin = 0.05 ):
 	
 	
@@ -199,9 +199,11 @@ def plot_a_panel_overlay(ax, oZ, x, y, colormap, levels, \
 	print('y ', y)
 	
 	mZ = make_grid_using_RegularGridInterpolator(x, y, oZ, mX, mY)
-	ax.contour( mX, mY, mZ, levels=levels, colors='k', zorder = 3)
+	if draw_border == True:
+		ax.contour( mX, mY, mZ, levels=levels, colors='k', zorder = 3)
 	mZ[mZ < 0.5] = np.nan
 	ax.contourf(mX, mY, mZ, levels=levels, cmap=colormap, zorder = 2) 
+	
 	
 	ids_target = oz > 0
 	ax.scatter(ox[ids_target], oy[ids_target], c=oz[ids_target], \

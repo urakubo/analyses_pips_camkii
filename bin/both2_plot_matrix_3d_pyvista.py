@@ -28,7 +28,7 @@ class PlotMatrixPyvista(SpecDatasets):
 		elif hasattr( self, 'stgs') and ( self, 'glun2bs'):
 			rows		= self.glun2bs
 			columns		= self.stgs
-			print('rows and columns')
+			print('glun2b and stg-conc dependence')
 		else:
 			print("Neither conc_dependence nor valnency_length.")
 			sys.exit(1)
