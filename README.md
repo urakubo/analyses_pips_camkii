@@ -1,12 +1,13 @@
 ![System requirements](https://img.shields.io/badge/python-3.8-red.svg)
 ![System requirements](https://img.shields.io/badge/platform-win%2064,%20linux%2064-green.svg)
 [![License: GPL v3](https://img.shields.io/badge/license-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![DOI](https://sandbox.zenodo.org/badge/750598367.svg)](https://handle.stage.datacite.org/10.5072/zenodo.176595)
 
-# Analysis code for "the role of protein shape in multiphasic separation within condensates"
+# Analysis code and dataset for "the role of protein shape in multiphasic separation within condensates"
 The GitHub repository contains analysis programs for the study "the role of protein shape in multiphasic separation within condensates" by Pandey et al. [1].
-All programs were written in Python3.8 (Windows) and designed for the analyses of output from LASSI simulation engine [2].
+All programs were written in Python3.8 (Windows) and designed for the analyses of output from the LASSI simulation engine [2].
 
-[1] https://www.biorxiv.org/content/10.1101/2024.08.26.606306v1
+[1] Pandey et al., 2025, Cell Reports
 
 [2] https://github.com/Pappulab/LASSI
 
