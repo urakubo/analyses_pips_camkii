@@ -1,0 +1,49 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: >-
+  Analysis code for 'Multiphasic condensation of proteins
+  governed by the molecular shape and valency'
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Vikas
+    family-names: Pandey
+    orcid: 'https://orcid.org/0000-0002-6224-1040'
+    affiliation: >-
+      Department of Biomedical Data Science, Fujita Health
+      University School of Medicine
+  - given-names: Tomohisa
+    family-names: Hosokawa
+    affiliation: >-
+      Department of Pharmacology, Kyoto University Graduate
+      School of Medicine
+    orcid: 'https://orcid.org/0000-0001-7522-6141'
+  - given-names: Yasunori
+    family-names: Hayashi
+    affiliation: >-
+      Department of Pharmacology, Kyoto University Graduate
+      School of Medicine
+    orcid: 'https://orcid.org/0000-0002-7560-3004'
+  - affiliation: >-
+      Department of Biomedical Data Science, Fujita Health
+      University School of Medicine
+    orcid: 'https://orcid.org/0000-0002-1816-0040'
+    email: hurakubo@gmail.com
+    family-names: urakubo
+    given-names: Hidetoshi
+repository-code: 'https://github.com/urakubo/analyses_pips_camkii'
+abstract: >-
+  Analysis code for Pandey et al. published in Cell Reports,
+  2025. The original code is available and maintained at <a
+  href=\"https://github.com/urakubo/analyses_pips_camkii\">https://github.com/urakubo/analyses_pips_camkii</a>.
+keywords:
+  - liquid–liquid phase separation
+  - CaMKII
+  - Monte Carlo simulation
+  - synaptic plasticity
+license: GPL-3.0
+date-released: '2025-03-06'
