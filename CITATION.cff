@@ -3,8 +3,7 @@
 
 cff-version: 1.2.0
 title: >-
-  Analysis code for 'Multiphasic condensation of proteins
-  governed by the molecular shape and valency'
+  Analysis code and dataset for 'multiphasic protein condensation governed by shape and valency'
 message: >-
   If you use this software, please cite it using the
   metadata from this file.
@@ -37,7 +36,7 @@ authors:
     given-names: Hidetoshi
 repository-code: 'https://github.com/urakubo/analyses_pips_camkii'
 abstract: >-
-  Analysis code for Pandey et al. published in Cell Reports,
+  Analysis code and dataset for Pandey et al. published in Cell Reports,
   2025. The original code is available and maintained at <a
   href=\"https://github.com/urakubo/analyses_pips_camkii\">https://github.com/urakubo/analyses_pips_camkii</a>.
 keywords:
